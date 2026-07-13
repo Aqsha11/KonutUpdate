@@ -1,0 +1,27 @@
+{
+  "name": "Konut.Update - Portal Berita Konawe Utara",
+  "short_name": "Konut.Update",
+  "description": "Portal berita terkini Konawe Utara. Informasi cepat dan terpercaya dari Konawe Utara, Sulawesi Tenggara.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0F172A",
+  "theme_color": "#189B39",
+  "categories": ["news", "local"],
+  "lang": "id-ID",
+  "dir": "ltr",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Berita Terbaru",
+      "short_name": "Terbaru",
+      "description": "Lihat berita terbaru",
+      "url": "/search"
+    }
+  ]
+}
