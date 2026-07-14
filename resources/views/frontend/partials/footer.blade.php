@@ -13,7 +13,7 @@
             <div class="lg:col-span-1">
                 <a href="{{ url('/') }}" class="inline-block mb-4 no-underline">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-14 w-auto object-contain brightness-0 invert">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-14 w-auto object-contain">
                     @else
                         <span class="text-xl font-extrabold">
                             <span class="text-primary-fixed-dim">KONUT</span><span class="text-accent-fixed-dim">UPDATE</span>

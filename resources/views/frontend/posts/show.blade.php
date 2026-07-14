@@ -174,13 +174,11 @@
                 @if(isset($articleAds) && $articleAds->count() > 0)
                     <div class="article-ad-wrap">
                         @foreach($articleAds as $ad)
-                        <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="article-ad-card group">
-                            <div class="article-ad-image">
-                                <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" loading="lazy">
-                            </div>
-                            <div class="article-ad-body">
-                                <p class="article-ad-title">{{ $ad->title }}</p>
-                                <p class="article-ad-label">Iklan</p>
+                        <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="article-ad-banner group">
+                            <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" loading="lazy">
+                            <div class="article-ad-overlay">
+                                <span class="article-ad-title">{{ $ad->title }}</span>
+                                <span class="article-ad-label">Iklan</span>
                             </div>
                         </a>
                         @endforeach
