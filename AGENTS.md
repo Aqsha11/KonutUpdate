@@ -1,69 +1,65 @@
-# AGENTS.md — Konut.Update (Laravel 12)
+# AGENTS.md — Konut.Update
 
-News portal for Konawe Utara. Uses **both** Tailwind CSS v4 (frontend) and Bootstrap 5 (admin panel).
+## Project
 
-## Commands
+Laravel 12 news portal (PHP 8.3+, MySQL/PostgreSQL). Deploys to Render (`render.yaml`).
 
-| Command | What it does |
-|---|---|
-| `composer run test` | `php artisan config:clear && php artisan test` |
-| `composer run dev` | `artisan serve`, `queue:listen`, `pail`, `npm run dev` via concurrently |
-| `composer run setup` | Full bootstrap: install, `.env` copy, `key:generate`, `migrate`, `npm i && npm run build` |
-| `npm run dev` | Vite dev server only |
-| `npm run build` | `vite build` |
-| `php artisan migrate` | Run migrations (SQLite) |
-| `php artisan test --filter=ExampleTest` | Single test class |
-| `vendor/bin/phpunit tests/Unit/ExampleTest.php` | Run one file |
-| `./vendor/bin/pint` | Format PHP with Laravel Pint |
+- **Stack**: Laravel 12 + Livewire 4 + Tailwind CSS v4 + Bootstrap 5 (admin) + CKEditor 5 + DataTables + Alpine.js
+- **Database**: MySQL (local dev), PostgreSQL (Render production). SQLite in-memory for tests.
+- **Entry point**: `resources/views/frontend/` (public) and `resources/views/admin/` (CMS)
 
-## Code style
+## Key Commands
 
-- **Laravel Pint** (default config) for PHP
-- `.editorconfig`: 4-space indent, LF, UTF-8
-- Post model uses `SoftDeletes`, status field: `published` / `draft`
+```bash
+composer setup          # full setup: install, env, migrate, npm, build
+composer dev            # runs artisan serve + queue + pail + vite concurrently
+composer test           # clear config cache then php artisan test
+php artisan migrate --force
+php artisan db:seed     # runs all seeders
+```
 
-## Testing
+## Structure
 
-- `phpunit.xml` forces `APP_ENV=testing`, `DB_CONNECTION=sqlite` + `:memory:`, `CACHE_STORE=array`, `QUEUE_CONNECTION=sync`, `SESSION_DRIVER=array`
-- Unit tests: `PHPUnit\Framework\TestCase`; Feature tests: `Tests\TestCase`
-- No `RefreshDatabase` trait by default in Feature tests — add manually
-- No seeder-based test deps; factory data per test
+- `app/Http/Controllers/Frontend/` — public routes (Home, Post, Category, Tag, Search, Page)
+- `app/Http/Controllers/Admin/` — CMS routes (Dashboard, Post, Category, Tag, User, Role, Permission, Setting, Ad, Page, Profile)
+- `app/Http/Controllers/Auth/LoginController` — single auth controller
+- `app/Http/Middleware/AdminMiddleware.php` — checks role slug ∈ {super_admin, editor, reporter}
+- `app/Http/Middleware/RoleMiddleware.php` — parameterized `role:super_admin` etc.
+- `app/Models/` — User, Post, Category, Tag, Role, Permission, Setting, PageView, Ad, Page
+- `app/Services/HtmlSanitizer.php` — whitelist-based HTML sanitizer for CKEditor output
+- `app/Helpers/helpers.php` — `setting()`, `clearSettingCache()`, `formatDate()`, `readTime()`, share link generators
+- `app/Jobs/RecordViewJob.php` — queued page view tracking (IP anonymized)
+- `database/migrations/` — 16 migrations (users, roles, categories, tags, posts, post_tag, settings, page_views, permissions, pages, ads, type+video on posts)
 
-## Database
+## Frontend Details
 
-- **SQLite** for local and test (`.env` has `DB_CONNECTION=sqlite`)
-- Session and queue use `database` driver in production; cache uses `file`
-- Local SQLite file: `database/database.sqlite`
+- **Vite entry points**: `resources/css/app.css`, `resources/css/admin.css`, `resources/js/app.js`, `resources/js/admin.js`
+- `resources/css/app.css` — Tailwind v4 + custom theme (green primary, orange accent, Material Design tokens)
+- `resources/js/app.js` — Alpine.js + Lucide icons + toast system + scroll reveal + infinite scroll + reading progress
+- Brand: green (#189B39) primary, orange (#F58220) accent
+- Indonesian locale: dates via `Carbon::locale('id')`, UI text in Bahasa Indonesia
 
-## Frontend
+## Caching
 
-- **Tailwind CSS v4** — no `tailwind.config.js`; `@import 'tailwindcss'` in `resources/css/app.css` with `@theme` block
-- **Vite** entry points: `resources/css/{app.css,admin.css}` + `resources/js/{app.js,admin.js}`
-- Frontend: **Alpine.js 3** + Tailwind + Lucide icons + Font Awesome brands
-- Admin: **Bootstrap 5** + jQuery + DataTables + CKEditor 5 + Font Awesome + Bootstrap Icons
-- Axios bound to `window.axios` in `resources/js/bootstrap.js`
-- Infinite scroll via `IntersectionObserver` (`resources/js/app.js`)
-- Dark mode: `x-data` on `<html>` + `localStorage`, class toggling
-- CKEditor uploads images to `/admin/posts/upload-image` via custom upload adapter (`resources/js/admin.js`)
+`AppServiceProvider` caches and injects into all views: `site_settings`, `frontend_categories`, `trending_posts`, `breaking_news`, sidebar/in-article ads. Cache keys: `site_settings`, `frontend_categories`, `trending_posts`, `breaking_news`, `sidebar_ads_top`, `sidebar_ads_bottom`, `in_article_ads`, `frontend_pages`, `setting_{key}`.
 
-## Architecture
+Run `clearSettingCache()` after changing settings to invalidate.
 
-### Routes (`routes/web.php`)
-- Frontend: `/`, `/berita/{slug}`, `/kategori/{slug}`, `/tag/{slug}`, `/search`, `/tentang-kami`, `/pedoman-media-siber`, `/privacy-policy`, `/p/{slug}`
-- Ad click tracking: `/iklan/{ad}` — increments click count and redirects
-- SEO: `/robots.txt` (literal), `/sitemap.xml` (view)
-- Auth: `/login` (custom `Auth\LoginController`, no Breeze/Jetstream)
-- Admin: `prefix /admin`, middleware `['auth', 'admin']`, resource controllers for posts, categories, tags, pages, roles, permissions, users, ads
-- Admin settings: `/admin/settings` (GET + PUT)
-- Admin profile: `/admin/profile` (GET + PUT)
-- User management under `/admin/users` requires `role:super_admin` middleware
+## Auth & Roles
 
-### Key files
-- `docs/project-plan.md` — full project plan (554 lines)
-- `app/Helpers/helpers.php` — `setting($key, $default)` cached with `Cache::rememberForever`; `clearSettingCache($key?)`
-- `app/Services/HtmlSanitizer.php` — CKEditor HTML output sanitizer
-- `app/Http/Controllers/` — separate `Frontend/` and `Admin/` namespaces; all controller-based
-- Custom theme colors: `--color-primary: #189B39`, `--color-accent: #F58220`
+- Middleware aliases registered in `bootstrap/app.php`: `admin` → `AdminMiddleware`, `role` → `RoleMiddleware`
+- Admin routes require `auth` + `admin` middleware
+- User management (`/admin/users`) additionally requires `role:super_admin`
+- Role slugs: `super_admin`, `editor`, `reporter`
 
-### Post model scopes
-`published()`, `draft()`, `featured()`, `breaking()`, `popular($minViews)`, `bySlug($slug)`
+## Deploy
+
+Render blueprint: `render.yaml`. Production uses PostgreSQL. Build: `composer install --no-dev && npm ci && npm run build && migrate && seed (CategorySeeder, PageSeeder) && storage:link`.
+
+## Tests
+
+PHPUnit 11 with SQLite `:memory:`. Run: `composer test`.
+
+## Git Remote
+
+`origin` → `https://github.com/Aqsha11/KonutUpdate.git`
