@@ -25,71 +25,71 @@
             <i data-lucide="chevron-right" class="w-3 h-3"></i>
             <span class="text-on-surface font-semibold">Kebijakan Privasi</span>
         </nav>
-        <h1 class="text-2xl md:text-3xl font-extrabold text-on-surface">Kebijakan Privasi</h1>
-        <p class="text-on-surface-variant text-sm mt-1.5">Bagaimana {{ $site_settings['site_name'] ?? 'Konut.Update' }} melindungi data Anda</p>
+    </div>
+
+    {{-- Hero --}}
+    <div class="relative bg-gradient-to-br from-primary/90 via-primary to-primary-dark rounded-2xl overflow-hidden mb-8">
+        <div class="absolute inset-0 opacity-10">
+            <svg class="w-full h-full" viewBox="0 0 400 200"><circle cx="350" cy="50" r="120" fill="white"/><circle cx="50" cy="180" r="80" fill="white"/></svg>
+        </div>
+        <div class="relative px-8 py-12 md:px-12 md:py-16 text-center">
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-5">
+                <i data-lucide="shield" class="w-8 h-8 text-white"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3">Kebijakan Privasi</h1>
+            <p class="text-white/80 text-lg max-w-xl mx-auto">Bagaimana {{ $site_settings['site_name'] ?? 'Konut.Update' }} melindungi data Anda</p>
+        </div>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
-        <div class="lg:w-[68%]">
-            <div class="bg-surface rounded-2xl shadow-sm border border-outline p-6 md:p-8 lg:p-10 text-on-surface-variant leading-relaxed">
-                <p class="mb-6">Kebijakan Privasi ini menjelaskan bagaimana {{ $site_settings['site_name'] ?? 'Konut.Update' }} mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat menggunakan layanan kami.</p>
+        <div class="lg:w-[68%] space-y-6">
 
-                @php
-                    $sections = [
-                        '1. Informasi yang Kami Kumpulkan' => [
-                            '<strong>Informasi yang Anda berikan:</strong> Nama, alamat email, dan informasi lainnya saat Anda mengisi formulir kontak, berlangganan newsletter, atau memberikan komentar.',
-                            '<strong>Informasi otomatis:</strong> Alamat IP, jenis browser, halaman yang dikunjungi, waktu akses, dan data demografis lainnya.',
-                            '<strong>Cookie:</strong> Kami menggunakan cookie untuk meningkatkan pengalaman browsing Anda.',
-                        ],
-                        '2. Penggunaan Informasi' => [
-                            'Menyediakan dan memelihara layanan portal berita.',
-                            'Mengirimkan newsletter dan update berita (dengan persetujuan Anda).',
-                            'Menjawab pertanyaan dan menanggapi permintaan Anda.',
-                            'Menganalisis penggunaan situs untuk meningkatkan kualitas konten dan layanan.',
-                            'Menyesuaikan konten dan iklan yang ditampilkan kepada Anda.',
-                        ],
-                        '3. Perlindungan Data' => [
-                            'Kami menerapkan langkah-langkah keamanan teknis dan organisasi yang tepat untuk melindungi informasi pribadi Anda dari akses tidak sah, perubahan, pengungkapan, atau penghancuran.',
-                        ],
-                        '4. Pengungkapan kepada Pihak Ketiga' => [
-                            'Kami tidak menjual, memperdagangkan, atau mentransfer informasi pribadi Anda kepada pihak ketiga tanpa persetujuan Anda, kecuali diwajibkan oleh hukum.',
-                        ],
-                        '5. Cookie' => [
-                            'Cookie esensial: Diperlukan untuk fungsi dasar situs.',
-                            'Cookie analitik: Membantu kami memahami bagaimana pengunjung berinteraksi dengan situs.',
-                            'Cookie fungsional: Mengingat preferensi Anda untuk pengalaman yang lebih personal.',
-                        ],
-                        '6. Hak Anda' => [
-                            'Anda memiliki hak untuk mengakses, memperbaiki, atau menghapus data pribadi Anda. Anda juga dapat menolak pemrosesan data dan menarik persetujuan kapan saja.',
-                        ],
-                        '7. Perubahan Kebijakan' => [
-                            'Kebijakan privasi ini dapat diperbarui dari waktu ke waktu. Perubahan akan diumumkan melalui situs kami.',
-                        ],
-                    ];
-                @endphp
+            @php
+                $sections = [
+                    ['icon' => 'info', 'title' => 'Pendahuluan', 'desc' => 'Selamat datang di ' . ($site_settings['site_name'] ?? 'Konut.Update') . '. Kami menghargai privasi setiap pengunjung dan berkomitmen melindungi informasi yang Anda berikan saat mengakses platform kami.'],
+                    ['icon' => 'database', 'title' => '1. Informasi yang Kami Kumpulkan', 'desc' => 'Kami dapat mengumpulkan informasi seperti nama, alamat email, atau data lain yang Anda berikan secara sukarela saat menghubungi kami, mengirimkan informasi, atau berinteraksi melalui platform ' . ($site_settings['site_name'] ?? 'Konut.Update') . '.'],
+                    ['icon' => 'settings', 'title' => '2. Penggunaan Informasi', 'list' => ['Menyediakan dan meningkatkan layanan.', 'Menanggapi pertanyaan atau masukan dari pengguna.', 'Mengembangkan kualitas konten dan pengalaman pengguna.', 'Memenuhi ketentuan hukum yang berlaku.']],
+                    ['icon' => 'shield-check', 'title' => '3. Perlindungan Data', 'desc' => 'Kami berupaya menjaga keamanan informasi pengguna dengan langkah-langkah yang wajar untuk mencegah akses, penggunaan, atau pengungkapan yang tidak sah.'],
+                    ['icon' => 'cookie', 'title' => '4. Cookie', 'desc' => 'Platform kami dapat menggunakan cookie untuk meningkatkan pengalaman pengguna. Anda dapat mengatur browser untuk menolak penggunaan cookie, namun beberapa fitur mungkin tidak berfungsi secara optimal.'],
+                    ['icon' => 'external-link', 'title' => '5. Tautan ke Situs Lain', 'desc' => ($site_settings['site_name'] ?? 'Konut.Update') . ' dapat memuat tautan ke situs pihak ketiga. Kami tidak bertanggung jawab atas isi maupun kebijakan privasi situs tersebut.'],
+                    ['icon' => 'refresh-cw', 'title' => '6. Perubahan Kebijakan', 'desc' => 'Kebijakan Privasi ini dapat diperbarui sewaktu-waktu. Setiap perubahan akan dipublikasikan pada halaman ini.'],
+                    ['icon' => 'mail', 'title' => '7. Hubungi Kami', 'desc' => 'Apabila Anda memiliki pertanyaan mengenai Kebijakan Privasi ini, silakan menghubungi tim ' . ($site_settings['site_name'] ?? 'Konut.Update') . ' melalui alamat email atau media sosial resmi yang tersedia.', 'isContact' => true],
+                ];
+            @endphp
 
-                @foreach($sections as $title => $items)
-                    <h4 class="text-lg font-bold text-on-surface mt-6 mb-3">{{ $title }}</h4>
-                    @if(count($items) === 1)
-                        <p class="mb-4">{!! $items[0] !!}</p>
-                    @else
-                        <ul class="list-disc pl-5 mb-6 space-y-1.5">
-                            @foreach($items as $item)
-                                <li>{!! $item !!}</li>
+            @foreach($sections as $section)
+                <div class="bg-surface rounded-2xl shadow-sm border border-outline p-6 md:p-8">
+                    <div class="flex items-center gap-3 mb-5">
+                        <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                            <i data-lucide="{{ $section['icon'] }}" class="w-5 h-5 text-primary"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-on-surface">{{ $section['title'] }}</h2>
+                    </div>
+                    @if(!empty($section['desc']))
+                        <p class="text-on-surface-variant leading-relaxed">{{ $section['desc'] }}</p>
+                    @endif
+                    @if(!empty($section['list']))
+                        <ul class="space-y-3 mt-1">
+                            @foreach($section['list'] as $item)
+                                <li class="flex items-start gap-3">
+                                    <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                                        <i data-lucide="check" class="w-3 h-3 text-primary"></i>
+                                    </div>
+                                    <span class="text-on-surface-variant leading-relaxed">{{ $item }}</span>
+                                </li>
                             @endforeach
                         </ul>
                     @endif
-                @endforeach
-
-                <hr class="border-outline my-6">
-
-                <h4 class="text-lg font-bold text-on-surface mt-6 mb-3 flex items-center gap-2">
-                    <i data-lucide="mail" class="w-5 h-5 text-primary"></i>
-                    Kontak
-                </h4>
-                <p>Email: <a href="mailto:{{ !empty($site_settings['email']) ? $site_settings['email'] : 'redaksi@konut.update' }}" class="text-primary no-underline hover:underline">{{ !empty($site_settings['email']) ? $site_settings['email'] : 'redaksi@konut.update' }}</a></p>
-            </div>
+                    @if(!empty($section['isContact']) && !empty($site_settings['email']))
+                        <a href="mailto:{{ $site_settings['email'] }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-semibold no-underline hover:opacity-90 transition-opacity mt-4">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            {{ $site_settings['email'] }}
+                        </a>
+                    @endif
+                </div>
+            @endforeach
         </div>
+
         <div class="lg:w-[32%]">
             <div class="lg:sticky lg:top-24 space-y-6">
                 @include('frontend.partials.sidebar')

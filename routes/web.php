@@ -39,6 +39,7 @@ Route::post('/berita/{post}/komentar', [CommentController::class, 'store'])->nam
 Route::get('/tentang-kami', [PageController::class, 'about'])->name('pages.about');
 Route::get('/pedoman-media-siber', [PageController::class, 'pedoman'])->name('pages.pedoman');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
+Route::get('/kontak', [PageController::class, 'kontak'])->name('pages.kontak');
 Route::get('/p/{slug}', [PageController::class, 'show'])->name('pages.show');
 
 // Auth Routes (Laravel built-in)

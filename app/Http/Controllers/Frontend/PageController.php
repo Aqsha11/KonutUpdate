@@ -51,4 +51,9 @@ class PageController extends Controller
 
         return view('frontend.pages.privacy');
     }
+
+    public function kontak()
+    {
+        return view('frontend.pages.kontak');
+    }
 }
