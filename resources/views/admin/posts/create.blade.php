@@ -87,14 +87,29 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="category_id" class="form-label">Kategori <span class="required">*</span></label>
-                    <select name="category_id" id="category_id" class="form-select @error('category_id') is-invalid @enderror">
-                        <option value="">-- Pilih Kategori --</option>
+                    <label class="form-label">Kategori <span class="required">*</span> <small class="text-muted">(Maks 3)</small></label>
+                    <div class="border rounded p-3 @error('category_ids') border-danger @enderror" style="max-height:200px;overflow-y:auto;">
                         @foreach($categories as $category)
-                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                        <div class="form-check mb-1">
+                            <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" id="cat_{{ $category->id }}" class="form-check-input category-checkbox" {{ in_array($category->id, old('category_ids', [])) ? 'checked' : '' }}>
+                            <label for="cat_{{ $category->id }}" class="form-check-label">{{ $category->name }}</label>
+                        </div>
+                        @endforeach
+                    </div>
+                    <input type="hidden" name="category_id" value="{{ old('category_id') }}">
+                    @error('category_ids')
+                    <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="kecamatan_id" class="form-label">Kecamatan</label>
+                    <select name="kecamatan_id" id="kecamatan_id" class="form-select @error('kecamatan_id') is-invalid @enderror">
+                        <option value="">-- Pilih Kecamatan --</option>
+                        @foreach($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->id }}" {{ old('kecamatan_id') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->name }}{{ $kecamatan->description ? ' (' . $kecamatan->description . ')' : '' }}</option>
                         @endforeach
                     </select>
-                    @error('category_id')
+                    @error('kecamatan_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -202,6 +217,16 @@
             info.innerHTML = '<i class="bi bi-film"></i> ' + file.name + ' <span class="text-muted">(' + size + ' MB)</span>';
             preview.appendChild(info);
         }
+    });
+
+    document.querySelectorAll('.category-checkbox').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            var checked = document.querySelectorAll('.category-checkbox:checked');
+            if (checked.length > 3) {
+                this.checked = false;
+                alert('Maksimal 3 kategori saja.');
+            }
+        });
     });
 </script>
 @endpush

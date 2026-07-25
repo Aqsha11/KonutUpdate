@@ -52,14 +52,14 @@
         @endif
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+    <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
         <div class="lg:w-[68%]">
             @if(isset($posts) && $posts->count() > 0)
                 <div class="space-y-4">
                     @foreach($posts as $post)
-                        <article class="flex flex-col sm:flex-row gap-5 bg-surface rounded-2xl p-4 card-hover border border-outline/50 group">
+                        <article class="flex flex-col sm:flex-row gap-3 sm:gap-5 bg-surface rounded-xl sm:rounded-2xl p-3 sm:p-4 card-hover border border-outline/50 group">
                             <a href="{{ route('posts.show', $post->slug) }}" class="sm:w-[200px] shrink-0">
-                                <div class="aspect-video sm:aspect-[4/3] rounded-xl overflow-hidden img-zoom bg-surface-container-low relative">
+                                <div class="aspect-video sm:aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden img-zoom bg-surface-container-low relative">
                                     <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
                                     @if($post->type === 'video')
                                         <div class="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -71,7 +71,14 @@
                                 </div>
                             </a>
                             <div class="flex-1 flex flex-col justify-center min-w-0">
-                                @if($post->category)
+                                @if($post->categories->count() > 0)
+                                    @foreach($post->categories as $cat)
+                                        <a href="{{ route('categories.show', $cat->slug) }}" class="text-[10px] font-bold text-primary uppercase tracking-wider no-underline hover:underline">{{ $cat->name }}</a>
+                                        @if(! $loop->last)
+                                            <span class="text-on-surface-variant"> / </span>
+                                        @endif
+                                    @endforeach
+                                @elseif($post->category)
                                     <a href="{{ route('categories.show', $post->category->slug) }}" class="text-[10px] font-bold text-primary uppercase tracking-wider no-underline hover:underline">{{ $post->category->name }}</a>
                                 @endif
                                 <h3 class="text-base md:text-lg font-bold text-on-surface mt-1 leading-snug">
@@ -106,7 +113,7 @@
                 </div>
             @endif
         </div>
-        <div class="lg:w-[32%]">
+        <div class="hidden lg:block lg:w-[32%]">
             <div class="lg:sticky lg:top-24 space-y-6">
                 @include('frontend.partials.sidebar')
             </div>

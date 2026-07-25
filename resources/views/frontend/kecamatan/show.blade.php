@@ -1,35 +1,25 @@
 @extends('frontend.layouts.app')
 
-@section('title', $category->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Kec. ' . $kecamatan->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
     @php
-        $catDesc = $category->description ?: 'Kumpulan berita ' . $category->name . ' terbaru dan terpercaya dari Konut.Update - Portal Berita Konawe Utara';
-        $catKeywords = $category->name . ', berita ' . $category->name . ', Konut.Update, Konawe Utara, berita';
+        $desc = $kecamatan->description ? 'Berita terkini Kecamatan ' . $kecamatan->name . ' - ' . $kecamatan->description : 'Kumpulan berita Kecamatan ' . $kecamatan->name . ' terbaru dari Konut.Update';
+        $kw = 'berita ' . $kecamatan->name . ', Kecamatan ' . $kecamatan->name . ', Konawe Utara, Konut.Update';
     @endphp
-    <meta name="description" content="{{ $catDesc }}">
-    <meta name="keywords" content="{{ $catKeywords }}">
-    <link rel="canonical" href="{{ route('categories.show', $category->slug) }}" />
-    {{-- Open Graph --}}
-    <meta property="og:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="{{ $catDesc }}" />
+    <meta name="description" content="{{ $desc }}">
+    <meta name="keywords" content="{{ $kw }}">
+    <link rel="canonical" href="{{ route('kecamatan.show', $kecamatan->slug) }}" />
+    <meta property="og:title" content="Kec. {{ $kecamatan->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:description" content="{{ $desc }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ route('categories.show', $category->slug) }}" />
+    <meta property="og:url" content="{{ route('kecamatan.show', $kecamatan->slug) }}" />
     <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:locale" content="id_ID" />
     @if(!empty($site_settings['logo']))
         <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    @endif
-    {{-- Twitter Card --}}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta name="twitter:description" content="{{ $catDesc }}" />
-    @if(!empty($site_settings['logo']))
-        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-        <meta name="twitter:image:alt" content="{{ $category->name }}" />
     @endif
     <script type="application/ld+json">
     {
@@ -45,8 +35,8 @@
             {
                 "@@type": "ListItem",
                 "position": 2,
-                "name": "{{ $category->name }}",
-                "item": "{{ route('categories.show', $category->slug) }}"
+                "name": "Kec. {{ $kecamatan->name }}",
+                "item": "{{ route('kecamatan.show', $kecamatan->slug) }}"
             }
         ]
     }
@@ -59,20 +49,21 @@
 @endphp
 
 @section('content')
-    {{-- Breadcrumb --}}
     <div class="mb-6">
         <nav class="flex items-center gap-1.5 text-xs text-on-surface-variant mb-3">
             <a href="{{ url('/') }}" class="no-underline text-on-surface-variant hover:text-primary">Beranda</a>
             <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            <span class="text-on-surface font-semibold">{{ $category->name }}</span>
+            <span class="text-on-surface font-semibold">{{ $kecamatan->name }}</span>
         </nav>
-        <h1 class="text-2xl md:text-3xl font-extrabold text-on-surface">{{ $category->name }}</h1>
-        @if($category->description)
-            <p class="text-on-surface-variant text-sm mt-1.5">{{ $category->description }}</p>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-on-surface">
+            <i data-lucide="map-pin" class="w-6 h-6 inline text-primary mr-1 align-text-bottom"></i>
+            Kec. {{ $kecamatan->name }}
+        </h1>
+        @if($kecamatan->description)
+            <p class="text-on-surface-variant text-sm mt-1.5">{{ $kecamatan->description }}</p>
         @endif
     </div>
 
-    {{-- Hero --}}
     @if($heroMain)
     <section class="grid grid-cols-2 lg:grid-cols-12 gap-3 lg:gap-4 mb-6 lg:mb-8">
         <article class="col-span-2 lg:col-span-7 group">
@@ -92,7 +83,7 @@
                             @if($heroMain->isVideo())
                                 <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
                             @endif
-                            {{ $category->name }}
+                            Kec. {{ $kecamatan->name }}
                         </span>
                         <h2 class="text-xl md:text-2xl lg:text-3xl font-extrabold text-white leading-tight drop-shadow-lg">{{ $heroMain->title }}</h2>
                         <p class="text-white/80 text-sm line-clamp-2 hidden md:block mt-2 max-w-2xl">{{ $heroMain->excerpt ? strip_tags($heroMain->excerpt) : '' }}</p>
@@ -128,7 +119,6 @@
     </section>
     @endif
 
-    {{-- Content + Sidebar --}}
     <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
         <div class="lg:w-[68%]">
             @if($posts->count() > 0)
@@ -150,22 +140,11 @@
                             <div class="p-2.5 sm:p-3 lg:p-4">
                                 @if($post->categories->count() > 0)
                                     @foreach($post->categories as $cat)
-                                        <a href="{{ route('categories.show', $cat->slug) }}" class="text-[10px] font-bold text-primary uppercase tracking-wider no-underline hover:underline">
-                                            @if($post->isVideo())
-                                                <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                            @endif
-                                            {{ $cat->name }}</a>
+                                        <a href="{{ route('categories.show', $cat->slug) }}" class="text-[10px] font-bold text-primary uppercase tracking-wider no-underline hover:underline">{{ $cat->name }}</a>
                                         @if(! $loop->last)
                                             <span class="text-on-surface-variant"> / </span>
                                         @endif
                                     @endforeach
-                                @elseif($post->category)
-                                    <a href="{{ route('categories.show', $post->category->slug) }}" class="text-[10px] font-bold text-primary uppercase tracking-wider no-underline hover:underline">
-                                        @if($post->isVideo())
-                                            <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                        @endif
-                                        {{ $post->category->name }}
-                                    </a>
                                 @endif
                                 <h3 class="text-[13px] sm:text-base font-bold text-on-surface mt-1 sm:mt-1.5 leading-snug">
                                     <a href="{{ route('posts.show', $post->slug) }}" class="no-underline text-on-surface hover:text-primary transition-colors">{{ $post->title }}</a>
@@ -185,7 +164,7 @@
             @else
                 <div class="bg-surface rounded-2xl p-10 text-center text-on-surface-variant border border-outline">
                     <i data-lucide="info" class="w-8 h-8"></i>
-                    <p class="mt-2">Belum ada artikel dalam kategori ini.</p>
+                    <p class="mt-2">Belum ada berita dari Kecamatan {{ $kecamatan->name }}.</p>
                 </div>
             @endif
         </div>

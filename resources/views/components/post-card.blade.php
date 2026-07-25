@@ -9,7 +9,7 @@
     };
 @endphp
 
-<article {{ $attributes->merge(['class' => 'group bg-surface rounded-2xl overflow-hidden card-hover border border-outline/50']) }}>
+<article {{ $attributes->merge(['class' => 'group bg-surface rounded-xl sm:rounded-2xl overflow-hidden card-hover border border-outline/50']) }}>
     <a href="{{ route('posts.show', $post->slug) }}" class="no-underline">
         <div class="{{ $imageClasses }} overflow-hidden img-zoom bg-surface-container-low">
             <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : 'https://placehold.co/400x250/e9ecef/6b7280?text=KONUT' }}"
@@ -17,7 +17,7 @@
                  class="w-full h-full object-cover"
                  loading="lazy">
         </div>
-        <div class="p-3">
+        <div class="p-2.5 sm:p-3">
             @if($post->category)
                 <span class="text-[10px] font-bold text-primary uppercase tracking-wider">{{ $post->category->name }}</span>
             @endif
@@ -30,11 +30,6 @@
             @if($showMeta)
                 <div class="flex items-center gap-2 mt-2 text-xs text-on-surface-variant">
                     <span>{{ \Carbon\Carbon::parse($post->published_at)->format('d F Y') }}</span>
-                    <span class="w-1 h-1 rounded-full bg-on-surface-variant"></span>
-                    <span class="flex items-center gap-1">
-                        <i data-lucide="eye" class="w-3 h-3"></i>
-                        {{ number_format($post->views_count) }}
-                    </span>
                 </div>
             @endif
         </div>

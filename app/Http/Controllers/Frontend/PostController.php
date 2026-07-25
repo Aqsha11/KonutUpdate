@@ -10,7 +10,18 @@ class PostController extends Controller
 {
     public function show($slug)
     {
-        $post = Post::published()->with(['author', 'category', 'tags'])->where('slug', $slug)->firstOrFail();
+        $ip = request()->ip();
+
+        $post = Post::published()
+            ->with(['author', 'categories', 'kecamatan', 'tags'])
+            ->withCount('likes', 'comments')
+            ->with(['likes' => fn($q) => $q->where('ip_address', $ip)])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        if (! $post->category) {
+            $post->setRelation('category', $post->categories->first());
+        }
 
         RecordViewJob::dispatch(
             $post->id,
@@ -18,13 +29,30 @@ class PostController extends Controller
             request()->userAgent()
         );
 
+        $categoryIds = $post->categories->pluck('id')->toArray();
+
         $relatedPosts = Post::published()
-            ->with(['author', 'category'])
-            ->where('category_id', $post->category_id)
+            ->with(['author', 'categories'])
             ->where('id', '!=', $post->id)
+            ->where(function ($q) use ($categoryIds) {
+                $q->whereHas('categories', function ($q2) use ($categoryIds) {
+                    $q2->whereIn('categories.id', $categoryIds);
+                });
+            })
             ->latest()
             ->take(5)
             ->get();
+
+        if ($relatedPosts->count() < 5) {
+            $existingIds = $relatedPosts->pluck('id')->push($post->id)->toArray();
+            $more = Post::published()
+                ->with(['author', 'categories'])
+                ->whereNotIn('id', $existingIds)
+                ->latest()
+                ->take(5 - $relatedPosts->count())
+                ->get();
+            $relatedPosts = $relatedPosts->concat($more);
+        }
 
         return view('frontend.posts.show', compact('post', 'relatedPosts'));
     }

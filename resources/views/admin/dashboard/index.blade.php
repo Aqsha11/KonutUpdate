@@ -46,13 +46,13 @@
     <div class="col-md-6 col-xl-3">
         <div class="stat-card blue animate-fade-in animate-fade-in-d3">
             <div class="stat-icon">
-                <i class="bi bi-eye"></i>
+                <i class="bi bi-heart-fill"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-label">Total Views</div>
-                <div class="stat-value">{{ number_format($totalPageViews) }}</div>
+                <div class="stat-label">Total Like</div>
+                <div class="stat-value">{{ number_format($totalLikes) }}</div>
                 <div class="stat-desc">
-                    <span class="stat-badge up"><i class="bi bi-graph-up me-1"></i>Total kunjungan</span>
+                    <span class="stat-badge up"><i class="bi bi-graph-up me-1"></i>Total suka</span>
                 </div>
             </div>
         </div>
@@ -90,6 +90,7 @@
                         <tr>
                             <th style="width:50%;">Judul</th>
                             <th>Kategori</th>
+                            <th>Kecamatan</th>
                             <th>Status</th>
                             <th class="text-end">Tanggal</th>
                         </tr>
@@ -101,12 +102,17 @@
                                 <a href="{{ route('admin.posts.edit', $post->id) }}">{{ $post->title }}</a>
                             </td>
                             <td>
-                                @if($post->category)
+                                @if($post->categories->count() > 0)
+                                    @foreach($post->categories->take(2) as $cat)
+                                        <span class="badge-admin badge-admin-orange">{{ $cat->name }}</span>
+                                    @endforeach
+                                @elseif($post->category)
                                     <span class="badge-admin badge-admin-orange">{{ $post->category->name }}</span>
                                 @else
                                     <span class="text-secondary">-</span>
                                 @endif
                             </td>
+                            <td>{{ $post->kecamatan ? $post->kecamatan->name : '-' }}</td>
                             <td>
                                 @if($post->published_at)
                                     <span class="badge-admin badge-admin-success">Published</span>
@@ -120,7 +126,7 @@
                         </tr>
                         @empty
                         <tr class="empty-row">
-                            <td colspan="4">Belum ada berita.</td>
+                            <td colspan="5">Belum ada berita.</td>
                         </tr>
                         @endforelse
                     </tbody>

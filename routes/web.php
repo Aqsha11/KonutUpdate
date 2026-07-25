@@ -18,6 +18,7 @@ use App\Http\Controllers\Frontend\PageController;
 use App\Http\Controllers\Frontend\PostController;
 use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\TagController;
+use App\Http\Controllers\Frontend\KecamatanController as FrontendKecamatanController;
 use App\Models\Ad;
 use App\Models\Category;
 use App\Models\Post;
@@ -34,8 +35,11 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/berita/{slug}', [PostController::class, 'show'])->name('posts.show');
 Route::get('/kategori/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/tag/{slug}', [TagController::class, 'show'])->name('tags.show');
+Route::get('/kecamatan/{slug}', [FrontendKecamatanController::class, 'show'])->name('kecamatan.show');
+Route::get('/trending', [\App\Http\Controllers\Frontend\TrendingController::class, 'index'])->name('trending');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
-Route::post('/berita/{post}/komentar', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/berita/{post}/komentar', [CommentController::class, 'store'])->middleware('throttle:5,1')->name('comments.store');
+Route::post('/berita/{post}/like', [\App\Http\Controllers\Frontend\LikeController::class, 'toggle'])->name('posts.like');
 Route::get('/tentang-kami', [PageController::class, 'about'])->name('pages.about');
 Route::get('/pedoman-media-siber', [PageController::class, 'pedoman'])->name('pages.pedoman');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
@@ -62,9 +66,13 @@ Route::get('/robots.txt', function () {
 });
 
 Route::get('/feed', function () {
-    $posts = Post::published()->with(['author', 'category'])->latest()->take(20)->get();
+    $posts = Post::published()->with(['author', 'categories'])->latest()->take(20)->get();
+    $xml = view('frontend.rss.feed', compact('posts'))->render();
+    $xml = preg_replace('/\n\s*\n/', "\n", trim($xml));
 
-    return response()->view('frontend.rss.feed', compact('posts'))->header('Content-Type', 'application/rss+xml');
+    return response($xml, 200)
+        ->header('Content-Type', 'application/rss+xml; charset=UTF-8')
+        ->header('Cache-Control', 'public, max-age=3600');
 })->name('rss.feed');
 
 Route::get('/sitemap.xml', function () {
@@ -85,6 +93,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::post('/posts/upload-image', [AdminPostController::class, 'uploadImage'])->name('posts.upload-image');
 
     Route::resource('categories', AdminCategoryController::class);
+    Route::resource('kecamatans', \App\Http\Controllers\Admin\KecamatanController::class);
 
     Route::get('/profile', [AdminProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');

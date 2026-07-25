@@ -11,6 +11,8 @@ class Comment extends Model
         'post_id',
         'name',
         'email',
+        'ip_address',
+        'user_agent',
         'body',
         'is_approved',
     ];

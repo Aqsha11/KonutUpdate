@@ -16,6 +16,7 @@ class Post extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'kecamatan_id',
         'title',
         'slug',
         'excerpt',
@@ -81,6 +82,17 @@ class Post extends Model
         return $this->belongsTo(Category::class, 'category_id');
     }
 
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 'post_categories')
+            ->withTimestamps();
+    }
+
+    public function kecamatan(): BelongsTo
+    {
+        return $this->belongsTo(Kecamatan::class);
+    }
+
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'post_tag')
@@ -95,6 +107,34 @@ class Post extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class)->latest();
+    }
+
+    public function likes(): HasMany
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function likesCount(): int
+    {
+        return $this->likes_count ?? $this->likes()->count();
+    }
+
+    public function commentsCount(): int
+    {
+        return $this->comments_count ?? $this->comments()->approved()->count();
+    }
+
+    public function isLikedBy(?string $ip): bool
+    {
+        if (! $ip) {
+            return false;
+        }
+
+        if ($this->relationLoaded('likes')) {
+            return $this->likes->contains('ip_address', $ip);
+        }
+
+        return $this->likes()->where('ip_address', $ip)->exists();
     }
 
     public function isVideo(): bool

@@ -15,7 +15,7 @@ class SearchController extends Controller
 
         if (! empty($query)) {
             $posts = Post::published()
-                ->with(['category', 'author'])
+                ->with(['categories', 'author'])
                 ->where(function ($q) use ($query) {
                     $q->where('title', 'LIKE', "%{$query}%")
                         ->orWhere('body', 'LIKE', "%{$query}%");
@@ -29,7 +29,7 @@ class SearchController extends Controller
                     return [
                         'title' => $post->title,
                         'url' => route('posts.show', $post->slug),
-                        'category' => $post->category?->name ?? '',
+                        'category' => $post->categories->first()->name ?? ($post->category?->name ?? ''),
                         'date' => $post->published_at ? Carbon::parse($post->published_at)->format('d F Y') : '',
                         'thumb' => $post->thumbnail ? asset('storage/'.$post->thumbnail) : '',
                     ];
@@ -42,7 +42,7 @@ class SearchController extends Controller
         }
 
         $posts = Post::published()
-            ->with(['category', 'author'])
+            ->with(['categories', 'author'])
             ->latest()
             ->paginate(12);
 

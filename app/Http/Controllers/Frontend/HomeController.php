@@ -10,17 +10,28 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $featuredPosts = Post::featured()->published()->with(['author', 'category'])->latest()->take(5)->get();
-        $latestPosts = Post::published()->with(['author', 'category'])->latest()->paginate(6);
+        $ip = request()->ip();
+
+        $featuredPosts = Post::featured()->published()
+            ->with(['author', 'categories', 'kecamatan'])
+            ->withCount('likes', 'comments')
+            ->with(['likes' => fn($q) => $q->where('ip_address', $ip)])
+            ->latest()->take(5)->get();
+
+        $latestPosts = Post::published()
+            ->with(['author', 'categories', 'kecamatan'])
+            ->withCount('likes', 'comments')
+            ->with(['likes' => fn($q) => $q->where('ip_address', $ip)])
+            ->latest()->paginate(6);
 
         $categorySlugs = ['kriminal', 'pemerintahan', 'tambang', 'ekonomi', 'olahraga'];
         $categoryPosts = [];
         foreach ($categorySlugs as $slug) {
             $category = Category::where('slug', $slug)->first();
             if ($category) {
-                $categoryPosts[$category->name] = $category->posts()
+                $categoryPosts[$category->name] = $category->allPosts()
                     ->published()
-                    ->with(['author'])
+                    ->with(['author', 'categories', 'kecamatan'])
                     ->latest()
                     ->take(4)
                     ->get();

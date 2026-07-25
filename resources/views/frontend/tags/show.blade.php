@@ -46,10 +46,10 @@
         <p class="text-on-surface-variant text-sm mt-1.5">Kumpulan berita dengan tag {{ $tag->name }}</p>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+    <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
         <div class="lg:w-[68%]">
             @if($posts->count() > 0)
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-2.5 sm:gap-3 lg:gap-4">
                     @foreach($posts as $post)
                         <article class="bg-surface rounded-2xl overflow-hidden card-hover border border-outline/50 group">
                             <a href="{{ route('posts.show', $post->slug) }}" class="no-underline">
@@ -57,15 +57,22 @@
                                     <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : 'https://placehold.co/600x400/e9ecef/6b7280?text=KONUT' }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
                                 </div>
                             </a>
-                            <div class="p-4">
-                                @if($post->category)
+                            <div class="p-2.5 sm:p-3 lg:p-4">
+                                @if($post->categories->count() > 0)
+                                    @foreach($post->categories as $cat)
+                                        <a href="{{ route('categories.show', $cat->slug) }}" class="text-[10px] font-bold text-primary uppercase tracking-wider no-underline hover:underline">{{ $cat->name }}</a>
+                                        @if(! $loop->last)
+                                            <span class="text-on-surface-variant"> / </span>
+                                        @endif
+                                    @endforeach
+                                @elseif($post->category)
                                     <a href="{{ route('categories.show', $post->category->slug) }}" class="text-[10px] font-bold text-primary uppercase tracking-wider no-underline hover:underline">{{ $post->category->name }}</a>
                                 @endif
-                                <h3 class="text-base font-bold text-on-surface mt-1.5 leading-snug">
+                                <h3 class="text-[13px] sm:text-base font-bold text-on-surface mt-1 sm:mt-1.5 leading-snug">
                                     <a href="{{ route('posts.show', $post->slug) }}" class="no-underline text-on-surface hover:text-primary transition-colors">{{ $post->title }}</a>
                                 </h3>
-                                <p class="text-sm text-on-surface-variant mt-1.5 line-clamp-2 leading-relaxed">{{ limitText(strip_tags($post->excerpt ?: $post->body), 120) }}</p>
-                                <div class="flex items-center justify-between text-xs text-on-surface-variant mt-3">
+                                <p class="text-[11px] sm:text-sm text-on-surface-variant mt-1 sm:mt-1.5 line-clamp-2 leading-relaxed">{{ limitText(strip_tags($post->excerpt ?: $post->body), 120) }}</p>
+                                <div class="flex items-center justify-between text-[10px] sm:text-xs text-on-surface-variant mt-2 sm:mt-3">
                                     <span class="font-medium">{{ $post->author->name ?? 'Redaksi' }}</span>
                                     <span>{{ formatDate($post->published_at) }}</span>
                                 </div>
@@ -83,7 +90,7 @@
                 </div>
             @endif
         </div>
-        <div class="lg:w-[32%]">
+        <div class="hidden lg:block lg:w-[32%]">
             <div class="lg:sticky lg:top-24 space-y-6">
                 @include('frontend.partials.sidebar')
             </div>

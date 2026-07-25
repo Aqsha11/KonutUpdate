@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Ad;
 use App\Models\Category;
+use App\Models\Kecamatan;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Setting;
@@ -54,14 +55,14 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $categories = Cache::remember('frontend_categories', 3600, function () {
-                return Category::withCount(['posts' => function ($q) {
+                return Category::withCount(['allPosts' => function ($q) {
                     $q->published();
                 }])->get();
             });
 
             $trendingPosts = Cache::remember('trending_posts', 3600, function () {
                 return Post::published()
-                    ->with(['category', 'author'])
+                    ->with(['categories', 'author'])
                     ->orderBy('views_count', 'desc')
                     ->take(5)
                     ->get();
@@ -70,25 +71,21 @@ class AppServiceProvider extends ServiceProvider
             $breakingNews = Cache::remember('breaking_news', 3600, function () {
                 return Post::published()
                     ->where('is_breaking', true)
-                    ->with(['category', 'author'])
+                    ->with(['categories', 'author'])
                     ->orderBy('published_at', 'desc')
                     ->take(10)
                     ->get();
             });
 
-            $sidebarAdsTop = Cache::remember('sidebar_ads_top', 3600, function () {
-                return Ad::active()->position('sidebar_top')->sorted()->take(2)->get();
-            });
+            $sidebarAdsTop = Ad::active()->position('sidebar_top')->sorted()->take(2)->get();
 
-            $sidebarAdsBottom = Cache::remember('sidebar_ads_bottom', 3600, function () {
-                return Ad::active()->position('sidebar_bottom')->sorted()->take(2)->get();
-            });
+            $sidebarAdsBottom = Ad::active()->position('sidebar_bottom')->sorted()->take(2)->get();
 
-            $articleAds = Cache::remember('in_article_ads', 3600, function () {
-                return Ad::active()->position('in_article')->sorted()->take(2)->get();
-            });
+            $articleAds = Ad::active()->position('in_article')->sorted()->take(2)->get();
 
-            $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAdsTop', 'sidebarAdsBottom', 'articleAds'));
+            $kecamatans = Kecamatan::ordered()->get();
+
+            $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAdsTop', 'sidebarAdsBottom', 'articleAds', 'kecamatans'));
         });
     }
 }

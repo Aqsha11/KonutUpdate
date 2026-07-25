@@ -9,7 +9,7 @@
         $fallbackImage = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : '';
         $shareImage = $thumb ?: $fallbackImage;
         $tagNames = $post->tags->pluck('name')->implode(', ');
-        $keywords = collect([$post->category->name ?? '', $tagNames, 'Konut.Update', 'Konawe Utara', 'berita'])->filter()->implode(', ');
+        $keywords = collect([$post->categories->pluck('name')->implode(', '), $post->category->name ?? '', $tagNames, 'Konut.Update', 'Konawe Utara', 'berita'])->filter()->implode(', ');
     @endphp
     <meta name="description" content="{{ $excerpt }}" />
     <meta name="keywords" content="{{ $keywords }}" />
@@ -36,7 +36,7 @@
     <meta property="article:published_time" content="{{ $post->published_at }}" />
     <meta property="article:modified_time" content="{{ $post->updated_at ?? $post->published_at }}" />
     <meta property="article:author" content="{{ $post->author->name ?? 'Redaksi' }}" />
-    <meta property="article:section" content="{{ $post->category->name ?? '' }}" />
+    <meta property="article:section" content="{{ $post->categories->first()->name ?? ($post->category->name ?? '') }}" />
     @foreach($post->tags as $tag)
         <meta property="article:tag" content="{{ $tag->name }}" />
     @endforeach
@@ -88,7 +88,34 @@
         "duration": "PT0M"@endif
     }
     </script>
-    @if($post->category)
+    @if($post->categories->count() > 0)
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Beranda",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "{{ $post->categories->first()->name }}",
+                "item": "{{ route('categories.show', $post->categories->first()->slug) }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 3,
+                "name": "{{ $post->title }}",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    }
+    </script>
+    @elseif($post->category)
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
@@ -124,23 +151,35 @@
         <nav class="flex items-center gap-1.5 text-xs text-on-surface-variant mb-5 flex-wrap">
             <a href="{{ url('/') }}" class="no-underline text-on-surface-variant hover:text-primary transition-colors">Beranda</a>
             <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            @if($post->category)
+            @if($post->categories->count() > 0)
+                @foreach($post->categories as $cat)
+                    <a href="{{ route('categories.show', $cat->slug) }}" class="no-underline text-on-surface-variant hover:text-primary transition-colors">{{ $cat->name }}</a>
+                    @if(! $loop->last)
+                        <span class="text-on-surface-variant">/</span>
+                    @endif
+                @endforeach
+                <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            @elseif($post->category)
                 <a href="{{ route('categories.show', $post->category->slug) }}" class="no-underline text-on-surface-variant hover:text-primary transition-colors">{{ $post->category->name }}</a>
                 <i data-lucide="chevron-right" class="w-3 h-3"></i>
             @endif
             <span class="text-on-surface truncate max-w-[200px] md:max-w-[400px] font-medium">{{ $post->title }}</span>
         </nav>
 
-        <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
+        <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
             {{-- Main Content --}}
             <div class="lg:w-[68%]">
-                {{-- Category Badge --}}
-                @if($post->category)
+                {{-- Category Badges --}}
+                @if($post->categories->count() > 0)
+                    @foreach($post->categories as $cat)
+                        <a href="{{ route('categories.show', $cat->slug) }}" class="category-badge mb-4 mr-1.5 inline-block no-underline hover:opacity-90">{{ $cat->name }}</a>
+                    @endforeach
+                @elseif($post->category)
                     <a href="{{ route('categories.show', $post->category->slug) }}" class="category-badge mb-4 inline-block no-underline hover:opacity-90">{{ $post->category->name }}</a>
                 @endif
 
                 {{-- Title --}}
-                <h1 class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-on-surface leading-tight mb-4">
+                <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-extrabold text-on-surface leading-tight mb-3 sm:mb-4">
                     @if($post->isVideo())
                         <span class="inline-flex items-center gap-1.5 text-accent mr-2 align-middle">
                             <i data-lucide="play-circle" class="w-7 h-7 md:w-8 md:h-8"></i>
@@ -150,7 +189,7 @@
                 </h1>
 
                 {{-- Meta --}}
-                <div class="flex flex-wrap items-center gap-4 text-sm text-on-surface-variant mb-6 pb-6 border-b border-outline">
+                <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-on-surface-variant mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-outline">
                     <span class="flex items-center gap-1.5">
                         <i data-lucide="user" class="w-3.5 h-3.5"></i>
                         <span class="font-medium">{{ $post->author->name ?? 'Redaksi' }}</span>
@@ -165,10 +204,12 @@
                             <span>{{ readTime($post->body) }}</span>
                         </span>
                     @endif
-                    <span class="flex items-center gap-1.5">
-                        <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                        <span>{{ number_format($post->views_count) }} x dilihat</span>
-                    </span>
+                    @if($post->kecamatan)
+                        <span class="flex items-center gap-1.5">
+                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                            <a href="{{ route('kecamatan.show', $post->kecamatan->slug) }}" class="no-underline text-on-surface-variant hover:text-primary transition-colors">{{ $post->kecamatan->name }}</a>
+                        </span>
+                    @endif
                 </div>
 
                 {{-- Video Player --}}
@@ -219,6 +260,10 @@
                     <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                     <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
                     <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-{{ $post->id }}" class="like-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                        <i data-lucide="heart" class="w-4 h-4"></i>
+                        <span id="like-count-{{ $post->id }}">{{ $post->likesCount() }}</span>
+                    </button>
                 </div>
 
                 {{-- Article Body --}}
@@ -260,6 +305,23 @@
                     <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
                 </div>
 
+                {{-- Iklan --}}
+                @if(isset($sidebarAdsBottom) && $sidebarAdsBottom->count() > 0)
+                <div class="mt-6">
+                    @foreach($sidebarAdsBottom as $ad)
+                    <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-2xl overflow-hidden border border-outline/50 no-underline group">
+                        <div class="aspect-[3/1] overflow-hidden bg-surface-container-low">
+                            <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-full object-cover" loading="lazy">
+                        </div>
+                        <div class="px-3 py-2">
+                            <p class="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{{ $ad->title }}</p>
+                            <p class="text-[10px] text-on-surface-variant mt-0.5">Iklan</p>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
+                @endif
+
                 {{-- Comments --}}
                 @include('frontend.posts._comments')
 
@@ -267,10 +329,10 @@
                 @if(isset($relatedPosts) && $relatedPosts->count() > 0)
                     <section class="related-section mt-10">
                         <h3 class="section-title pb-1 mb-5">Berita Terkait</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-3">
                             @foreach($relatedPosts as $related)
-                                <a href="{{ route('posts.show', $related->slug) }}" class="flex gap-4 bg-surface rounded-2xl p-4 card-hover border border-outline/50 no-underline group">
-                                    <div class="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-surface-container-low relative">
+                                <a href="{{ route('posts.show', $related->slug) }}" class="flex gap-3 bg-surface rounded-xl p-3 card-hover border border-outline/50 no-underline group">
+                                    <div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-surface-container-low relative">
                                         <img src="{{ $related->thumbnail ? Storage::url($related->thumbnail) : 'https://placehold.co/80x80/e9ecef/6b7280?text=N' }}" alt="{{ $related->title }}" class="w-full h-full object-cover" loading="lazy">
                                         @if($related->isVideo())
                                             <div class="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -288,7 +350,11 @@
                                             {{ $related->title }}
                                         </h4>
                                         <div class="flex items-center gap-2 mt-2 text-xs text-on-surface-variant">
-                                            <span>{{ $related->category->name ?? '' }}</span>
+                                            @if($related->categories->count() > 0)
+                                                <span>{{ $related->categories->first()->name }}</span>
+                                            @elseif($related->category)
+                                                <span>{{ $related->category->name }}</span>
+                                            @endif
                                             <span class="w-1 h-1 rounded-full bg-on-surface-variant"></span>
                                             <span>{{ formatDate($related->published_at) }}</span>
                                         </div>
@@ -301,7 +367,7 @@
             </div>
 
             {{-- Sidebar --}}
-            <div class="lg:w-[32%]">
+            <div class="hidden lg:block lg:w-[32%]">
                 <div class="lg:sticky lg:top-24 space-y-6">
                     @include('frontend.partials.sidebar')
                 </div>

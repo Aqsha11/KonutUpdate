@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
 use App\Models\Category;
+use App\Models\Kecamatan;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Services\HtmlSanitizer;
@@ -17,10 +18,16 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with(['author', 'category'])->latest();
+        $query = Post::with(['author', 'categories', 'kecamatan'])->latest();
 
         if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('categories.id', $request->category);
+            });
+        }
+
+        if ($request->filled('kecamatan')) {
+            $query->where('kecamatan_id', $request->kecamatan);
         }
 
         if ($request->filled('status')) {
@@ -41,16 +48,18 @@ class PostController extends Controller
 
         $posts = $query->paginate(15)->withQueryString();
         $categories = Category::all();
+        $kecamatans = Kecamatan::ordered()->get();
 
-        return view('admin.posts.index', compact('posts', 'categories'));
+        return view('admin.posts.index', compact('posts', 'categories', 'kecamatans'));
     }
 
     public function create()
     {
         $categories = Category::all();
         $tags = Tag::all();
+        $kecamatans = Kecamatan::ordered()->get();
 
-        return view('admin.posts.create', compact('categories', 'tags'));
+        return view('admin.posts.create', compact('categories', 'tags', 'kecamatans'));
     }
 
     public function show(Post $post)
@@ -80,11 +89,18 @@ class PostController extends Controller
             unset($data['video_path']);
         }
 
-        unset($data['video_file'], $data['video_url']);
+        unset($data['video_file'], $data['video_url'], $data['category_ids']);
 
         $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body'] ?? null);
 
         $post = Post::create($data);
+
+        $categoryIds = $request->input('category_ids', []);
+        if (! empty($categoryIds)) {
+            $post->categories()->sync(array_slice($categoryIds, 0, 3));
+        } elseif ($request->filled('category_id')) {
+            $post->categories()->sync([$request->input('category_id')]);
+        }
 
         if ($request->filled('tags')) {
             $tagNames = array_map('trim', explode(',', $request->input('tags')));
@@ -106,8 +122,10 @@ class PostController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
+        $kecamatans = Kecamatan::ordered()->get();
+        $post->load('categories');
 
-        return view('admin.posts.edit', compact('post', 'categories', 'tags'));
+        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'kecamatans'));
     }
 
     public function update(UpdatePostRequest $request, Post $post)
@@ -145,11 +163,20 @@ class PostController extends Controller
             $data['video_path'] = null;
         }
 
-        unset($data['video_file'], $data['video_url']);
+        unset($data['video_file'], $data['video_url'], $data['category_ids']);
 
         $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body'] ?? null);
 
         $post->update($data);
+
+        $categoryIds = $request->input('category_ids', []);
+        if (! empty($categoryIds)) {
+            $post->categories()->sync(array_slice($categoryIds, 0, 3));
+        } elseif ($request->filled('category_id')) {
+            $post->categories()->sync([$request->input('category_id')]);
+        } else {
+            $post->categories()->sync([]);
+        }
 
         if ($request->filled('tags')) {
             $tagNames = array_map('trim', explode(',', $request->input('tags')));

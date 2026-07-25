@@ -12,11 +12,10 @@
                     <div class="flex-1 min-w-0">
                         <h4 class="text-sm font-semibold text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-snug">{{ $post->title }}</h4>
                         <div class="flex items-center gap-2 mt-1.5 text-xs text-on-surface-variant">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="eye" class="w-3 h-3"></i>
-                                {{ number_format($post->views_count) }}
-                            </span>
-                            @if($post->category)
+                            @if($post->categories->count() > 0)
+                                <span class="w-1 h-1 rounded-full bg-on-surface-variant"></span>
+                                <span>{{ $post->categories->first()->name }}</span>
+                            @elseif($post->category)
                                 <span class="w-1 h-1 rounded-full bg-on-surface-variant"></span>
                                 <span>{{ $post->category->name }}</span>
                             @endif
@@ -40,13 +39,32 @@
                 <a href="{{ route('categories.show', $cat->slug) }}"
                    class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-on-surface hover:bg-primary-light hover:text-primary dark:hover:bg-primary-container transition-colors no-underline group">
                     <span>{{ $cat->name }}</span>
-                    @if($cat->posts_count > 0)
-                        <span class="text-xs text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full group-hover:bg-primary/10 group-hover:text-primary">{{ $cat->posts_count }}</span>
+                    @if(isset($cat->all_posts_count) ? $cat->all_posts_count > 0 : $cat->posts_count > 0)
+                        <span class="text-xs text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full group-hover:bg-primary/10 group-hover:text-primary">{{ $cat->all_posts_count ?? $cat->posts_count }}</span>
                     @endif
                 </a>
             @endforeach
         </div>
     </div>
+
+    {{-- Kecamatan --}}
+    @if(isset($kecamatans) && $kecamatans->count() > 0)
+    <div class="bg-surface rounded-2xl shadow-sm border border-outline overflow-hidden">
+        <div class="flex items-center gap-2 px-5 pt-4 pb-3 border-b border-outline">
+            <i data-lucide="map-pin" class="w-4 h-4 text-accent"></i>
+            <h3 class="font-bold text-sm text-on-surface uppercase tracking-wider">Kecamatan</h3>
+        </div>
+        <div class="p-4 grid grid-cols-2 gap-2">
+            @foreach($kecamatans as $k)
+                <a href="{{ route('kecamatan.show', $k->slug) }}"
+                   class="px-3 py-2.5 rounded-xl text-sm font-medium text-on-surface hover:bg-primary-light hover:text-primary dark:hover:bg-primary-container transition-colors no-underline group text-center">
+                    <span>{{ $k->name }}</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- Social Media --}}
     <div class="bg-surface rounded-2xl shadow-sm border border-outline overflow-hidden">
         <div class="flex items-center gap-2 px-5 pt-4 pb-3 border-b border-outline">
@@ -94,13 +112,6 @@
             </div>
         </a>
         @endforeach
-    @else
-        <div class="bg-surface-container-low rounded-2xl p-4 text-center border border-outline">
-            <p class="text-xs text-on-surface-variant mb-2 uppercase tracking-wider">Iklan</p>
-            <div class="bg-surface-container rounded-xl h-[200px] flex items-center justify-center text-on-surface-variant text-sm">
-                <span>Space Iklan</span>
-            </div>
-        </div>
     @endif
 
     {{-- Iklan Sidebar Bawah --}}

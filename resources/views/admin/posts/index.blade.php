@@ -25,6 +25,12 @@
                 <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                 @endforeach
             </select>
+            <select class="form-select" name="kecamatan" onchange="this.form.submit()">
+                <option value="">Semua Kecamatan</option>
+                @foreach($kecamatans ?? [] as $kecamatan)
+                <option value="{{ $kecamatan->id }}" {{ request('kecamatan') == $kecamatan->id ? 'selected' : '' }}>{{ $kecamatan->name }}</option>
+                @endforeach
+            </select>
             <select class="form-select" name="status" onchange="this.form.submit()">
                 <option value="">Semua Status</option>
                 <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
@@ -53,6 +59,7 @@
                     <th style="width:6%;">Thumb</th>
                     <th>Judul</th>
                     <th>Kategori</th>
+                    <th>Kecamatan</th>
                     <th>Author</th>
                     <th>Status</th>
                     <th>Views</th>
@@ -89,7 +96,18 @@
                         <span class="badge-admin badge-admin-orange ms-1"><i class="bi bi-play-circle"></i> Video</span>
                         @endif
                     </td>
-                    <td>{{ $post->category->name ?? '-' }}</td>
+                    <td>
+                        @if($post->categories->count() > 0)
+                            @foreach($post->categories as $cat)
+                                <span class="badge-admin badge-admin-info">{{ $cat->name }}</span>
+                            @endforeach
+                        @elseif($post->category)
+                            <span class="badge-admin badge-admin-info">{{ $post->category->name }}</span>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>{{ $post->kecamatan ? $post->kecamatan->name : '-' }}</td>
                     <td>{{ $post->author->name ?? '-' }}</td>
                     <td>
                         @if($post->status === 'published')
@@ -131,7 +149,7 @@
                 </tr>
                 @empty
                 <tr class="empty-row">
-                    <td colspan="9">Belum ada berita.</td>
+                    <td colspan="10">Belum ada berita.</td>
                 </tr>
                 @endforelse
             </tbody>

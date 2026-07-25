@@ -72,6 +72,11 @@
                     </a>
                 </div>
                 <div class="nav-item">
+                    <a href="{{ route('admin.kecamatans.index') }}" class="nav-link {{ request()->routeIs('admin.kecamatans.*') ? 'active' : '' }}">
+                        <i class="bi bi-geo-alt"></i> Kecamatan
+                    </a>
+                </div>
+                <div class="nav-item">
                     <a href="{{ route('admin.pages.index') }}" class="nav-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
                         <i class="bi bi-file-text"></i> Halaman
                     </a>

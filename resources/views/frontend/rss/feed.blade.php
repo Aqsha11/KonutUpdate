@@ -21,7 +21,10 @@
             <link>{{ route('posts.show', $post->slug) }}</link>
             <guid isPermaLink="true">{{ route('posts.show', $post->slug) }}</guid>
             <description><![CDATA[{{ $post->excerpt ?: strip_tags(Str::limit($post->body, 300)) }}]]></description>
-            <category>{{ $post->category->name ?? 'Umum' }}</category>
+            <category>{{ $post->categories->first()->name ?? ($post->category->name ?? 'Umum') }}</category>
+            @foreach($post->categories->skip(1) as $extraCat)
+            <category>{{ $extraCat->name }}</category>
+            @endforeach
             <dc:creator><![CDATA[{{ $post->author->name ?? 'Redaksi' }}]]></dc:creator>
             <pubDate>{{ $post->published_at->toRfc2822String() }}</pubDate>
             @if($post->thumbnail)

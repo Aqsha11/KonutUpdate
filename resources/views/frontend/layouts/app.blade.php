@@ -199,7 +199,7 @@
 
         {{-- Main Navigation --}}
         <nav class="hidden md:flex bg-surface border-b border-outline shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 w-full flex items-center justify-center overflow-x-auto">
+            <div class="max-w-7xl mx-auto px-4 w-full flex items-center justify-center">
                 <a href="{{ url('/') }}" class="nav-link-custom {{ request()->routeIs('home') ? 'active' : '' }}">
                     Home
                 </a>
@@ -209,6 +209,27 @@
                         {{ $cat->name }}
                     </a>
                 @endforeach
+
+                {{-- Kecamatan Dropdown --}}
+                @if(isset($kecamatans) && $kecamatans->count() > 0)
+                <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                    <button class="nav-link-custom whitespace-nowrap flex items-center gap-1 cursor-pointer bg-transparent border-none {{ request()->routeIs('kecamatan.show') ? 'active' : '' }}" x-on:click="open = !open">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                        Kecamatan
+                        <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
+                         class="absolute top-full left-0 mt-0 w-64 bg-surface rounded-xl shadow-xl border border-outline py-2 z-50 max-h-[400px] overflow-y-auto">
+                        @foreach($kecamatans as $k)
+                            <a href="{{ route('kecamatan.show', $k->slug) }}"
+                               class="flex items-center gap-2.5 px-4 py-2 text-sm {{ request()->routeIs('kecamatan.show') && request('slug') == $k->slug ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container-low' }} no-underline transition-colors">
+                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-on-surface-variant"></i>
+                                {{ $k->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
 
             </div>
         </nav>
@@ -237,13 +258,13 @@
                 <i data-lucide="home" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium">Home</span>
             </a>
-            <a href="{{ route('search') }}" class="flex flex-col items-center gap-0.5 py-1 px-3 no-underline text-on-surface-variant">
+            <button class="flex flex-col items-center gap-0.5 py-1 px-3 no-underline text-on-surface-variant cursor-pointer bg-transparent border-none" x-on:click="searchOpen = true">
                 <i data-lucide="search" class="w-5 h-5"></i>
                 <span class="text-[10px] font-medium">Cari</span>
-            </a>
-            <a href="{{ url('/') }}" class="flex flex-col items-center gap-0.5 py-1 px-3 no-underline text-on-surface-variant">
+            </button>
+            <a href="{{ route('trending') }}" class="flex flex-col items-center gap-0.5 py-1 px-3 no-underline {{ request()->routeIs('trending') ? 'text-primary' : 'text-on-surface-variant' }}">
                 <i data-lucide="flame" class="w-5 h-5"></i>
-                <span class="text-[10px] font-medium">Populer</span>
+                <span class="text-[10px] font-medium">Trending</span>
             </a>
             <button class="flex flex-col items-center gap-0.5 py-1 px-3 no-underline text-on-surface-variant cursor-pointer bg-transparent border-none" x-on:click="mobileOpen = true">
                 <i data-lucide="align-left" class="w-5 h-5"></i>
@@ -272,6 +293,14 @@
                         <i data-lucide="home" class="w-4 h-4"></i>
                         Home
                     </a>
+                    <a href="{{ route('trending') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold {{ request()->routeIs('trending') ? 'text-primary bg-primary-light' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
+                        <i data-lucide="flame" class="w-4 h-4"></i>
+                        Trending
+                    </a>
+                    <a href="{{ route('search') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm {{ request()->routeIs('search') ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        Cari Berita
+                    </a>
                     <div class="pt-5 mt-4 border-t border-outline">
                         <p class="text-xs font-semibold text-on-surface-variant px-3 mb-3 uppercase tracking-wider">Kategori</p>
                         @foreach($categories as $cat)
@@ -279,12 +308,26 @@
                                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
                                 <i data-lucide="chevron-right" class="w-4 h-4 text-on-surface-variant"></i>
                                 <span>{{ $cat->name }}</span>
-                                @if($cat->posts_count > 0)
-                                    <span class="ml-auto text-xs text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded-full">{{ $cat->posts_count }}</span>
+                                @if(isset($cat->all_posts_count) ? $cat->all_posts_count > 0 : $cat->posts_count > 0)
+                                    <span class="ml-auto text-xs text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded-full">{{ $cat->all_posts_count ?? $cat->posts_count }}</span>
                                 @endif
                             </a>
                         @endforeach
                     </div>
+                    @if(isset($kecamatans) && $kecamatans->count() > 0)
+                    <div class="pt-5 mt-4 border-t border-outline">
+                        <p class="text-xs font-semibold text-on-surface-variant px-3 mb-3 uppercase tracking-wider">Kecamatan</p>
+                        <div class="grid grid-cols-2 gap-1 px-3">
+                            @foreach($kecamatans as $k)
+                                <a href="{{ route('kecamatan.show', $k->slug) }}"
+                                   class="flex items-center gap-2 px-2.5 py-2 rounded-xl text-[13px] {{ request()->routeIs('kecamatan.show') ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-on-surface-variant"></i>
+                                    {{ $k->name }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                     <div class="pt-5 mt-4 border-t border-outline">
                         <p class="text-xs font-semibold text-on-surface-variant px-3 mb-3 uppercase tracking-wider">Halaman</p>
                         <a href="{{ route('pages.about') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
@@ -425,6 +468,41 @@
                 });
             }, { passive: true });
         })();
+
+        // Like Toggle
+        function toggleLike(postId) {
+            fetch('/berita/' + postId + '/like', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                var btn = document.getElementById('like-btn-' + postId);
+                var countEl = document.getElementById('like-count-' + postId);
+                if (btn) {
+                    if (data.liked) {
+                        btn.classList.add('liked');
+                    } else {
+                        btn.classList.remove('liked');
+                    }
+                }
+                if (countEl) countEl.textContent = data.count;
+            })
+            .catch(() => {});
+        }
+
+        // Share
+        function sharePost(url, title) {
+            if (navigator.share) {
+                navigator.share({ title: title, url: url });
+            } else {
+                window.open('https://wa.me/?text=' + encodeURIComponent(title + ' ' + url), '_blank');
+            }
+        }
 
         // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
