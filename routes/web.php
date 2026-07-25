@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdController as AdminAdController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PermissionController as AdminPermissionController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Frontend\CategoryController;
+use App\Http\Controllers\Frontend\CommentController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\PageController;
 use App\Http\Controllers\Frontend\PostController;
@@ -33,6 +35,7 @@ Route::get('/berita/{slug}', [PostController::class, 'show'])->name('posts.show'
 Route::get('/kategori/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/tag/{slug}', [TagController::class, 'show'])->name('tags.show');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::post('/berita/{post}/komentar', [CommentController::class, 'store'])->name('comments.store');
 Route::get('/tentang-kami', [PageController::class, 'about'])->name('pages.about');
 Route::get('/pedoman-media-siber', [PageController::class, 'pedoman'])->name('pages.pedoman');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
@@ -56,6 +59,12 @@ Route::get('/robots.txt', function () {
 
     return response($robots)->header('Content-Type', 'text/plain');
 });
+
+Route::get('/feed', function () {
+    $posts = Post::published()->with(['author', 'category'])->latest()->take(20)->get();
+
+    return response()->view('frontend.rss.feed', compact('posts'))->header('Content-Type', 'application/rss+xml');
+})->name('rss.feed');
 
 Route::get('/sitemap.xml', function () {
     $posts = Post::published()->latest()->get();
@@ -84,6 +93,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('roles', AdminRoleController::class);
     Route::resource('permissions', AdminPermissionController::class);
     Route::resource('users', AdminUserController::class)->middleware('role:super_admin');
+
+    Route::get('/comments', [AdminCommentController::class, 'index'])->name('comments.index');
+    Route::post('/comments/{comment}/approve', [AdminCommentController::class, 'approve'])->name('comments.approve');
+    Route::post('/comments/{comment}/reject', [AdminCommentController::class, 'reject'])->name('comments.reject');
+    Route::delete('/comments/{comment}', [AdminCommentController::class, 'destroy'])->name('comments.destroy');
 
     Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');

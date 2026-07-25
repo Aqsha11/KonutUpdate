@@ -3,9 +3,19 @@
 @section('title', 'Pedoman Media Siber - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="Pedoman Media Siber {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Pedoman pemberitaan media siber yang berlaku untuk seluruh konten yang dipublikasikan." />
+    @php
+        $pedomanDesc = 'Pedoman Media Siber ' . ($site_settings['site_name'] ?? 'Konut.Update') . ' - Pedoman pemberitaan media siber yang berlaku untuk seluruh konten yang dipublikasikan.';
+    @endphp
+    <meta name="description" content="{{ $pedomanDesc }}" />
+    <link rel="canonical" href="{{ route('pages.pedoman') }}" />
     <meta property="og:title" content="Pedoman Media Siber - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Pedoman Media Siber {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Pedoman pemberitaan media siber yang berlaku untuk seluruh konten yang dipublikasikan." />
+    <meta property="og:description" content="{{ $pedomanDesc }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ route('pages.pedoman') }}" />
+    <meta property="og:locale" content="id_ID" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Pedoman Media Siber - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="{{ $pedomanDesc }}" />
 @endsection
 
 @section('content')

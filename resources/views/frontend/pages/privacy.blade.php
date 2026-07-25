@@ -3,9 +3,19 @@
 @section('title', 'Kebijakan Privasi - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="Kebijakan Privasi {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda." />
+    @php
+        $privacyDesc = 'Kebijakan Privasi ' . ($site_settings['site_name'] ?? 'Konut.Update') . ' - Bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda.';
+    @endphp
+    <meta name="description" content="{{ $privacyDesc }}" />
+    <link rel="canonical" href="{{ route('pages.privacy') }}" />
     <meta property="og:title" content="Kebijakan Privasi - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Kebijakan Privasi {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda." />
+    <meta property="og:description" content="{{ $privacyDesc }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ route('pages.privacy') }}" />
+    <meta property="og:locale" content="id_ID" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Kebijakan Privasi - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="{{ $privacyDesc }}" />
 @endsection
 
 @section('content')

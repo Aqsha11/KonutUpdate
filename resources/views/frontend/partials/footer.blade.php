@@ -37,6 +37,7 @@
                     @if(!empty($site_settings['email']))
                         <a href="mailto:{{ $site_settings['email'] }}" class="social-icon bg-white/10 hover:bg-accent"><i data-lucide="mail" class="w-4 h-4"></i></a>
                     @endif
+                    <a href="{{ url('/feed') }}" target="_blank" class="social-icon bg-white/10 hover:bg-[#ee802f]" title="RSS Feed"><i data-lucide="rss" class="w-4 h-4"></i></a>
                 </div>
             </div>
 
@@ -102,6 +103,10 @@
         <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-2 text-sm opacity-60">
             <p>&copy; {{ date('Y') }} {{ $site_settings['site_name'] ?? 'Konut.Update' }}. All rights reserved.</p>
             <p>Portal Berita Terpercaya Konawe Utara</p>
+            <a href="https://viteks.id" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity no-underline">
+                <img src="https://viteks.id/storage/site/J5MNxOhayYQO9ENI3oFOxy0fQd50ll84bFpyFshl.png" alt="Viteks Logo" class="h-5 w-auto brightness-0 invert opacity-90">
+                <span class="text-xs text-white/70">Powered by <span style="color:#0ea5a0">Viteks</span></span>
+            </a>
         </div>
     </div>
 </footer>

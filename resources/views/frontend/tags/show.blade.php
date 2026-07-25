@@ -3,9 +3,21 @@
 @section('title', $tag->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="Kumpulan berita dengan tag {{ $tag->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+    @php
+        $tagDesc = 'Kumpulan berita dengan tag ' . $tag->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update');
+    @endphp
+    <meta name="description" content="{{ $tagDesc }}">
+    <link rel="canonical" href="{{ route('tags.show', $tag->slug) }}" />
+    {{-- Open Graph --}}
     <meta property="og:title" content="{{ $tag->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Kumpulan berita dengan tag {{ $tag->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:description" content="{{ $tagDesc }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ route('tags.show', $tag->slug) }}" />
+    <meta property="og:locale" content="id_ID" />
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ $tag->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="{{ $tagDesc }}" />
 @endsection
 
 @section('content')

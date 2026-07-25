@@ -2,6 +2,15 @@
 
 @section('title', 'Semua Berita - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
+@section('meta')
+    <meta name="description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Portal berita Konawe Utara">
+    <link rel="canonical" href="{{ url()->current() }}" />
+    <meta property="og:title" content="Semua Berita - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+@endsection
+
 @section('content')
     <div class="mb-6">
         <nav class="flex items-center gap-1.5 text-xs text-on-surface-variant mb-3">

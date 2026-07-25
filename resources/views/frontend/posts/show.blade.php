@@ -3,13 +3,25 @@
 @section('title', $post->title . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="{{ strip_tags($post->excerpt ?: strip_tags(Str::limit($post->body, 160))) }}" />
+    @php
+        $excerpt = strip_tags($post->excerpt ?: Str::limit(strip_tags($post->body), 160));
+        $thumb = $post->thumbnail ? url(Storage::url($post->thumbnail)) : '';
+    @endphp
+    <meta name="description" content="{{ $excerpt }}" />
+    <link rel="canonical" href="{{ url()->current() }}" />
+    {{-- Open Graph --}}
     <meta property="og:title" content="{{ $post->title }}" />
-    <meta property="og:description" content="{{ strip_tags($post->excerpt ?: strip_tags(Str::limit($post->body, 160))) }}" />
+    <meta property="og:description" content="{{ $excerpt }}" />
     <meta property="og:type" content="{{ $post->isVideo() ? 'video.other' : 'article' }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="og:image" content="{{ $post->thumbnail ? url(Storage::url($post->thumbnail)) : '' }}" />
+    @if($thumb)
+        <meta property="og:image" content="{{ $thumb }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="{{ $post->title }}" />
+    @endif
     <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:locale" content="id_ID" />
     @if($post->isVideo() && $post->video_url)
         <meta property="og:video" content="{{ $post->video_embed_url }}" />
         <meta property="og:video:type" content="text/html" />
@@ -17,33 +29,44 @@
         <meta property="og:video:height" content="720" />
     @endif
     <meta property="article:published_time" content="{{ $post->published_at }}" />
+    <meta property="article:modified_time" content="{{ $post->updated_at ?? $post->published_at }}" />
     <meta property="article:author" content="{{ $post->author->name ?? 'Redaksi' }}" />
     <meta property="article:section" content="{{ $post->category->name ?? '' }}" />
+    @foreach($post->tags as $tag)
+        <meta property="article:tag" content="{{ $tag->name }}" />
+    @endforeach
+    {{-- Twitter Card --}}
     <meta name="twitter:card" content="{{ $post->isVideo() ? 'player' : 'summary_large_image' }}" />
     <meta name="twitter:title" content="{{ $post->title }}" />
-    <meta name="twitter:description" content="{{ strip_tags($post->excerpt ?: strip_tags(Str::limit($post->body, 160))) }}" />
-    <meta name="twitter:image" content="{{ $post->thumbnail ? url(Storage::url($post->thumbnail)) : '' }}" />
+    <meta name="twitter:description" content="{{ $excerpt }}" />
+    @if($thumb)
+        <meta name="twitter:image" content="{{ $thumb }}" />
+        <meta name="twitter:image:alt" content="{{ $post->title }}" />
+    @endif
     @if($post->isVideo() && $post->video_embed_url)
         <meta name="twitter:player" content="{{ $post->video_embed_url }}" />
         <meta name="twitter:player:width" content="1280" />
         <meta name="twitter:player:height" content="720" />
     @endif
+    {{-- Structured Data --}}
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "{{ $post->isVideo() ? 'VideoObject' : 'NewsArticle' }}",
-        "headline": "{{ $post->title }}",
-        "description": "{{ strip_tags($post->excerpt ?: strip_tags(Str::limit($post->body, 160))) }}",
-        "image": "{{ $post->thumbnail ? url(Storage::url($post->thumbnail)) : '' }}",
+        "headline": @json($post->title),
+        "description": @json($excerpt),
+        @if($thumb)
+        "image": "{{ $thumb }}",
+        @endif
         "datePublished": "{{ $post->published_at }}",
         "dateModified": "{{ $post->updated_at ?? $post->published_at }}",
         "author": {
             "@@type": "Person",
-            "name": "{{ $post->author->name ?? 'Redaksi' }}"
+            "name": @json($post->author->name ?? 'Redaksi')
         },
         "publisher": {
             "@@type": "Organization",
-            "name": "{{ $site_settings['site_name'] ?? 'Konut.Update' }}",
+            "name": @json($site_settings['site_name'] ?? 'Konut.Update'),
             "logo": {
                 "@@type": "ImageObject",
                 "url": "{{ !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : '' }}"
@@ -52,14 +75,42 @@
         "mainEntityOfPage": {
             "@@type": "WebPage",
             "@@id": "{{ url()->current() }}"
-        }@if($post->isVideo()),
+        },
+        "wordCount": {{ str_word_count(strip_tags($post->body)) }}@if($post->isVideo()),
         "contentUrl": "{{ $post->video_url }}",
         "embedUrl": "{{ $post->video_embed_url }}",
         "uploadDate": "{{ $post->published_at }}",
-        "duration": "PT0M"
-        @endif
+        "duration": "PT0M"@endif
     }
     </script>
+    @if($post->category)
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Beranda",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "{{ $post->category->name }}",
+                "item": "{{ route('categories.show', $post->category->slug) }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 3,
+                "name": "{{ $post->title }}",
+                "item": "{{ url()->current() }}"
+            }
+        ]
+    }
+    </script>
+    @endif
 @endsection
 
 @section('content')
@@ -159,10 +210,10 @@
                 {{-- Share Top --}}
                 <div class="flex items-center gap-2 mb-6">
                     <span class="text-sm font-semibold text-on-surface-variant mr-1">Bagikan:</span>
-                    <a href="{{ shareFacebook(url()->current()) }}" target="_blank" class="share-btn facebook" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                    <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" class="share-btn whatsapp" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" class="share-btn telegram" rel="noopener" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-                    <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" class="share-btn twitter" rel="noopener" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                    <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
                 </div>
 
                 {{-- Article Body --}}
@@ -198,11 +249,14 @@
                 {{-- Share Bottom --}}
                 <div class="flex items-center gap-2 mt-8 pt-6 border-t border-outline">
                     <span class="text-sm font-semibold text-on-surface-variant mr-1">Bagikan artikel ini:</span>
-                    <a href="{{ shareFacebook(url()->current()) }}" target="_blank" class="share-btn facebook" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                    <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" class="share-btn whatsapp" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" class="share-btn telegram" rel="noopener" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-                    <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" class="share-btn twitter" rel="noopener" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                    <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                    <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
                 </div>
+
+                {{-- Comments --}}
+                @include('frontend.posts._comments')
 
                 {{-- Related Posts --}}
                 @if(isset($relatedPosts) && $relatedPosts->count() > 0)

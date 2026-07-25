@@ -81,6 +81,11 @@
                         <i class="bi bi-megaphone"></i> Iklan
                     </a>
                 </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.comments.index') }}" class="nav-link {{ request()->routeIs('admin.comments.*') ? 'active' : '' }}">
+                        <i class="bi bi-chat-left-text"></i> Komentar
+                    </a>
+                </div>
                 @if(auth()->user()->role && auth()->user()->role->slug === 'super_admin')
                 <div class="nav-divider"></div>
                 <div class="nav-label">Administrasi</div>

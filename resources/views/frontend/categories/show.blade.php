@@ -3,9 +3,44 @@
 @section('title', $category->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="{{ $category->description ?? 'Kumpulan berita ' . $category->name . ' - Konut.Update' }}">
+    @php
+        $catDesc = $category->description ?: 'Kumpulan berita ' . $category->name . ' - Konut.Update';
+    @endphp
+    <meta name="description" content="{{ $catDesc }}">
+    <link rel="canonical" href="{{ route('categories.show', $category->slug) }}" />
+    {{-- Open Graph --}}
     <meta property="og:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="{{ $category->description ?? 'Kumpulan berita ' . $category->name . ' - Konut.Update' }}" />
+    <meta property="og:description" content="{{ $catDesc }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ route('categories.show', $category->slug) }}" />
+    <meta property="og:locale" content="id_ID" />
+    @if(!empty($site_settings['logo']))
+        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+    @endif
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="{{ $catDesc }}" />
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@@type": "ListItem",
+                "position": 1,
+                "name": "Beranda",
+                "item": "{{ url('/') }}"
+            },
+            {
+                "@@type": "ListItem",
+                "position": 2,
+                "name": "{{ $category->name }}",
+                "item": "{{ route('categories.show', $category->slug) }}"
+            }
+        ]
+    }
+    </script>
 @endsection
 
 @php
@@ -33,7 +68,7 @@
         <article class="lg:col-span-7 group">
             <a href="{{ route('posts.show', $heroMain->slug) }}" class="block no-underline">
                 <div class="relative overflow-hidden rounded-2xl h-[300px] md:h-[450px]">
-                    <div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('{{ $heroMain->thumbnail ? Storage::url($heroMain->thumbnail) : ($heroMain->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}');"></div>
+                    <img src="{{ $heroMain->thumbnail ? Storage::url($heroMain->thumbnail) : ($heroMain->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $heroMain->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="eager" fetchpriority="high">
                     <div class="hero-gradient absolute inset-0"></div>
                     @if($heroMain->isVideo())
                         <div class="absolute inset-0 flex items-center justify-center" style="z-index:1;">
@@ -49,7 +84,7 @@
                             @endif
                             {{ $category->name }}
                         </span>
-                        <h1 class="text-xl md:text-2xl lg:text-3xl font-extrabold text-white leading-tight drop-shadow-lg">{{ $heroMain->title }}</h1>
+                        <h2 class="text-xl md:text-2xl lg:text-3xl font-extrabold text-white leading-tight drop-shadow-lg">{{ $heroMain->title }}</h2>
                         <p class="text-white/80 text-sm line-clamp-2 hidden md:block mt-2 max-w-2xl">{{ $heroMain->excerpt ? strip_tags($heroMain->excerpt) : '' }}</p>
                         <div class="flex items-center gap-3 mt-3 text-white/60 text-xs">
                             <span>{{ $heroMain->published_at ? \Carbon\Carbon::parse($heroMain->published_at)->diffForHumans() : '' }}</span>
@@ -63,7 +98,7 @@
             <article class="group">
                 <a href="{{ route('posts.show', $post->slug) }}" class="block no-underline">
                     <div class="relative overflow-hidden rounded-xl h-40 sm:h-44">
-                        <div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}');"></div>
+                        <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
                         <div class="hero-gradient-sm absolute inset-0"></div>
                         @if($post->isVideo())
                             <div class="absolute inset-0 flex items-center justify-center" style="z-index:1;">

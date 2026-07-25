@@ -92,6 +92,11 @@ class Post extends Model
         return $this->hasMany(PageView::class, 'post_id');
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class)->latest();
+    }
+
     public function isVideo(): bool
     {
         return $this->type === 'video';

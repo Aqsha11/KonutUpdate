@@ -5,16 +5,31 @@
 @section('meta')
     <meta name="description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}">
     <meta name="keywords" content="{{ $site_settings['meta_keywords'] ?? 'berita, konawe utara, konut, news, informasi' }}">
+    <link rel="canonical" href="{{ url('/') }}" />
+    {{-- Open Graph --}}
     <meta property="og:title" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:description" content="Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya" />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="og:image" content="{{ !empty($site_settings['logo']) ? Storage::url($site_settings['logo']) : '' }}" />
+    <meta property="og:url" content="{{ url('/') }}" />
+    <meta property="og:locale" content="id_ID" />
+    @if(!empty($site_settings['logo']))
+        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+    @endif
+    {{-- Twitter Card --}}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya" />
+    @if(!empty($site_settings['logo']))
+        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+    @endif
+    {{-- Structured Data --}}
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "NewsMediaOrganization",
-        "name": "{{ $site_settings['site_name'] ?? 'Konut.Update' }}",
+        "name": @json($site_settings['site_name'] ?? 'Konut.Update'),
         "url": "{{ url('/') }}",
         "description": "Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya",
         "foundingDate": "2024",
@@ -23,6 +38,14 @@
             "addressLocality": "Konawe Utara",
             "addressRegion": "Sulawesi Tenggara",
             "addressCountry": "ID"
+        },
+        "potentialAction": {
+            "@@type": "SearchAction",
+            "target": {
+                "@@type": "EntryPoint",
+                "urlTemplate": "{{ url('/search') }}?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
         }
     }
     </script>
@@ -45,7 +68,7 @@
         <article class="lg:col-span-7 group">
             <a href="{{ route('posts.show', $heroMain->slug) }}" class="block no-underline">
                 <div class="relative overflow-hidden rounded-2xl h-[320px] md:h-[500px]">
-                    <div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('{{ $heroMain->thumbnail ? Storage::url($heroMain->thumbnail) : ($heroMain->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}');"></div>
+                    <img src="{{ $heroMain->thumbnail ? Storage::url($heroMain->thumbnail) : ($heroMain->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $heroMain->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="eager" fetchpriority="high">
                     <div class="hero-gradient absolute inset-0"></div>
                     @if($heroMain->isVideo())
                         <div class="absolute inset-0 flex items-center justify-center" style="z-index:1;">
@@ -86,7 +109,7 @@
             <article class="group">
                 <a href="{{ route('posts.show', $post->slug) }}" class="block no-underline">
                     <div class="relative overflow-hidden rounded-xl h-44 sm:h-[236px]">
-                        <div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style="background-image: url('{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}');"></div>
+                        <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
                         <div class="hero-gradient-sm absolute inset-0"></div>
                         @if($post->isVideo())
                             <div class="absolute inset-0 flex items-center justify-center" style="z-index:1;">

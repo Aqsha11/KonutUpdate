@@ -11,8 +11,32 @@
     <meta name="apple-mobile-web-app-title" content="Konut.Update">
     <link rel="manifest" href="{{ url('/manifest.json') }}">
     <link rel="apple-touch-icon" href="{{ url('/icons/icon.svg') }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ $site_settings['site_name'] ?? 'Konut.Update' }} RSS Feed" href="{{ url('/feed') }}">
     <title>@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))</title>
-    @yield('meta')
+    {{-- SEO Fallback: hanya render jika child TIDAK define @section('meta') --}}
+    @hasSection('meta')
+        @yield('meta')
+    @else
+        <meta name="description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}">
+        <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+        <meta property="og:locale" content="id_ID" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="{{ url()->current() }}" />
+        <meta property="og:title" content="@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))" />
+        <meta property="og:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara' }}" />
+        @if(!empty($site_settings['logo']))
+            <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+        @endif
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))" />
+        <meta name="twitter:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara' }}" />
+        @if(!empty($site_settings['logo']))
+            <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        @endif
+    @endif
+    <link rel="canonical" href="{{ url()->current() }}" />
     @if(!empty($site_settings['favicon']))
         <link rel="icon" type="image/png" href="{{ Storage::url($site_settings['favicon']) }}">
     @else

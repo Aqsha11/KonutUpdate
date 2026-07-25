@@ -37,7 +37,7 @@
     @foreach($posts as $post)
     <url>
         <loc>{{ route('posts.show', $post->slug) }}</loc>
-        <lastmod>{{ $post->updated_at ?: $post->published_at }}Z</lastmod>
+        <lastmod>{{ optional($post->updated_at ?: $post->published_at)->toIso8601String() }}</lastmod>
         <priority>0.9</priority>
         <changefreq>daily</changefreq>
     </url>

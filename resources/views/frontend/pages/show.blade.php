@@ -3,9 +3,19 @@
 @section('title', $page->title . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="{{ strip_tags(Str::limit($page->content, 160)) }}">
+    @php
+        $pageDesc = strip_tags(Str::limit($page->content, 160));
+    @endphp
+    <meta name="description" content="{{ $pageDesc }}">
+    <link rel="canonical" href="{{ route('pages.show', $page->slug) }}" />
     <meta property="og:title" content="{{ $page->title }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="{{ strip_tags(Str::limit($page->content, 160)) }}" />
+    <meta property="og:description" content="{{ $pageDesc }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ route('pages.show', $page->slug) }}" />
+    <meta property="og:locale" content="id_ID" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ $page->title }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="{{ $pageDesc }}" />
 @endsection
 
 @push('styles')

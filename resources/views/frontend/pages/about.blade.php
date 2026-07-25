@@ -3,9 +3,19 @@
 @section('title', 'Tentang Kami - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="Tentang {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Portal berita online terpercaya dari Konawe Utara, Sulawesi Tenggara." />
+    @php
+        $aboutDesc = 'Tentang ' . ($site_settings['site_name'] ?? 'Konut.Update') . ' - Portal berita online terpercaya dari Konawe Utara, Sulawesi Tenggara.';
+    @endphp
+    <meta name="description" content="{{ $aboutDesc }}" />
+    <link rel="canonical" href="{{ route('pages.about') }}" />
     <meta property="og:title" content="Tentang Kami - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Tentang {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Portal berita online terpercaya dari Konawe Utara, Sulawesi Tenggara." />
+    <meta property="og:description" content="{{ $aboutDesc }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ route('pages.about') }}" />
+    <meta property="og:locale" content="id_ID" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Tentang Kami - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="{{ $aboutDesc }}" />
 @endsection
 
 @section('content')
