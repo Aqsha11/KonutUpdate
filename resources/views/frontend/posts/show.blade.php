@@ -6,22 +6,27 @@
     @php
         $excerpt = strip_tags($post->excerpt ?: Str::limit(strip_tags($post->body), 160));
         $thumb = $post->thumbnail ? url(Storage::url($post->thumbnail)) : '';
+        $fallbackImage = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : '';
+        $shareImage = $thumb ?: $fallbackImage;
+        $tagNames = $post->tags->pluck('name')->implode(', ');
+        $keywords = collect([$post->category->name ?? '', $tagNames, 'Konut.Update', 'Konawe Utara', 'berita'])->filter()->implode(', ');
     @endphp
     <meta name="description" content="{{ $excerpt }}" />
+    <meta name="keywords" content="{{ $keywords }}" />
     <link rel="canonical" href="{{ url()->current() }}" />
     {{-- Open Graph --}}
     <meta property="og:title" content="{{ $post->title }}" />
     <meta property="og:description" content="{{ $excerpt }}" />
     <meta property="og:type" content="{{ $post->isVideo() ? 'video.other' : 'article' }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
-    @if($thumb)
-        <meta property="og:image" content="{{ $thumb }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:locale" content="id_ID" />
+    @if($shareImage)
+        <meta property="og:image" content="{{ $shareImage }}" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content="{{ $post->title }}" />
     @endif
-    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:locale" content="id_ID" />
     @if($post->isVideo() && $post->video_url)
         <meta property="og:video" content="{{ $post->video_embed_url }}" />
         <meta property="og:video:type" content="text/html" />
@@ -36,11 +41,11 @@
         <meta property="article:tag" content="{{ $tag->name }}" />
     @endforeach
     {{-- Twitter Card --}}
-    <meta name="twitter:card" content="{{ $post->isVideo() ? 'player' : 'summary_large_image' }}" />
+    <meta name="twitter:card" content="{{ $shareImage ? 'summary_large_image' : 'summary' }}" />
     <meta name="twitter:title" content="{{ $post->title }}" />
     <meta name="twitter:description" content="{{ $excerpt }}" />
-    @if($thumb)
-        <meta name="twitter:image" content="{{ $thumb }}" />
+    @if($shareImage)
+        <meta name="twitter:image" content="{{ $shareImage }}" />
         <meta name="twitter:image:alt" content="{{ $post->title }}" />
     @endif
     @if($post->isVideo() && $post->video_embed_url)

@@ -18,22 +18,25 @@
         @yield('meta')
     @else
         <meta name="description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}">
+        <meta name="keywords" content="{{ $site_settings['meta_keywords'] ?? 'konut, konawe utara, berita, news, informasi, sulawesi tenggara' }}">
         <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
         <meta property="og:locale" content="id_ID" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="{{ url()->current() }}" />
         <meta property="og:title" content="@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))" />
-        <meta property="og:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara' }}" />
+        <meta property="og:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
         @if(!empty($site_settings['logo']))
             <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
             <meta property="og:image:width" content="1200" />
             <meta property="og:image:height" content="630" />
+            <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
         @endif
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))" />
-        <meta name="twitter:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara' }}" />
+        <meta name="twitter:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
         @if(!empty($site_settings['logo']))
             <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+            <meta name="twitter:image:alt" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
         @endif
     @endif
     <link rel="canonical" href="{{ url()->current() }}" />

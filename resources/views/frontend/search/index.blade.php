@@ -3,12 +3,26 @@
 @section('title', 'Semua Berita - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
 
 @section('meta')
-    <meta name="description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Portal berita Konawe Utara">
+    <meta name="description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Portal berita terpercaya Konawe Utara, Sulawesi Tenggara">
+    <meta name="keywords" content="berita, pencarian, Konut.Update, Konawe Utara, news">
     <link rel="canonical" href="{{ url()->current() }}" />
     <meta property="og:title" content="Semua Berita - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }} - Portal berita terpercaya Konawe Utara" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:locale" content="id_ID" />
+    @if(!empty($site_settings['logo']))
+        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+    @endif
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Semua Berita - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    @if(!empty($site_settings['logo']))
+        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+    @endif
 @endsection
 
 @section('content')

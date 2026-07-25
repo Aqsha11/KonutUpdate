@@ -4,20 +4,30 @@
 
 @section('meta')
     @php
-        $tagDesc = 'Kumpulan berita dengan tag ' . $tag->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update');
+        $tagDesc = 'Kumpulan berita dengan tag ' . $tag->name . ' terbaru dari ' . ($site_settings['site_name'] ?? 'Konut.Update') . ' - Portal Berita Konawe Utara';
     @endphp
     <meta name="description" content="{{ $tagDesc }}">
+    <meta name="keywords" content="{{ $tag->name }}, berita {{ $tag->name }}, Konut.Update, Konawe Utara">
     <link rel="canonical" href="{{ route('tags.show', $tag->slug) }}" />
     {{-- Open Graph --}}
     <meta property="og:title" content="{{ $tag->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:description" content="{{ $tagDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ route('tags.show', $tag->slug) }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:locale" content="id_ID" />
+    @if(!empty($site_settings['logo']))
+        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+    @endif
     {{-- Twitter Card --}}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $tag->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta name="twitter:description" content="{{ $tagDesc }}" />
+    @if(!empty($site_settings['logo']))
+        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+    @endif
 @endsection
 
 @section('content')

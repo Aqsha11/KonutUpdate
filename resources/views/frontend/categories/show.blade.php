@@ -4,23 +4,33 @@
 
 @section('meta')
     @php
-        $catDesc = $category->description ?: 'Kumpulan berita ' . $category->name . ' - Konut.Update';
+        $catDesc = $category->description ?: 'Kumpulan berita ' . $category->name . ' terbaru dan terpercaya dari Konut.Update - Portal Berita Konawe Utara';
+        $catKeywords = $category->name . ', berita ' . $category->name . ', Konut.Update, Konawe Utara, berita';
     @endphp
     <meta name="description" content="{{ $catDesc }}">
+    <meta name="keywords" content="{{ $catKeywords }}">
     <link rel="canonical" href="{{ route('categories.show', $category->slug) }}" />
     {{-- Open Graph --}}
     <meta property="og:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:description" content="{{ $catDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ route('categories.show', $category->slug) }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:locale" content="id_ID" />
     @if(!empty($site_settings['logo']))
         <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     @endif
     {{-- Twitter Card --}}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta name="twitter:description" content="{{ $catDesc }}" />
+    @if(!empty($site_settings['logo']))
+        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta name="twitter:image:alt" content="{{ $category->name }}" />
+    @endif
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",

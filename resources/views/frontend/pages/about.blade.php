@@ -7,15 +7,25 @@
         $aboutDesc = 'Tentang ' . ($site_settings['site_name'] ?? 'Konut.Update') . ' - Portal berita online terpercaya dari Konawe Utara, Sulawesi Tenggara.';
     @endphp
     <meta name="description" content="{{ $aboutDesc }}" />
+    <meta name="keywords" content="tentang kami, Konut.Update, portal berita, Konawe Utara, media online" />
     <link rel="canonical" href="{{ route('pages.about') }}" />
     <meta property="og:title" content="Tentang Kami - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:description" content="{{ $aboutDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ route('pages.about') }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:locale" content="id_ID" />
-    <meta name="twitter:card" content="summary" />
+    @if(!empty($site_settings['logo']))
+        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+    @endif
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Tentang Kami - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta name="twitter:description" content="{{ $aboutDesc }}" />
+    @if(!empty($site_settings['logo']))
+        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+    @endif
 @endsection
 
 @section('content')

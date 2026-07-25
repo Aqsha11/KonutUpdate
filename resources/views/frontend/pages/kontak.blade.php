@@ -12,10 +12,19 @@
     <meta property="og:description" content="{{ $kontakDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ route('pages.kontak') }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:locale" content="id_ID" />
-    <meta name="twitter:card" content="summary" />
+    @if(!empty($site_settings['logo']))
+        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+    @endif
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Kontak - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta name="twitter:description" content="{{ $kontakDesc }}" />
+    @if(!empty($site_settings['logo']))
+        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+    @endif
 @endsection
 
 @section('content')
