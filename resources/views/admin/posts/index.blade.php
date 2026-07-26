@@ -89,8 +89,8 @@
                         @if($post->is_breaking)
                         <span class="badge-admin badge-admin-danger ms-1">Breaking</span>
                         @endif
-                        @if($post->is_featured)
-                        <span class="badge-admin badge-admin-info ms-1">Featured</span>
+                        @if($post->is_headline)
+                        <span class="badge-admin badge-admin-info ms-1">Headline</span>
                         @endif
                         @if($post->isVideo())
                         <span class="badge-admin badge-admin-orange ms-1"><i class="bi bi-play-circle"></i> Video</span>

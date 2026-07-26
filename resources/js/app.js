@@ -1,5 +1,8 @@
 import './bootstrap';
 
+import Swiper from 'swiper/bundle';
+window.Swiper = Swiper;
+
 import Alpine from 'alpinejs';
 
 import scrollToTop from './components/scrollToTop';

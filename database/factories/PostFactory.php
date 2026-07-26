@@ -23,7 +23,7 @@ class PostFactory extends Factory
             'thumbnail' => fake()->imageUrl(),
             'status' => 'draft',
             'is_breaking' => false,
-            'is_featured' => false,
+            'is_headline' => false,
             'published_at' => null,
             'views_count' => 0,
         ];
@@ -37,10 +37,10 @@ class PostFactory extends Factory
         ]);
     }
 
-    public function featured(): static
+    public function headline(): static
     {
         return $this->state(fn (array $attrs) => [
-            'is_featured' => true,
+            'is_headline' => true,
         ]);
     }
 

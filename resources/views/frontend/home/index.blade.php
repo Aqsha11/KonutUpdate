@@ -10,480 +10,415 @@
     <meta name="description" content="{{ $homeDesc }}">
     <meta name="keywords" content="{{ $homeKw }}">
     <link rel="canonical" href="{{ url('/') }}" />
-    {{-- Open Graph --}}
     <meta property="og:title" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:description" content="{{ $homeDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ url('/') }}" />
-    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:locale" content="id_ID" />
-    @if(!empty($site_settings['logo']))
-        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    @endif
-    {{-- Twitter Card --}}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta name="twitter:description" content="{{ $homeDesc }}" />
-    @if(!empty($site_settings['logo']))
-        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-        <meta name="twitter:image:alt" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    @endif
-    {{-- Structured Data --}}
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "NewsMediaOrganization",
         "name": @json($site_settings['site_name'] ?? 'Konut.Update'),
         "url": "{{ url('/') }}",
-        "description": "Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya",
-        "foundingDate": "2024",
-        "address": {
-            "@@type": "PostalAddress",
-            "addressLocality": "Konawe Utara",
-            "addressRegion": "Sulawesi Tenggara",
-            "addressCountry": "ID"
-        },
-        "potentialAction": {
-            "@@type": "SearchAction",
-            "target": {
-                "@@type": "EntryPoint",
-                "urlTemplate": "{{ url('/search') }}?q={search_term_string}"
-            },
-            "query-input": "required name=search_term_string"
-        }
+        "description": "Portal berita terkini Konawe Utara"
     }
     </script>
 @endsection
 
 @php
-    $heroMain = $featuredPosts->shift();
-    $heroSide = $featuredPosts->take(4);
-    $kriminalPosts = $categoryPosts['Kriminal'] ?? collect();
-    $pemerintahanPosts = $categoryPosts['Pemerintahan'] ?? collect();
-    $tambangPosts = $categoryPosts['Tambang'] ?? collect();
-    $wisataPosts = $categoryPosts['Ekonomi'] ?? collect();
-    $olahragaPosts = $categoryPosts['Olahraga'] ?? collect();
+    $kriminalPosts = $categoryPosts['kriminal'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
+    $pemerintahanPosts = $categoryPosts['pemerintahan'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
+    $tambangPosts = $categoryPosts['tambang'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
+    $ekonomiPosts = $categoryPosts['ekonomi'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
+    $olahragaPosts = $categoryPosts['olahraga'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
+
+    $categoryMeta = [
+        'kriminal' => ['name' => 'Kriminal', 'icon' => 'shield-alert', 'color' => 'error'],
+        'pemerintahan' => ['name' => 'Pemerintahan', 'icon' => 'landmark', 'color' => 'primary'],
+        'tambang' => ['name' => 'Tambang', 'icon' => 'pickaxe', 'color' => 'secondary'],
+        'ekonomi' => ['name' => 'Ekonomi', 'icon' => 'trending-up', 'color' => 'tertiary'],
+        'olahraga' => ['name' => 'Olahraga', 'icon' => 'trophy', 'color' => 'accent'],
+    ];
+
+    $categoryData = [
+        'kriminal' => $kriminalPosts,
+        'pemerintahan' => $pemerintahanPosts,
+        'tambang' => $tambangPosts,
+        'ekonomi' => $ekonomiPosts,
+        'olahraga' => $olahragaPosts,
+    ];
+
+    $latestChunks = $latestPosts->chunk(6);
+
+    $heroSlides = $headlinePosts->chunk(3);
 @endphp
 
 @section('content')
-    {{-- Hero Section --}}
-    @if($heroMain)
-    <section class="grid grid-cols-2 lg:grid-cols-12 gap-3 lg:gap-4 mb-6 lg:mb-10">
-        <article class="col-span-2 lg:col-span-7 group">
-            <a href="{{ route('posts.show', $heroMain->slug) }}" class="block no-underline">
-                <div class="relative overflow-hidden rounded-2xl h-[200px] sm:h-[320px] md:h-[500px]">
-                    <img src="{{ $heroMain->thumbnail ? Storage::url($heroMain->thumbnail) : ($heroMain->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $heroMain->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="eager" fetchpriority="high">
-                    <div class="hero-gradient absolute inset-0"></div>
-                    @if($heroMain->isVideo())
-                        <div class="absolute inset-0 flex items-center justify-center" style="z-index:1;">
-                            <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/90 flex items-center justify-center shadow-2xl">
-                                <i data-lucide="play" class="w-8 h-8 md:w-10 md:h-10 text-primary ml-1"></i>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         HERO CAROUSEL — 1 big + 2 small per slide
+         ═══════════════════════════════════════════════════════════ --}}
+    @if($headlinePosts->count() > 0)
+    <section class="mb-4">
+        <div class="hero-carousel" x-data="{ active: 0, total: {{ $heroSlides->count() }} }" x-init="setInterval(() => { if(total > 1) active = (active + 1) % total }, 5000)">
+            <div class="hero-carousel-track" :style="'transform: translateX(-' + (active * 100) + '%)'">
+                @foreach($heroSlides as $slideIndex => $slide)
+                <div class="hero-carousel-slide">
+                    @php
+                        $big = $slide->first();
+                        $smalls = $slide->slice(1);
+                    @endphp
+                    <div class="hero-slide-grid">
+                        {{-- POST BESAR --}}
+                        <div class="hero-slide-big">
+                            <a href="{{ route('posts.show', $big->slug) }}">
+                                <img src="{{ $big->thumbnail ? Storage::url($big->thumbnail) : ($big->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $big->title }}" class="hero-slide-big-img" loading="{{ $slideIndex === 0 ? 'eager' : 'lazy' }}">
+                            </a>
+                            <div class="hero-slide-big-overlay"></div>
+                            @if($big->isVideo())
+                            <div class="hero-play"><i data-lucide="play" class="w-6 h-6 text-primary ml-0.5"></i></div>
+                            @endif
+                            <div class="hero-slide-big-content">
+                                @if($big->categories->count() > 0)
+                                <a href="{{ route('categories.show', $big->categories->first()->slug) }}" class="hero-slide-badge">{{ $big->categories->first()->name }}</a>
+                                @elseif($big->category)
+                                <a href="{{ route('categories.show', $big->category->slug) }}" class="hero-slide-badge">{{ $big->category->name }}</a>
+                                @endif
+                                <h2 class="hero-slide-big-title"><a href="{{ route('posts.show', $big->slug) }}">{{ $big->title }}</a></h2>
+                                <div class="hero-slide-author">
+                                    <div class="hero-slide-avatar">
+                                        @if($big->author && $big->author->avatar)
+                                        <img src="{{ Storage::url($big->author->avatar) }}" alt="{{ $big->author->name }}">
+                                        @else
+                                        <span>{{ substr($big->author->name ?? 'R', 0, 1) }}</span>
+                                        @endif
+                                    </div>
+                                    <span class="hero-slide-author-name">{{ $big->author->name ?? 'Redaksi' }}</span>
+                                </div>
+                                <div class="hero-slide-actions">
+                                    <button type="button" onclick="event.preventDefault();event.stopPropagation();toggleLike({{ $big->id }})" id="like-btn-hero-{{ $big->id }}" class="hero-slide-btn {{ $big->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                        <i data-lucide="heart" class="w-3 h-3"></i>
+                                        <span id="like-count-hero-{{ $big->id }}">{{ $big->likesCount() }}</span>
+                                    </button>
+                                    <a href="{{ route('posts.show', $big->slug) }}#comments" class="hero-slide-btn" onclick="event.preventDefault();event.stopPropagation()">
+                                        <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                    </a>
+                                    <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $big->slug) }}', '{{ addslashes($big->title) }}')" class="hero-slide-btn">
+                                        <i data-lucide="share-2" class="w-3 h-3"></i>
+                                    </button>
+                                    <span class="hero-slide-time">{{ $big->published_at ? \Carbon\Carbon::parse($big->published_at)->diffForHumans() : '' }}</span>
+                                </div>
                             </div>
                         </div>
-                    @endif
-                        <div class="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4">
-                            @if($heroMain->categories->count() > 0)
-                                <span class="category-badge mb-2 sm:mb-3 inline-block text-[9px] sm:text-[11px]">
-                                    @if($heroMain->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
+
+                        {{-- POST KECIL 2 --}}
+                        <div class="hero-slide-smalls">
+                            @foreach($smalls as $small)
+                            <div class="hero-slide-small">
+                                <a href="{{ route('posts.show', $small->slug) }}">
+                                    <img src="{{ $small->thumbnail ? Storage::url($small->thumbnail) : ($small->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $small->title }}" class="hero-slide-small-img" loading="lazy">
+                                </a>
+                                <div class="hero-slide-small-overlay"></div>
+                                <div class="hero-slide-small-content">
+                                    @if($small->categories->count() > 0)
+                                    <a href="{{ route('categories.show', $small->categories->first()->slug) }}" class="hero-slide-badge-sm">{{ $small->categories->first()->name }}</a>
+                                    @elseif($small->category)
+                                    <a href="{{ route('categories.show', $small->category->slug) }}" class="hero-slide-badge-sm">{{ $small->category->name }}</a>
                                     @endif
-                                    {{ $heroMain->categories->first()->name }}
-                                </span>
-                            @elseif($heroMain->category)
-                                <span class="category-badge mb-2 sm:mb-3 inline-block text-[9px] sm:text-[11px]">
-                                    @if($heroMain->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                    @endif
-                                    {{ $heroMain->category->name }}
-                                </span>
-                            @endif
-                        <h1 class="text-base sm:text-xl md:text-3xl lg:text-4xl font-extrabold text-white mb-1 sm:mb-2 leading-tight drop-shadow-lg">{{ $heroMain->title }}</h1>
-                        <p class="text-white/80 text-xs sm:text-sm md:text-base line-clamp-2 hidden sm:block mb-2 sm:mb-3 max-w-2xl">{{ $heroMain->excerpt ? strip_tags($heroMain->excerpt) : '' }}</p>
-                        <div class="flex items-center gap-3 sm:gap-4 text-white/60 text-[10px] sm:text-xs">
-                            <span class="flex items-center gap-1.5">
-                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                                {{ $heroMain->published_at ? \Carbon\Carbon::parse($heroMain->published_at)->diffForHumans() : '' }}
-                            </span>
-                            @if($heroMain->author)
-                                <span class="flex items-center gap-1.5">
-                                    <i data-lucide="user" class="w-3.5 h-3.5"></i>
-                                    {{ $heroMain->author->name ?? 'Redaksi' }}
-                                </span>
+                                    <h3 class="hero-slide-small-title"><a href="{{ route('posts.show', $small->slug) }}">{{ $small->title }}</a></h3>
+                                    <div class="hero-slide-author-sm">
+                                        <div class="hero-slide-avatar-sm">
+                                            @if($small->author && $small->author->avatar)
+                                            <img src="{{ Storage::url($small->author->avatar) }}" alt="{{ $small->author->name }}">
+                                            @else
+                                            <span>{{ substr($small->author->name ?? 'R', 0, 1) }}</span>
+                                            @endif
+                                        </div>
+                                        <span class="hero-slide-author-name-sm">{{ $small->author->name ?? 'Redaksi' }}</span>
+                                    </div>
+                                    <div class="hero-slide-actions-sm">
+                                        <button type="button" onclick="event.preventDefault();event.stopPropagation();toggleLike({{ $small->id }})" id="like-btn-hero-sm-{{ $small->id }}" class="hero-slide-btn-sm {{ $small->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                            <i data-lucide="heart" class="w-2.5 h-2.5"></i>
+                                            <span id="like-count-hero-sm-{{ $small->id }}">{{ $small->likesCount() }}</span>
+                                        </button>
+                                        <a href="{{ route('posts.show', $small->slug) }}#comments" class="hero-slide-btn-sm" onclick="event.preventDefault();event.stopPropagation()">
+                                            <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
+                                        </a>
+                                        <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $small->slug) }}', '{{ addslashes($small->title) }}')" class="hero-slide-btn-sm">
+                                            <i data-lucide="share-2" class="w-2.5 h-2.5"></i>
+                                        </button>
+                                        <span class="hero-slide-time-sm">{{ $small->published_at ? \Carbon\Carbon::parse($small->published_at)->diffForHumans() : '' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                            {{-- Placeholder jika kurang dari 2 small --}}
+                            @if($smalls->count() < 2)
+                            @for($i = $smalls->count(); $i < 2; $i++)
+                            <div class="hero-slide-small hero-slide-placeholder">
+                                <div class="hero-slide-placeholder-inner">
+                                    <i data-lucide="newspaper" class="w-5 h-5 opacity-20"></i>
+                                </div>
+                            </div>
+                            @endfor
                             @endif
                         </div>
                     </div>
                 </div>
-            </a>
-        </article>
-        <div class="col-span-2 lg:col-span-5 grid grid-cols-2 gap-2 sm:gap-3 lg:gap-4">
-            @foreach($heroSide as $post)
-            <article class="group">
-                <a href="{{ route('posts.show', $post->slug) }}" class="block no-underline">
-                    <div class="relative overflow-hidden rounded-lg sm:rounded-xl h-32 sm:h-44 lg:h-[236px]">
-                        <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
-                        <div class="hero-gradient-sm absolute inset-0"></div>
-                        @if($post->isVideo())
-                            <div class="absolute inset-0 flex items-center justify-center" style="z-index:1;">
-                                <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                                    <i data-lucide="play" class="w-4 h-4 text-primary ml-0.5"></i>
-                                </div>
-                            </div>
-                        @endif
-                    <div class="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4">
-                        @if($post->categories->count() > 0)
-                            <span class="text-[9px] sm:text-[10px] font-bold uppercase text-primary-fixed-dim tracking-wider">
-                                @if($post->isVideo())
-                                    <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                @endif
-                                {{ $post->categories->first()->name }}
-                            </span>
-                        @elseif($post->category)
-                                <span class="text-[9px] sm:text-[10px] font-bold uppercase text-primary-fixed-dim tracking-wider">
-                                    @if($post->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                    @endif
-                                    {{ $post->category->name }}
-                                </span>
-                            @endif
-                            <h3 class="text-[11px] sm:text-sm md:text-base font-bold text-white mt-0.5 line-clamp-2 drop-shadow leading-snug">{{ $post->title }}</h3>
-                        </div>
-                    </div>
-                </a>
-            </article>
-            @endforeach
+                @endforeach
+            </div>
+
+            {{-- Indicators --}}
+            @if($heroSlides->count() > 1)
+            <div class="hero-carousel-indicators">
+                @foreach($heroSlides as $i => $_)
+                <button type="button" class="hero-carousel-dot" :class="active === {{ $i }} ? 'active' : ''" @click="active = {{ $i }}"></button>
+                @endforeach
+            </div>
+
+            {{-- Nav --}}
+            <button type="button" class="hero-carousel-prev" @click="active = active > 0 ? active - 1 : total - 1">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button type="button" class="hero-carousel-next" @click="active = active < total - 1 ? active + 1 : 0">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+            @endif
         </div>
     </section>
     @endif
 
-    {{-- Main Content + Sidebar --}}
-    <div class="flex flex-col lg:flex-row gap-6 lg:gap-10">
-        <div class="lg:w-[68%] space-y-6 lg:space-y-10">
+    {{-- ═══════════════════════════════════════════════════════════
+         BERITA TERBARU — Mobile: 10 items, Desktop: 3 Kolom × 6
+         ═══════════════════════════════════════════════════════════ --}}
+    <section class="mb-4">
+        <div class="section-bar">
+            <h2 class="section-bar-title"><span class="section-bar-dot bg-primary"></span>Berita Terbaru</h2>
+            <a href="{{ route('search') }}" class="section-bar-link">Semua Berita <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+        </div>
 
-            {{-- Iklan Mobile --}}
-            @php
-                $mobileAds = collect();
-                if(isset($sidebarAdsTop)) $mobileAds = $mobileAds->merge($sidebarAdsTop);
-                if(isset($sidebarAdsBottom)) $mobileAds = $mobileAds->merge($sidebarAdsBottom);
-                if(isset($articleAds)) $mobileAds = $mobileAds->merge($articleAds);
-            @endphp
-            @if($mobileAds->count() > 0)
-            <div class="lg:hidden">
-                @foreach($mobileAds->take(2) as $ad)
-                <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-2xl overflow-hidden border border-outline/50 no-underline group">
-                    <div class="aspect-[3/1] overflow-hidden bg-surface-container-low">
-                        <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-full object-cover" loading="lazy">
+        {{-- Mobile: flat list 10 items --}}
+        <div class="news-mobile-list">
+            <div class="news-list">
+                @foreach($latestPosts->take(10) as $post)
+                <article class="news-item" data-post-id="{{ $post->id }}">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
+                        <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                        @if($post->isVideo())
+                        <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
+                        @endif
+                    </a>
+                    <div class="news-item-body">
+                        <div class="news-item-meta">
+                            @if($post->categories->count() > 0)
+                                <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="news-item-cat">{{ $post->categories->first()->name }}</a>
+                            @elseif($post->category)
+                                <a href="{{ route('categories.show', $post->category->slug) }}" class="news-item-cat">{{ $post->category->name }}</a>
+                            @endif
+                            <span class="news-item-time">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
+                        </div>
+                        <h3 class="news-item-title">
+                            <a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a>
+                        </h3>
+                        <div class="news-item-stats">
+                            <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-m-{{ $post->id }}" class="stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                <i data-lucide="heart" class="w-3 h-3"></i>
+                                <span id="like-count-m-{{ $post->id }}">{{ $post->likesCount() }}</span>
+                            </button>
+                            <a href="{{ route('posts.show', $post->slug) }}#comments" class="stat-btn">
+                                <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                <span>{{ $post->commentsCount() }}</span>
+                            </a>
+                            <button type="button" onclick="sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="stat-btn">
+                                <i data-lucide="share-2" class="w-3 h-3"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="px-3 py-2">
-                        <p class="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{{ $ad->title }}</p>
-                        <p class="text-[10px] text-on-surface-variant mt-0.5">Iklan</p>
-                    </div>
-                </a>
+                </article>
                 @endforeach
             </div>
-            @endif
+        </div>
 
-            {{-- Berita Terbaru --}}
-            <section class="reveal">
-                <div class="flex items-center justify-between mb-5">
-                    <h2 class="section-title pb-1">Berita Terbaru</h2>
-                    <a href="{{ route('search') }}" class="text-xs font-semibold text-primary hover:underline no-underline uppercase tracking-wider">Lihat Semua</a>
+        {{-- Desktop: 3-column grid --}}
+        <div class="news-3col-grid">
+            @foreach($latestChunks as $chunkIndex => $chunk)
+            <div class="news-3col-col">
+                @foreach($chunk as $post)
+                <article class="news-item" data-post-id="{{ $post->id }}">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
+                        <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                        @if($post->isVideo())
+                        <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
+                        @endif
+                    </a>
+                    <div class="news-item-body">
+                        <div class="news-item-meta">
+                            @if($post->categories->count() > 0)
+                                <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="news-item-cat">{{ $post->categories->first()->name }}</a>
+                            @elseif($post->category)
+                                <a href="{{ route('categories.show', $post->category->slug) }}" class="news-item-cat">{{ $post->category->name }}</a>
+                            @endif
+                            <span class="news-item-time">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
+                        </div>
+                        <h3 class="news-item-title">
+                            <a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a>
+                        </h3>
+                        <div class="news-item-stats">
+                            <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-{{ $post->id }}" class="stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                <i data-lucide="heart" class="w-3 h-3"></i>
+                                <span id="like-count-{{ $post->id }}">{{ $post->likesCount() }}</span>
+                            </button>
+                            <a href="{{ route('posts.show', $post->slug) }}#comments" class="stat-btn">
+                                <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                <span>{{ $post->commentsCount() }}</span>
+                            </a>
+                            <button type="button" onclick="sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="stat-btn">
+                                <i data-lucide="share-2" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                @endforeach
+            </div>
+            @endforeach
+        </div>
+    </section>
+
+    {{-- ═══════════════════════════════════════════════════════════
+         CATEGORY SECTIONS — Portrait card + List
+         ═══════════════════════════════════════════════════════════ --}}
+    @foreach($categorySlugs as $slug)
+        @php
+            $catData = $categoryData[$slug] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
+            $meta = $categoryMeta[$slug] ?? ['name' => ucfirst($slug), 'icon' => 'folder', 'color' => 'primary'];
+        @endphp
+
+        @if($catData['hero'] || $catData['trending']->count() > 0 || $catData['latest']->count() > 0)
+        <section class="mb-4">
+            <div class="cat-header">
+                <div class="cat-header-title">
+                    <span class="cat-header-dot bg-{{ $meta['color'] }}"></span>
+                    <h2>{{ $meta['name'] }}</h2>
                 </div>
-                <div id="posts-container" class="space-y-3 sm:space-y-4">
-                    @forelse($latestPosts as $post)
-                    <article data-post-item class="flex flex-col sm:flex-row gap-3 sm:gap-5 bg-surface rounded-xl sm:rounded-2xl p-3 sm:p-4 card-hover border border-outline/50" data-post-id="{{ $post->id }}">
-                        <a href="{{ route('posts.show', $post->slug) }}" class="sm:w-[220px] shrink-0">
-                            <div class="aspect-video sm:aspect-[4/3] rounded-lg sm:rounded-xl overflow-hidden img-zoom bg-surface-container-low relative">
-                                <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
-                                @if($post->isVideo())
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/25">
-                                        <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="play" class="w-4 h-4 text-primary ml-0.5"></i>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
+                <a href="{{ route('categories.show', $slug) }}" class="cat-header-link">Lihat Semua <i data-lucide="chevron-right" class="w-3 h-3"></i></a>
+            </div>
+
+            <div class="cat-3col-layout">
+                {{-- ══ KOLAM 1: Portrait Hero Card ═─ --}}
+                <div class="cat-3col-hero">
+                    @if($catData['hero'])
+                    <div class="cat-portrait-card">
+                        <a href="{{ route('posts.show', $catData['hero']->slug) }}">
+                            <img src="{{ $catData['hero']->thumbnail ? Storage::url($catData['hero']->thumbnail) : ($catData['hero']->video_poster ?? 'https://placehold.co/400x520/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $catData['hero']->title }}" class="cat-portrait-img" loading="lazy">
                         </a>
-                        <div class="flex-1 flex flex-col justify-center min-w-0">
-                            <div class="flex items-center gap-2 text-[10px] sm:text-xs text-on-surface-variant mb-1.5 sm:mb-2 flex-wrap">
-                                @if($post->categories->count() > 0)
-                                    @foreach($post->categories as $cat)
-                                        <a href="{{ route('categories.show', $cat->slug) }}" class="font-bold text-primary uppercase tracking-wider no-underline hover:underline">{{ $cat->name }}</a>
-                                        @if(! $loop->last)
-                                            <span class="text-on-surface-variant">/</span>
-                                        @endif
-                                    @endforeach
-                                @elseif($post->category)
-                                    <a href="{{ route('categories.show', $post->category->slug) }}" class="font-bold text-primary uppercase tracking-wider no-underline hover:underline">{{ $post->category->name }}</a>
-                                @endif
-                                <span class="w-1 h-1 rounded-full bg-on-surface-variant"></span>
-                                <span>{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->format('d F Y') : '' }}</span>
+                        <div class="cat-portrait-overlay"></div>
+                        <div class="cat-portrait-content">
+                            <span class="cat-portrait-badge">{{ $meta['name'] }}</span>
+                            <h3 class="cat-portrait-title"><a href="{{ route('posts.show', $catData['hero']->slug) }}">{{ $catData['hero']->title }}</a></h3>
+                            <div class="cat-portrait-meta">
+                                <span class="cat-portrait-author">{{ $catData['hero']->author->name ?? 'Redaksi' }}</span>
+                                <span>·</span>
+                                <span>{{ $catData['hero']->published_at ? \Carbon\Carbon::parse($catData['hero']->published_at)->diffForHumans() : '' }}</span>
                             </div>
-                            <h3 class="text-sm md:text-lg lg:text-xl font-bold text-on-surface leading-snug">
-                                <a href="{{ route('posts.show', $post->slug) }}" class="no-underline text-on-surface hover:text-primary transition-colors">
-                                    @if($post->isVideo())
-                                        <i data-lucide="play-circle" class="w-4 h-4 text-accent inline align-text-top mr-0.5"></i>
-                                    @endif
-                                    {{ $post->title }}
+                            <div class="cat-portrait-stats">
+                                <button type="button" onclick="event.preventDefault();toggleLike({{ $catData['hero']->id }})" id="like-btn-{{ $catData['hero']->id }}" class="cat-stat-btn {{ $catData['hero']->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                    <i data-lucide="heart" class="w-2.5 h-2.5"></i>
+                                    <span id="like-count-{{ $catData['hero']->id }}">{{ $catData['hero']->likesCount() }}</span>
+                                </button>
+                                <a href="{{ route('posts.show', $catData['hero']->slug) }}#comments" class="cat-stat-btn" onclick="event.stopPropagation()">
+                                    <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
+                                    <span>{{ $catData['hero']->commentsCount() }}</span>
                                 </a>
-                            </h3>
-                            <p class="text-xs sm:text-sm text-on-surface-variant mt-1.5 sm:mt-2 line-clamp-2 leading-relaxed">{{ $post->excerpt ? strip_tags($post->excerpt) : '' }}</p>
-                            <div class="flex items-center gap-3 sm:gap-4 mt-2 sm:mt-3">
-                                <div class="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-xs text-on-surface-variant flex-1">
-                                    @if($post->kecamatan)
-                                        <span class="flex items-center gap-1.5">
-                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                                            {{ $post->kecamatan->name }}
-                                        </span>
-                                    @endif
-                                    @if(!$post->isVideo())
-                                        <span class="flex items-center gap-1.5">
-                                            <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-                                            {{ readTime($post->body) }}
-                                        </span>
-                                    @endif
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ route('posts.show', $post->slug) }}#comments" class="card-action-btn" title="Komentar">
-                                        <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
-                                        <span>{{ $post->commentsCount() }}</span>
-                                    </a>
-                                    <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-{{ $post->id }}" class="card-action-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}" title="Suka">
-                                        <i data-lucide="heart" class="w-3.5 h-3.5"></i>
-                                        <span id="like-count-{{ $post->id }}">{{ $post->likesCount() }}</span>
-                                    </button>
-                                    <button type="button" onclick="sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="card-action-btn" title="Bagikan">
-                                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
-                                    </button>
-                                </div>
+                                <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $catData['hero']->slug) }}', '{{ addslashes($catData['hero']->title) }}')" class="cat-stat-btn">
+                                    <i data-lucide="share-2" class="w-2.5 h-2.5"></i>
+                                </button>
                             </div>
                         </div>
-                    </article>
-                    @empty
-                    <div class="bg-surface rounded-2xl p-10 text-center text-on-surface-variant border border-outline">
-                        <i data-lucide="newspaper" class="w-10 h-10 mb-3 mx-auto"></i>
-                        <p>Belum ada berita.</p>
                     </div>
+                    @else
+                    <div class="cat-portrait-empty">
+                        <i data-lucide="{{ $meta['icon'] }}" class="w-6 h-6 text-on-surface-variant/30"></i>
+                    </div>
+                    @endif
+                </div>
+
+                {{-- ══ KOLAM 2: Trending Kategori ═─ --}}
+                <div class="cat-3col-list">
+                    <div class="cat-3col-label">
+                        <i data-lucide="flame" class="w-2.5 h-2.5 text-accent"></i>
+                        Trending {{ $meta['name'] }}
+                    </div>
+                    @forelse($catData['trending'] as $index => $post)
+                    <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group">
+                        <span class="cat-3col-num {{ $index < 3 ? 'hot' : '' }}">{{ $index + 1 }}</span>
+                        <div class="cat-3col-item-thumb">
+                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/80x60/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                        </div>
+                        <div class="cat-3col-item-body">
+                            <h4 class="cat-3col-title">{{ $post->title }}</h4>
+                            <div class="cat-3col-meta">
+                                <span>{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
+                                <span>·</span>
+                                <span>{{ number_format($post->views_count) }} views</span>
+                            </div>
+                            <div class="cat-3col-stats">
+                                <button type="button" onclick="event.preventDefault();toggleLike({{ $post->id }})" id="like-btn-t-{{ $post->id }}" class="cat-3col-stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                    <i data-lucide="heart" class="w-2 h-2"></i>
+                                    <span id="like-count-t-{{ $post->id }}">{{ $post->likesCount() }}</span>
+                                </button>
+                                <a href="{{ route('posts.show', $post->slug) }}#comments" class="cat-3col-stat-btn" onclick="event.preventDefault();event.stopPropagation()">
+                                    <i data-lucide="message-circle" class="w-2 h-2"></i>
+                                    <span>{{ $post->commentsCount() }}</span>
+                                </a>
+                                <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="cat-3col-stat-btn">
+                                    <i data-lucide="share-2" class="w-2 h-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                    @empty
+                    <p class="cat-3col-empty">Belum ada berita</p>
                     @endforelse
                 </div>
 
-                {{-- Pagination / Infinite Scroll Sentinel --}}
-                @if(method_exists($latestPosts, 'links') && $latestPosts->hasPages())
-                    <div id="infinite-scroll-sentinel" class="mt-8"></div>
-                    <div class="mt-8 hidden">
-                        {{ $latestPosts->links('vendor.pagination.tailwind') }}
+                {{-- ══ KOLAM 3: Terbaru Kategori ═─ --}}
+                <div class="cat-3col-list">
+                    <div class="cat-3col-label">
+                        <i data-lucide="clock" class="w-2.5 h-2.5 text-primary"></i>
+                        Terbaru {{ $meta['name'] }}
                     </div>
-                @endif
-            </section>
-
-            {{-- Kriminal --}}
-            @if($kriminalPosts->count() > 0)
-            <section class="reveal">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="w-1 h-7 bg-error rounded-full"></span>
-                    <h2 class="section-title pb-1 flex-1">Kriminal</h2>
-                    <a href="{{ route('categories.show', 'kriminal') }}" class="text-xs font-semibold text-primary hover:underline no-underline uppercase tracking-wider">Lihat Semua</a>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 lg:gap-4">
-                    @foreach($kriminalPosts as $post)
-                    <article class="group bg-surface rounded-2xl overflow-hidden card-hover border border-outline/50">
-                        <a href="{{ route('posts.show', $post->slug) }}" class="no-underline">
-                            <div class="aspect-video overflow-hidden img-zoom bg-surface-container-low relative">
-                                <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
-                                @if($post->isVideo())
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/25">
-                                        <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="play" class="w-4 h-4 text-primary ml-0.5"></i>
-                                        </div>
-                                    </div>
-                                @endif
+                    @forelse($catData['latest'] as $post)
+                    <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group">
+                        <div class="cat-3col-item-thumb">
+                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/80x60/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                        </div>
+                        <div class="cat-3col-item-body">
+                            <h4 class="cat-3col-title">{{ $post->title }}</h4>
+                            <div class="cat-3col-meta">
+                                <span>{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
                             </div>
-                            <div class="p-2.5 sm:p-3 lg:p-4">
-                                <span class="text-[9px] sm:text-[10px] font-bold text-error uppercase tracking-wider">
-                                    @if($post->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                    @endif
-                                    Kriminal
-                                </span>
-                                <h4 class="text-sm font-bold text-on-surface mt-1.5 line-clamp-2 group-hover:text-primary transition-colors leading-snug">{{ $post->title }}</h4>
-                                <p class="text-xs text-on-surface-variant mt-1.5 line-clamp-2 leading-relaxed">{{ $post->excerpt ? strip_tags($post->excerpt) : '' }}</p>
-                                <span class="text-xs text-on-surface-variant mt-3 block">{{ \Carbon\Carbon::parse($post->published_at)->format('d F Y') }}</span>
+                            <div class="cat-3col-stats">
+                                <button type="button" onclick="event.preventDefault();toggleLike({{ $post->id }})" id="like-btn-l-{{ $post->id }}" class="cat-3col-stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                    <i data-lucide="heart" class="w-2 h-2"></i>
+                                    <span id="like-count-l-{{ $post->id }}">{{ $post->likesCount() }}</span>
+                                </button>
+                                <a href="{{ route('posts.show', $post->slug) }}#comments" class="cat-3col-stat-btn" onclick="event.preventDefault();event.stopPropagation()">
+                                    <i data-lucide="message-circle" class="w-2 h-2"></i>
+                                    <span>{{ $post->commentsCount() }}</span>
+                                </a>
+                                <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="cat-3col-stat-btn">
+                                    <i data-lucide="share-2" class="w-2 h-2"></i>
+                                </button>
                             </div>
-                        </a>
-                    </article>
-                    @endforeach
+                        </div>
+                    </a>
+                    @empty
+                    <p class="cat-3col-empty">Belum ada berita</p>
+                    @endforelse
                 </div>
-            </section>
-            @endif
-
-            {{-- Pemerintahan --}}
-            @if($pemerintahanPosts->count() > 0)
-            <section class="reveal">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="w-1 h-7 bg-primary rounded-full"></span>
-                    <h2 class="section-title pb-1 flex-1">Pemerintahan</h2>
-                    <a href="{{ route('categories.show', 'pemerintahan') }}" class="text-xs font-semibold text-primary hover:underline no-underline uppercase tracking-wider">Lihat Semua</a>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 lg:gap-4">
-                    @foreach($pemerintahanPosts as $post)
-                    <article class="group bg-surface rounded-2xl overflow-hidden card-hover border border-outline/50">
-                        <a href="{{ route('posts.show', $post->slug) }}" class="no-underline">
-                            <div class="aspect-video overflow-hidden img-zoom bg-surface-container-low relative">
-                                <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
-                                @if($post->isVideo())
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/25">
-                                        <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="play" class="w-4 h-4 text-primary ml-0.5"></i>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-2.5 sm:p-3 lg:p-4">
-                                <span class="text-[9px] sm:text-[10px] font-bold text-primary uppercase tracking-wider">
-                                    @if($post->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                    @endif
-                                    Pemerintahan
-                                </span>
-                                <h4 class="text-sm font-bold text-on-surface mt-1.5 line-clamp-2 group-hover:text-primary transition-colors leading-snug">{{ $post->title }}</h4>
-                                <p class="text-xs text-on-surface-variant mt-1.5 line-clamp-2 leading-relaxed">{{ $post->excerpt ? strip_tags($post->excerpt) : '' }}</p>
-                                <span class="text-xs text-on-surface-variant mt-3 block">{{ \Carbon\Carbon::parse($post->published_at)->format('d F Y') }}</span>
-                            </div>
-                        </a>
-                    </article>
-                    @endforeach
-                </div>
-            </section>
-            @endif
-
-            {{-- Tambang --}}
-            @if($tambangPosts->count() > 0)
-            <section class="reveal">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="w-1 h-7 bg-secondary rounded-full"></span>
-                    <h2 class="section-title pb-1 flex-1">Tambang</h2>
-                    <a href="{{ route('categories.show', 'tambang') }}" class="text-xs font-semibold text-primary hover:underline no-underline uppercase tracking-wider">Lihat Semua</a>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 lg:gap-4">
-                    @foreach($tambangPosts as $post)
-                    <article class="group bg-surface rounded-2xl overflow-hidden card-hover border border-outline/50">
-                        <a href="{{ route('posts.show', $post->slug) }}" class="no-underline">
-                            <div class="aspect-video overflow-hidden img-zoom bg-surface-container-low relative">
-                                <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
-                                @if($post->isVideo())
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/25">
-                                        <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="play" class="w-4 h-4 text-primary ml-0.5"></i>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-2.5 sm:p-3 lg:p-4">
-                                <span class="text-[9px] sm:text-[10px] font-bold text-secondary uppercase tracking-wider">
-                                    @if($post->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                    @endif
-                                    Tambang
-                                </span>
-                                <h4 class="text-sm font-bold text-on-surface mt-1.5 line-clamp-2 group-hover:text-primary transition-colors leading-snug">{{ $post->title }}</h4>
-                                <p class="text-xs text-on-surface-variant mt-1.5 line-clamp-2 leading-relaxed">{{ $post->excerpt ? strip_tags($post->excerpt) : '' }}</p>
-                                <span class="text-xs text-on-surface-variant mt-3 block">{{ \Carbon\Carbon::parse($post->published_at)->format('d F Y') }}</span>
-                            </div>
-                        </a>
-                    </article>
-                    @endforeach
-                </div>
-            </section>
-            @endif
-
-            {{-- Ekonomi --}}
-            @if($wisataPosts->count() > 0)
-            <section class="reveal">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="w-1 h-7 bg-tertiary rounded-full"></span>
-                    <h2 class="section-title pb-1 flex-1">Ekonomi</h2>
-                    <a href="{{ route('categories.show', 'ekonomi') }}" class="text-xs font-semibold text-primary hover:underline no-underline uppercase tracking-wider">Lihat Semua</a>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 lg:gap-4">
-                    @foreach($wisataPosts as $post)
-                    <article class="group bg-surface rounded-2xl overflow-hidden card-hover border border-outline/50">
-                        <a href="{{ route('posts.show', $post->slug) }}" class="no-underline">
-                            <div class="aspect-video overflow-hidden img-zoom bg-surface-container-low relative">
-                                <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
-                                @if($post->isVideo())
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/25">
-                                        <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="play" class="w-4 h-4 text-primary ml-0.5"></i>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-2.5 sm:p-3 lg:p-4">
-                                <span class="text-[9px] sm:text-[10px] font-bold text-tertiary uppercase tracking-wider">
-                                    @if($post->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                    @endif
-                                    Ekonomi
-                                </span>
-                                <h4 class="text-sm font-bold text-on-surface mt-1.5 line-clamp-2 group-hover:text-primary transition-colors leading-snug">{{ $post->title }}</h4>
-                                <p class="text-xs text-on-surface-variant mt-1.5 line-clamp-2 leading-relaxed">{{ $post->excerpt ? strip_tags($post->excerpt) : '' }}</p>
-                                <span class="text-xs text-on-surface-variant mt-3 block">{{ \Carbon\Carbon::parse($post->published_at)->format('d F Y') }}</span>
-                            </div>
-                        </a>
-                    </article>
-                    @endforeach
-                </div>
-            </section>
-            @endif
-
-            {{-- Olahraga --}}
-            @if($olahragaPosts->count() > 0)
-            <section class="reveal">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="w-1 h-7 bg-[#f59e0b] rounded-full"></span>
-                    <h2 class="section-title pb-1 flex-1">Olahraga</h2>
-                    <a href="{{ route('categories.show', 'olahraga') }}" class="text-xs font-semibold text-primary hover:underline no-underline uppercase tracking-wider">Lihat Semua</a>
-                </div>
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 lg:gap-4">
-                    @foreach($olahragaPosts as $post)
-                    <article class="group bg-surface rounded-2xl overflow-hidden card-hover border border-outline/50">
-                        <a href="{{ route('posts.show', $post->slug) }}" class="no-underline">
-                            <div class="aspect-video overflow-hidden img-zoom bg-surface-container-low relative">
-                                <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" class="w-full h-full object-cover" loading="lazy">
-                                @if($post->isVideo())
-                                    <div class="absolute inset-0 flex items-center justify-center bg-black/25">
-                                        <div class="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
-                                            <i data-lucide="play" class="w-4 h-4 text-primary ml-0.5"></i>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="p-2.5 sm:p-3 lg:p-4">
-                                <span class="text-[9px] sm:text-[10px] font-bold text-[#f59e0b] uppercase tracking-wider">
-                                    @if($post->isVideo())
-                                        <i data-lucide="play-circle" class="w-3 h-3 inline mr-0.5 align-text-bottom"></i>
-                                    @endif
-                                    Olahraga
-                                </span>
-                                <h4 class="text-sm font-bold text-on-surface mt-1.5 line-clamp-2 group-hover:text-primary transition-colors leading-snug">{{ $post->title }}</h4>
-                                <p class="text-xs text-on-surface-variant mt-1.5 line-clamp-2 leading-relaxed">{{ $post->excerpt ? strip_tags($post->excerpt) : '' }}</p>
-                                <span class="text-xs text-on-surface-variant mt-3 block">{{ \Carbon\Carbon::parse($post->published_at)->format('d F Y') }}</span>
-                            </div>
-                        </a>
-                    </article>
-                    @endforeach
-                </div>
-            </section>
-            @endif
-        </div>
-
-        {{-- Sidebar --}}
-        <div class="hidden lg:block lg:w-[32%]">
-            <div class="lg:sticky lg:top-24 space-y-6">
-                @include('frontend.partials.sidebar')
             </div>
-        </div>
-    </div>
+        </section>
+        @endif
+    @endforeach
+
 @endsection

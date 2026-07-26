@@ -3,45 +3,52 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Post;
+use App\Repositories\PostRepository;
+use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    public function __construct(
+        protected PostRepository $postRepository,
+    ) {}
+
     public function index()
     {
-        $ip = request()->ip();
+        $headlinePosts = $this->postRepository->getHeadlinePosts(9);
+        $headlineIds = $headlinePosts->pluck('id')->toArray();
 
-        $featuredPosts = Post::featured()->published()
-            ->with(['author', 'categories', 'kecamatan'])
+        $trendingPosts = Post::published()
+            ->excludeHeadline()
+            ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
-            ->with(['likes' => fn($q) => $q->where('ip_address', $ip)])
-            ->latest()->take(5)->get();
+            ->orderByDesc('views_count')
+            ->take(10)
+            ->get();
 
         $latestPosts = Post::published()
-            ->with(['author', 'categories', 'kecamatan'])
+            ->excludeHeadline()
+            ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
-            ->with(['likes' => fn($q) => $q->where('ip_address', $ip)])
-            ->latest()->paginate(6);
+            ->latest()
+            ->take(18)
+            ->get();
 
         $categorySlugs = ['kriminal', 'pemerintahan', 'tambang', 'ekonomi', 'olahraga'];
+        $mobileVisibleIds = $latestPosts->take(10)->pluck('id')->toArray();
+        $excludeIds = array_merge($headlineIds, $mobileVisibleIds);
         $categoryPosts = [];
         foreach ($categorySlugs as $slug) {
-            $category = Category::where('slug', $slug)->first();
-            if ($category) {
-                $categoryPosts[$category->name] = $category->allPosts()
-                    ->published()
-                    ->with(['author', 'categories', 'kecamatan'])
-                    ->latest()
-                    ->take(4)
-                    ->get();
-            }
+            $categoryPosts[$slug] = $this->postRepository->getCategoryWithStructure($slug, $excludeIds);
         }
 
         return view('frontend.home.index', compact(
-            'featuredPosts',
+            'headlinePosts',
+            'headlineIds',
+            'trendingPosts',
             'latestPosts',
-            'categoryPosts'
-        ));
+            'categoryPosts',
+            'categorySlugs',
+        ))->with('breakingNews', $headlinePosts);
     }
 }

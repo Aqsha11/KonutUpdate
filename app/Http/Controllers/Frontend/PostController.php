@@ -54,6 +54,18 @@ class PostController extends Controller
             $relatedPosts = $relatedPosts->concat($more);
         }
 
-        return view('frontend.posts.show', compact('post', 'relatedPosts'));
+        $nextPost = Post::published()
+            ->where('published_at', '>', $post->published_at)
+            ->latest()
+            ->with('categories')
+            ->first();
+
+        $prevPost = Post::published()
+            ->where('published_at', '<', $post->published_at)
+            ->oldest()
+            ->with('categories')
+            ->first();
+
+        return view('frontend.posts.show', compact('post', 'relatedPosts', 'nextPost', 'prevPost'));
     }
 }

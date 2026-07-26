@@ -18,7 +18,7 @@ class UpdatePostRequest extends FormRequest
             'excerpt' => 'nullable|string|max:500',
             'body' => 'required|string',
             'type' => 'required|in:article,video',
-            'thumbnail' => 'required_if:type,video|nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'video_file' => 'nullable|file|mimes:mp4,webm,mov,avi|max:51200',
             'video_url' => 'nullable|url|max:500',
             'category_id' => 'nullable|exists:categories,id',
@@ -28,7 +28,7 @@ class UpdatePostRequest extends FormRequest
             'tags' => 'nullable|string',
             'status' => 'required|in:draft,published',
             'is_breaking' => 'boolean',
-            'is_featured' => 'boolean',
+            'is_headline' => 'boolean',
             'published_at' => 'nullable|date',
         ];
     }
@@ -47,7 +47,7 @@ class UpdatePostRequest extends FormRequest
             'tags' => 'Tags',
             'status' => 'Status',
             'is_breaking' => 'Breaking News',
-            'is_featured' => 'Featured News',
+            'is_headline' => 'Headline',
         ];
     }
 }

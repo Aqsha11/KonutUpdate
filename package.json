@@ -23,6 +23,7 @@
         "datatables.net-bs5": "^2.3.8",
         "jquery": "^4.0.0",
         "lucide": "^1.22.0",
+        "swiper": "^14.0.6",
         "tailwindcss": "^4.3.1"
     }
 }

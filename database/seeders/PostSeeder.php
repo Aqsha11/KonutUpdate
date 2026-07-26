@@ -272,7 +272,7 @@ class PostSeeder extends Seeder
                 'thumbnail' => null,
                 'status' => $status,
                 'is_breaking' => $isBreaking,
-                'is_featured' => $isFeatured,
+                'is_headline' => $isFeatured,
                 'published_at' => $publishedAt,
                 'views_count' => rand(50, 5000),
                 'created_at' => $createdAt,

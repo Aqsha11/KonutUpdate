@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Models\Category;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,8 @@ class SearchController extends Controller
     public function index(Request $request)
     {
         $query = $request->input('q');
+        $categorySlug = $request->input('category');
+        $categories = Category::withCount('posts')->orderBy('name')->get();
 
         if (! empty($query)) {
             $posts = Post::published()
@@ -19,9 +22,15 @@ class SearchController extends Controller
                 ->where(function ($q) use ($query) {
                     $q->where('title', 'LIKE', "%{$query}%")
                         ->orWhere('body', 'LIKE', "%{$query}%");
-                })
-                ->paginate(12)
-                ->withQueryString();
+                });
+
+            if (! empty($categorySlug)) {
+                $posts->whereHas('categories', function ($q) use ($categorySlug) {
+                    $q->where('slug', $categorySlug);
+                });
+            }
+
+            $posts = $posts->paginate(12)->withQueryString();
 
             // AJAX live search
             if ($request->ajax() || $request->input('ajax') == '1') {
@@ -38,7 +47,7 @@ class SearchController extends Controller
                 return response()->json($results);
             }
 
-            return view('frontend.search.index', compact('posts', 'query'));
+            return view('frontend.search.index', compact('posts', 'query', 'categories', 'categorySlug'));
         }
 
         $posts = Post::published()
@@ -46,6 +55,6 @@ class SearchController extends Controller
             ->latest()
             ->paginate(12);
 
-        return view('frontend.search.index', compact('posts', 'query'));
+        return view('frontend.search.index', compact('posts', 'query', 'categories', 'categorySlug'));
     }
 }

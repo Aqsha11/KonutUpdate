@@ -1,7 +1,7 @@
-const CACHE_NAME = 'konut-update-v1';
-const STATIC_CACHE = 'konut-static-v1';
-const IMAGE_CACHE = 'konut-images-v1';
-const PAGE_CACHE = 'konut-pages-v1';
+const CACHE_NAME = 'konut-update-v5';
+const STATIC_CACHE = 'konut-static-v5';
+const IMAGE_CACHE = 'konut-images-v5';
+const PAGE_CACHE = 'konut-pages-v5';
 
 const STATIC_ASSETS = [
   '/',
@@ -22,9 +22,8 @@ self.addEventListener('activate', event => {
     caches.keys().then(keys => Promise.all(
       keys.filter(k => k !== CACHE_NAME && k !== STATIC_CACHE && k !== IMAGE_CACHE && k !== PAGE_CACHE)
         .map(k => caches.delete(k))
-    ))
+    )).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {

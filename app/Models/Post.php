@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -26,7 +27,7 @@ class Post extends Model
         'video_path',
         'status',
         'is_breaking',
-        'is_featured',
+        'is_headline',
         'published_at',
         'views_count',
     ];
@@ -35,42 +36,56 @@ class Post extends Model
     {
         return [
             'is_breaking' => 'boolean',
-            'is_featured' => 'boolean',
+            'is_headline' => 'boolean',
             'published_at' => 'datetime',
             'views_count' => 'integer',
             'status' => 'string',
         ];
     }
 
-    public function scopePublished($query)
+    // ── Scopes ──────────────────────────────────────────────────
+
+    public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published');
     }
 
-    public function scopeDraft($query)
+    public function scopeDraft(Builder $query): Builder
     {
         return $query->where('status', 'draft');
     }
 
-    public function scopeFeatured($query)
+    public function scopeHeadline(Builder $query): Builder
     {
-        return $query->where('is_featured', true);
+        return $query->where('is_headline', true);
     }
 
-    public function scopeBreaking($query)
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('is_headline', true);
+    }
+
+    public function scopeExcludeHeadline(Builder $query): Builder
+    {
+        return $query->where('is_headline', '!=', true);
+    }
+
+    public function scopeBreaking(Builder $query): Builder
     {
         return $query->where('is_breaking', true);
     }
 
-    public function scopePopular($query, int $minViews = 100)
+    public function scopePopular(Builder $query, int $minViews = 100): Builder
     {
         return $query->where('views_count', '>=', $minViews);
     }
 
-    public function scopeBySlug($query, string $slug)
+    public function scopeBySlug(Builder $query, string $slug): Builder
     {
         return $query->where('slug', $slug);
     }
+
+    // ── Relationships ───────────────────────────────────────────
 
     public function author(): BelongsTo
     {
@@ -113,6 +128,8 @@ class Post extends Model
     {
         return $this->hasMany(Like::class);
     }
+
+    // ── Helpers ─────────────────────────────────────────────────
 
     public function likesCount(): int
     {

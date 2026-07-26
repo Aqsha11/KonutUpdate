@@ -143,14 +143,19 @@
                     @enderror
                 </div>
                 <div class="form-group">
-                    <div class="d-flex gap-3 flex-wrap">
+                    <div class="d-flex gap-4 flex-wrap">
                         <div class="form-check">
+                            <input type="hidden" name="is_breaking" value="0">
                             <input type="checkbox" name="is_breaking" id="isBreaking" value="1" class="form-check-input" {{ old('is_breaking') ? 'checked' : '' }}>
                             <label for="isBreaking" class="form-check-label">Breaking News</label>
                         </div>
-                        <div class="form-check">
-                            <input type="checkbox" name="is_featured" id="isFeatured" value="1" class="form-check-input" {{ old('is_featured') ? 'checked' : '' }}>
-                            <label for="isFeatured" class="form-check-label">Featured</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="form-label mb-0 fw-semibold">Headline</label>
+                            <label class="toggle-switch mb-0">
+                                <input type="hidden" name="is_headline" value="0">
+                                <input type="checkbox" name="is_headline" id="isHeadline" value="1" {{ old('is_headline') ? 'checked' : '' }}>
+                                <span class="toggle-slider"></span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -176,6 +181,13 @@
     .ck.ck-toolbar { border: none !important; border-bottom: 1px solid var(--border) !important; background: #F8FAFC !important; }
     .ck.ck-content { border: none !important; }
     .nav-tabs-sm .nav-link { font-size: 0.8rem; padding: 0.35rem 0.75rem; }
+
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; inset: 0; background: #cbd5e1; border-radius: 24px; transition: all 0.3s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: all 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    .toggle-switch input:checked + .toggle-slider { background: #189B39; }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
 </style>
 @endpush
 

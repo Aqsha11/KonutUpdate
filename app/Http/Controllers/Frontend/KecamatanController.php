@@ -11,19 +11,14 @@ class KecamatanController extends Controller
     public function show($slug)
     {
         $kecamatan = Kecamatan::where('slug', $slug)->firstOrFail();
+
         $posts = Post::published()
             ->where('kecamatan_id', $kecamatan->id)
             ->with(['author', 'categories'])
+            ->withCount('likes', 'comments')
             ->latest()
             ->paginate(12);
 
-        $heroPosts = Post::published()
-            ->where('kecamatan_id', $kecamatan->id)
-            ->with(['author', 'categories'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('frontend.kecamatan.show', compact('kecamatan', 'posts', 'heroPosts'));
+        return view('frontend.kecamatan.show', compact('kecamatan', 'posts'));
     }
 }

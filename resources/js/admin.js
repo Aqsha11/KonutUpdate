@@ -91,6 +91,13 @@ window.initCKEditor = function(elementId) {
             editor.model.document.on('change:data', () => {
                 document.getElementById(elementId).value = editor.getData();
             });
+
+            const form = element.closest('form');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    document.getElementById(elementId).value = editor.getData();
+                });
+            }
         })
         .catch(error => {
             console.error('CKEditor error:', error);

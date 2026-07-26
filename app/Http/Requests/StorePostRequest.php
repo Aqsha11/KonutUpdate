@@ -28,7 +28,7 @@ class StorePostRequest extends FormRequest
             'tags' => 'nullable|string',
             'status' => 'required|in:draft,published',
             'is_breaking' => 'boolean',
-            'is_featured' => 'boolean',
+            'is_headline' => 'boolean',
             'published_at' => 'nullable|date',
         ];
     }
@@ -47,7 +47,7 @@ class StorePostRequest extends FormRequest
             'tags' => 'Tags',
             'status' => 'Status',
             'is_breaking' => 'Breaking News',
-            'is_featured' => 'Featured News',
+            'is_headline' => 'Headline',
         ];
     }
 }
