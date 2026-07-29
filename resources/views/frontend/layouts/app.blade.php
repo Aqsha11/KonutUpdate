@@ -109,7 +109,7 @@
     <header id="mainHeader" class="sticky-header bg-surface border-b border-outline">
 
         {{-- Top Bar — visible on all screens --}}
-        <div class="hidden md:flex bg-primary text-white text-[10px] lg:text-[11px] py-1 lg:py-1.5 overflow-x-auto topbar-scroll">
+        <div class="flex bg-primary text-white text-[10px] lg:text-[11px] py-1 lg:py-1.5 overflow-x-auto topbar-scroll">
             <div class="max-w-7xl mx-auto px-3 lg:px-4 w-full flex flex-nowrap items-center justify-between gap-3 lg:gap-6">
                 <div class="flex items-center gap-3 lg:gap-4 shrink-0">
                     <span class="flex items-center gap-1.5 opacity-90 whitespace-nowrap" id="currentDate">
