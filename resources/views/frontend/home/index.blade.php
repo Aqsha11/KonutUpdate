@@ -69,7 +69,7 @@
                     @endphp
                     <div class="hero-slide-grid">
                         {{-- Big Post --}}
-                        <div class="hero-slide-big">
+                        <div class="hero-slide-big" data-post-id="{{ $big->id }}">
                             <a href="{{ route('posts.show', $big->slug) }}">
                                 <img src="{{ $big->thumbnail ? Storage::url($big->thumbnail) : ($big->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $big->title }}" class="hero-slide-big-img" loading="{{ $slideIndex === 0 ? 'eager' : 'lazy' }}">
                             </a>
@@ -113,7 +113,7 @@
                         {{-- Small Posts --}}
                         <div class="hero-slide-smalls">
                             @foreach($smalls as $small)
-                            <div class="hero-slide-small">
+                            <div class="hero-slide-small" data-post-id="{{ $small->id }}">
                                 <a href="{{ route('posts.show', $small->slug) }}">
                                     <img src="{{ $small->thumbnail ? Storage::url($small->thumbnail) : ($small->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $small->title }}" class="hero-slide-small-img" loading="lazy">
                                 </a>
@@ -302,7 +302,7 @@
                 {{-- Kolom 1: Portrait Hero --}}
                 <div class="cat-3col-hero">
                     @if($catData['hero'])
-                    <div class="cat-portrait-card">
+                    <div class="cat-portrait-card" data-post-id="{{ $catData['hero']->id }}">
                         <a href="{{ route('posts.show', $catData['hero']->slug) }}">
                             <img src="{{ $catData['hero']->thumbnail ? Storage::url($catData['hero']->thumbnail) : ($catData['hero']->video_poster ?? 'https://placehold.co/400x520/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $catData['hero']->title }}" class="cat-portrait-img" loading="lazy">
                         </a>
@@ -344,7 +344,7 @@
                         Trending
                     </div>
                     @forelse($catData['trending'] as $index => $post)
-                    <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group" data-post-id="{{ $post->id }}">
                         <span class="cat-3col-num {{ $index < 3 ? 'hot' : '' }}">{{ $index + 1 }}</span>
                         <div class="cat-3col-item-thumb">
                             <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/80x60/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
@@ -383,7 +383,7 @@
                         Terbaru
                     </div>
                     @forelse($catData['latest'] as $post)
-                    <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group" data-post-id="{{ $post->id }}">
                         <div class="cat-3col-item-thumb">
                             <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/80x60/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
                         </div>

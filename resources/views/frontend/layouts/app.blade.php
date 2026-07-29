@@ -516,6 +516,29 @@
             }
         }
 
+        // Viewed Posts
+        (function() {
+            const STORAGE_KEY = 'konut_viewed_posts';
+            let viewed = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            document.querySelectorAll('[data-post-id]').forEach(function(el) {
+                if (viewed.includes(el.dataset.postId)) {
+                    el.classList.add('post-viewed');
+                }
+            });
+            document.addEventListener('click', function(e) {
+                var link = e.target.closest('a[href*="/berita/"]');
+                if (!link) return;
+                var article = link.closest('[data-post-id]');
+                if (!article) return;
+                var id = article.dataset.postId;
+                if (!viewed.includes(id)) {
+                    viewed.push(id);
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(viewed));
+                    article.classList.add('post-viewed');
+                }
+            }, true);
+        })();
+
         // PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {

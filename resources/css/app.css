@@ -166,6 +166,7 @@ body {
 @media (max-width: 768px) { .hero-slide-grid { grid-template-columns: 1fr; } }
 
 .hero-slide-big { position: relative; overflow: hidden; min-height: 180px; }
+.hero-slide-big.post-viewed::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.3); z-index: 1; pointer-events: none; }
 .hero-slide-big-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; transition: transform 0.6s ease; }
 .hero-slide-big:hover .hero-slide-big-img { transform: scale(1.04); }
 .hero-slide-big-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 40%, transparent 65%); }
@@ -220,6 +221,7 @@ body {
 .hero-slide-smalls { display: grid; grid-template-rows: 1fr 1fr; gap: 4px; }
 @media (max-width: 768px) { .hero-slide-smalls { grid-template-columns: 1fr 1fr; grid-template-rows: auto; } }
 .hero-slide-small { position: relative; overflow: hidden; min-height: 110px; }
+.hero-slide-small.post-viewed::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.3); z-index: 1; pointer-events: none; }
 @media (max-width: 768px) { .hero-slide-small { min-height: 88px; } }
 .hero-slide-small-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s; }
 .hero-slide-small:hover .hero-slide-small-img { transform: scale(1.06); }
@@ -282,9 +284,15 @@ body {
     padding: 10px 0; border-bottom: 1px solid var(--color-outline);
     text-decoration: none; color: inherit; transition: all 0.15s;
 }
+.news-item.post-viewed {
+    opacity: 0.6;
+}
 .news-item:hover {
     background: var(--color-surface-container-low);
     margin: 0 -6px; padding-left: 6px; padding-right: 6px; border-radius: 8px;
+}
+.news-item.post-viewed:hover {
+    opacity: 0.8;
 }
 .news-item-thumb {
     position: relative; flex-shrink: 0; width: 120px; min-width: 120px; height: 85px;
@@ -336,6 +344,7 @@ body {
 .cat-3col-hero { min-width: 0; height: 100%; }
 .cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; height: 100%; min-height: 240px; isolation: isolate; }
 @media (max-width: 768px) { .cat-portrait-card { min-height: 180px; } }
+.cat-portrait-card.post-viewed::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.3); z-index: 1; pointer-events: none; }
 .cat-portrait-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s; }
 .cat-portrait-card:hover .cat-portrait-img { transform: scale(1.04); }
 .cat-portrait-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 40%, transparent 60%); }
