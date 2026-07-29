@@ -33,14 +33,14 @@
                 @method('PUT')
                 <div class="form-group">
                     <label for="name" class="form-label">Nama Lengkap <span class="required">*</span></label>
-                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
+                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Nama Lengkap" value="{{ old('name', $user->name) }}" required>
                     @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="form-group">
                     <label for="email" class="form-label">Email <span class="required">*</span></label>
-                    <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
+                    <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" placeholder="email@example.com" value="{{ old('email', $user->email) }}" required>
                     @error('email')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -51,7 +51,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="current_password" class="form-label">Password Saat Ini</label>
-                            <input type="password" name="current_password" id="current_password" class="form-control @error('current_password') is-invalid @enderror">
+                            <input type="password" name="current_password" id="current_password" class="form-control @error('current_password') is-invalid @enderror" placeholder="Password saat ini">
                             @error('current_password')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -60,7 +60,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="new_password" class="form-label">Password Baru</label>
-                            <input type="password" name="new_password" id="new_password" class="form-control @error('new_password') is-invalid @enderror">
+                            <input type="password" name="new_password" id="new_password" class="form-control @error('new_password') is-invalid @enderror" placeholder="Password baru">
                             @error('new_password')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -69,7 +69,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="new_password_confirmation" class="form-label">Konfirmasi Password Baru</label>
-                            <input type="password" name="new_password_confirmation" id="new_password_confirmation" class="form-control">
+                            <input type="password" name="new_password_confirmation" id="new_password_confirmation" class="form-control" placeholder="Konfirmasi password baru">
                         </div>
                     </div>
                 </div>

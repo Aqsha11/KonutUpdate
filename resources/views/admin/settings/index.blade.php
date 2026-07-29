@@ -19,7 +19,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="site_name" class="form-label">Nama Situs</label>
-                        <input type="text" name="site_name" id="site_name" class="form-control @error('site_name') is-invalid @enderror" value="{{ old('site_name', $settings->site_name ?? '') }}">
+                        <input type="text" name="site_name" id="site_name" class="form-control @error('site_name') is-invalid @enderror" placeholder="Nama Website" value="{{ old('site_name', $settings->site_name ?? '') }}">
                         @error('site_name')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -28,7 +28,7 @@
                 <div class="col-md-6">
                     <div class="form-group">
                         <label for="tagline" class="form-label">Tagline</label>
-                        <input type="text" name="tagline" id="tagline" class="form-control @error('tagline') is-invalid @enderror" value="{{ old('tagline', $settings->tagline ?? '') }}">
+                        <input type="text" name="tagline" id="tagline" class="form-control @error('tagline') is-invalid @enderror" placeholder="Tagline website" value="{{ old('tagline', $settings->tagline ?? '') }}">
                         @error('tagline')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -37,7 +37,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $settings->email ?? '') }}">
+                        <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" placeholder="email@example.com" value="{{ old('email', $settings->email ?? '') }}">
                         @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -46,7 +46,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="phone" class="form-label">Telepon</label>
-                        <input type="text" name="phone" id="phone" class="form-control @error('phone') is-invalid @enderror" value="{{ old('phone', $settings->phone ?? '') }}">
+                        <input type="text" name="phone" id="phone" class="form-control @error('phone') is-invalid @enderror" placeholder="Nomor telepon" value="{{ old('phone', $settings->phone ?? '') }}">
                         @error('phone')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -55,7 +55,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="address" class="form-label">Alamat</label>
-                        <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" value="{{ old('address', $settings->address ?? '') }}">
+                        <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="Alamat lengkap" value="{{ old('address', $settings->address ?? '') }}">
                         @error('address')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -101,6 +101,18 @@
                             <input type="url" name="tiktok" id="tiktok" class="form-control @error('tiktok') is-invalid @enderror" value="{{ old('tiktok', $settings->tiktok ?? '') }}" placeholder="https://tiktok.com/...">
                         </div>
                         @error('tiktok')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="whatsapp" class="form-label">WhatsApp</label>
+                        <div class="input-group-custom">
+                            <span class="input-group-text"><i class="fab fa-whatsapp"></i></span>
+                            <input type="text" name="whatsapp" id="whatsapp" class="form-control @error('whatsapp') is-invalid @enderror" value="{{ old('whatsapp', $settings->whatsapp ?? '') }}" placeholder="https://wa.me/62...">
+                        </div>
+                        @error('whatsapp')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -192,14 +204,14 @@
             <div class="section-title"><i class="bi bi-search"></i> SEO</div>
             <div class="form-group">
                 <label for="meta_title" class="form-label">Meta Title</label>
-                <input type="text" name="meta_title" id="meta_title" class="form-control @error('meta_title') is-invalid @enderror" value="{{ old('meta_title', $settings->meta_title ?? '') }}">
+                <input type="text" name="meta_title" id="meta_title" class="form-control @error('meta_title') is-invalid @enderror" placeholder="Meta title untuk SEO" value="{{ old('meta_title', $settings->meta_title ?? '') }}">
                 @error('meta_title')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
             <div class="form-group">
                 <label for="meta_description" class="form-label">Meta Description</label>
-                <textarea name="meta_description" id="meta_description" rows="3" class="form-control @error('meta_description') is-invalid @enderror">{{ old('meta_description', $settings->meta_description ?? '') }}</textarea>
+                <textarea name="meta_description" id="meta_description" rows="3" class="form-control @error('meta_description') is-invalid @enderror" placeholder="Meta description untuk SEO">{{ old('meta_description', $settings->meta_description ?? '') }}</textarea>
                 @error('meta_description')
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror

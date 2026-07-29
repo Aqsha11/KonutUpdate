@@ -8,7 +8,7 @@
         <div class="divide-y divide-outline">
             @forelse($trendingPosts as $index => $post)
                 <a href="{{ route('posts.show', $post->slug) }}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-surface-container-low transition-colors no-underline group">
-                    <span class="trending-number mt-0.5">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                    <span class="trending-number mt-0.5 font-extrabold text-lg min-w-[24px]">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
                     <div class="flex-1 min-w-0">
                         <h4 class="text-xs font-semibold text-on-surface group-hover:text-primary transition-colors line-clamp-2 leading-snug">{{ $post->title }}</h4>
                         <div class="flex items-center gap-1.5 mt-1 text-[10px] text-on-surface-variant">
@@ -88,6 +88,12 @@
                 <a href="{{ $site_settings['youtube'] }}" target="_blank" class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-[#ff0000] text-white text-xs font-medium no-underline hover:opacity-90 transition-opacity">
                     <i class="fab fa-youtube text-xs"></i>
                     <span>YouTube</span>
+                </a>
+            @endif
+            @if(!empty($site_settings['whatsapp']))
+                <a href="{{ $site_settings['whatsapp'] }}" target="_blank" class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-[#25d366] text-white text-xs font-medium no-underline hover:opacity-90 transition-opacity">
+                    <i class="fab fa-whatsapp text-xs"></i>
+                    <span>WhatsApp</span>
                 </a>
             @endif
             @if(!empty($site_settings['email']))

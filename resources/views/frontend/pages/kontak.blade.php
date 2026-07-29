@@ -36,32 +36,31 @@
         </nav>
     </div>
 
-    {{-- Hero --}}
-    <div class="relative bg-gradient-to-br from-primary/90 via-primary to-primary-dark rounded-2xl overflow-hidden mb-8">
+    <div class="relative bg-gradient-to-br from-primary/90 via-primary to-primary-dark rounded-xl lg:rounded-2xl overflow-hidden mb-8">
         <div class="absolute inset-0 opacity-10">
             <svg class="w-full h-full" viewBox="0 0 400 200"><circle cx="350" cy="50" r="120" fill="white"/><circle cx="50" cy="180" r="80" fill="white"/></svg>
         </div>
-        <div class="relative px-8 py-12 md:px-12 md:py-16 text-center">
-            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                <i data-lucide="send" class="w-8 h-8 text-white"></i>
+        <div class="relative px-6 py-10 md:px-12 md:py-16 text-center">
+            <div class="w-14 h-14 md:w-16 md:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="send" class="w-7 h-7 md:w-8 md:h-8 text-white"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3">Hubungi Kami</h1>
-            <p class="text-white/80 text-lg max-w-xl mx-auto">Kirim saran, masukan, atau pertanyaan kepada redaksi {{ $site_settings['site_name'] ?? 'Konut.Update' }}</p>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white mb-3">Hubungi Kami</h1>
+            <p class="text-white/80 text-base md:text-lg max-w-xl mx-auto">Kirim saran, masukan, atau pertanyaan kepada redaksi {{ $site_settings['site_name'] ?? 'Konut.Update' }}</p>
         </div>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
         <div class="lg:w-[68%] space-y-6">
 
-            {{-- Formulir --}}
-            <div class="bg-surface rounded-2xl shadow-sm border border-outline p-6 md:p-8">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            {{-- Form --}}
+            <div class="bg-surface rounded-xl lg:rounded-2xl shadow-sm border border-outline p-5 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                         <i data-lucide="pencil-line" class="w-5 h-5 text-primary"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-on-surface">Kirim Pesan</h2>
+                    <h2 class="text-lg md:text-xl font-bold text-on-surface">Kirim Pesan</h2>
                 </div>
-                <form id="contactForm" class="space-y-5">
+                <form id="contactForm" class="space-y-4">
                     <div>
                         <label for="name" class="block text-sm font-medium text-on-surface mb-1.5">Nama</label>
                         <input type="text" id="name" required
@@ -81,37 +80,36 @@
                                   placeholder="Tuliskan pesan Anda di sini..."></textarea>
                     </div>
 
-                    {{-- Pilih platform tujuan --}}
                     <div>
                         <label class="block text-sm font-medium text-on-surface mb-2">Kirim melalui</label>
                         <div class="flex flex-wrap gap-3" id="platformButtons">
                             @if(!empty($site_settings['whatsapp']))
                                 <button type="button" onclick="sendTo('whatsapp')"
-                                    class="platform-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#25d366]/10 text-[#25d366] text-sm font-semibold no-underline hover:bg-[#25d366] hover:text-white transition-colors border-2 border-transparent data-[active]:border-[#25d366]">
+                                    class="platform-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#25d366]/10 text-[#25d366] text-sm font-semibold no-underline hover:bg-[#25d366] hover:text-white transition-colors border-2 border-transparent data-[active]:border-[#25d366]">
                                     <i class="fab fa-whatsapp text-base"></i> WhatsApp
                                 </button>
                             @endif
                             @if(!empty($site_settings['instagram']))
                                 <a href="{{ $site_settings['instagram'] }}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#e4405f]/10 text-[#e4405f] text-sm font-semibold no-underline hover:bg-[#e4405f] hover:text-white transition-colors">
+                                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#e4405f]/10 text-[#e4405f] text-sm font-semibold no-underline hover:bg-[#e4405f] hover:text-white transition-colors">
                                     <i class="fab fa-instagram text-base"></i> Instagram DM
                                 </a>
                             @endif
                             @if(!empty($site_settings['facebook']))
                                 <a href="{{ $site_settings['facebook'] }}" target="_blank" rel="noopener noreferrer"
-                                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1877f2]/10 text-[#1877f2] text-sm font-semibold no-underline hover:bg-[#1877f2] hover:text-white transition-colors">
+                                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1877f2]/10 text-[#1877f2] text-sm font-semibold no-underline hover:bg-[#1877f2] hover:text-white transition-colors">
                                     <i class="fab fa-facebook text-base"></i> Facebook
                                 </a>
                             @endif
                             @if(!empty($site_settings['email']))
                                 <button type="button" onclick="sendTo('email')"
-                                    class="platform-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary/10 text-primary text-sm font-semibold no-underline hover:bg-primary hover:text-white transition-colors border-2 border-transparent data-[active]:border-primary">
+                                    class="platform-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary/10 text-primary text-sm font-semibold no-underline hover:bg-primary hover:text-white transition-colors border-2 border-transparent data-[active]:border-primary">
                                     <i data-lucide="mail" class="w-4 h-4"></i> Email
                                 </button>
                             @endif
                             @if(!empty($site_settings['phone']))
                                 <button type="button" onclick="sendTo('sms')"
-                                    class="platform-btn inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent/10 text-accent text-sm font-semibold no-underline hover:bg-accent hover:text-white transition-colors border-2 border-transparent data-[active]:border-accent">
+                                    class="platform-btn inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent/10 text-accent text-sm font-semibold no-underline hover:bg-accent hover:text-white transition-colors border-2 border-transparent data-[active]:border-accent">
                                     <i data-lucide="smartphone" class="w-4 h-4"></i> SMS
                                 </button>
                             @endif
@@ -124,13 +122,13 @@
                 </form>
             </div>
 
-            {{-- Informasi Kontak --}}
-            <div class="bg-surface rounded-2xl shadow-sm border border-outline p-6 md:p-8">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            {{-- Contact Info --}}
+            <div class="bg-surface rounded-xl lg:rounded-2xl shadow-sm border border-outline p-5 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                         <i data-lucide="info" class="w-5 h-5 text-primary"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-on-surface">Informasi Kontak</h2>
+                    <h2 class="text-lg md:text-xl font-bold text-on-surface">Informasi Kontak</h2>
                 </div>
                 <div class="space-y-4">
                     @if(!empty($site_settings['address']))
@@ -169,13 +167,13 @@
                 </div>
             </div>
 
-            {{-- Media Sosial --}}
-            <div class="bg-surface rounded-2xl shadow-sm border border-outline p-6 md:p-8">
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            {{-- Social Media --}}
+            <div class="bg-surface rounded-xl lg:rounded-2xl shadow-sm border border-outline p-5 md:p-8">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                         <i data-lucide="share-2" class="w-5 h-5 text-primary"></i>
                     </div>
-                    <h2 class="text-xl font-bold text-on-surface">Ikuti Kami</h2>
+                    <h2 class="text-lg md:text-xl font-bold text-on-surface">Ikuti Kami</h2>
                 </div>
                 <div class="flex flex-wrap gap-3">
                     @if(!empty($site_settings['facebook']))
@@ -219,24 +217,12 @@
             const name = document.getElementById('name').value.trim();
             const subject = document.getElementById('subject').value.trim();
             const message = document.getElementById('message').value.trim();
-
-            if (!name || !subject || !message) {
-                alert('Harap isi semua kolom terlebih dahulu.');
-                return;
-            }
-
+            if (!name || !subject || !message) { alert('Harap isi semua kolom terlebih dahulu.'); return; }
             const body = `Halo, saya *${name}*.\n\n*Subjek:* ${subject}\n\n*Pesan:*\n${message}`;
-
             switch (platform) {
-                case 'whatsapp':
-                    window.open('https://wa.me/{{ $site_settings["whatsapp"] ?? "" }}?text=' + encodeURIComponent(body), '_blank');
-                    break;
-                case 'email':
-                    window.location.href = 'mailto:{{ $site_settings["email"] ?? "" }}?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-                    break;
-                case 'sms':
-                    window.location.href = 'sms:?body=' + encodeURIComponent(body);
-                    break;
+                case 'whatsapp': window.open('https://wa.me/{{ $site_settings["whatsapp"] ?? "" }}?text=' + encodeURIComponent(body), '_blank'); break;
+                case 'email': window.location.href = 'mailto:{{ $site_settings["email"] ?? "" }}?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body); break;
+                case 'sms': window.location.href = 'sms:?body=' + encodeURIComponent(body); break;
             }
         }
     </script>

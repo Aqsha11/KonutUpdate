@@ -174,3 +174,95 @@ document.addEventListener('keydown', (e) => {
         if (searchBtn) searchBtn.click();
     }
 });
+
+// ===== Live Search =====
+(function () {
+    const input = document.getElementById('liveSearchInput');
+    const results = document.getElementById('liveSearchResults');
+    if (!input || !results) return;
+
+    let debounceTimer;
+    let selectedIndex = -1;
+
+    function fetchResults(query) {
+        selectedIndex = -1;
+        results.innerHTML = '<div class="live-search-loading"><i data-lucide="loader-circle" class="w-4 h-4 animate-spin inline-block"></i> Mencari...</div>';
+        results.classList.add('active');
+        lucide.createIcons?.();
+
+        fetch('/search?q=' + encodeURIComponent(query) + '&ajax=1', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+        })
+            .then(r => r.json())
+            .then(data => {
+                if (!Array.isArray(data) || data.length === 0) {
+                    results.innerHTML = '<div class="live-search-empty">Tidak ditemukan</div>';
+                    return;
+                }
+                results.innerHTML = data.map((item, i) =>
+                    '<a href="' + item.url + '" class="live-search-item" data-index="' + i +
+                    '" onmouseenter="this.parentElement.querySelectorAll(\'.live-search-item\').forEach(el => el.classList.remove(\'highlighted\')); this.classList.add(\'highlighted\'); window._liveIdx = ' + i + '">' +
+                    (item.thumb ? '<img src="' + item.thumb + '" alt="" loading="lazy">' : '<div class="live-search-noimg"><i data-lucide="file-text" class="w-4 h-4"></i></div>') +
+                    '<div><div class="result-title">' + escapeHtml(item.title) + '</div>' +
+                    '<div class="result-meta">' + (item.category ? '<span>' + escapeHtml(item.category) + '</span>' : '') + (item.date ? ' &middot; ' + item.date : '') + '</div></div></a>'
+                ).join('');
+                lucide.createIcons?.();
+            })
+            .catch(() => {
+                results.innerHTML = '<div class="live-search-empty">Gagal memuat hasil</div>';
+            });
+    }
+
+    function escapeHtml(text) {
+        const d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
+    }
+
+    input.addEventListener('input', function () {
+        const q = this.value.trim();
+        clearTimeout(debounceTimer);
+        if (q.length < 2) {
+            results.classList.remove('active');
+            results.innerHTML = '';
+            return;
+        }
+        debounceTimer = setTimeout(() => fetchResults(q), 300);
+    });
+
+    input.addEventListener('keydown', function (e) {
+        const items = results.querySelectorAll('.live-search-item');
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && items[selectedIndex]) {
+                items[selectedIndex].click();
+            } else if (this.value.trim().length >= 2) {
+                window.location.href = '/search?q=' + encodeURIComponent(this.value.trim());
+            }
+            return;
+        }
+
+        items.forEach((el, i) => {
+            el.classList.toggle('highlighted', i === selectedIndex);
+        });
+        if (selectedIndex >= 0 && items[selectedIndex]) {
+            items[selectedIndex].scrollIntoView({ block: 'nearest' });
+        }
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && results.classList.contains('active')) {
+            const alpineData = document.querySelector('[x-data]')?.__x;
+            if (alpineData) alpineData.$data.searchOpen = false;
+        }
+    });
+})();

@@ -36,17 +36,16 @@
         </nav>
     </div>
 
-    {{-- Hero --}}
-    <div class="relative bg-gradient-to-br from-primary/90 via-primary to-primary-dark rounded-2xl overflow-hidden mb-8">
+    <div class="relative bg-gradient-to-br from-primary/90 via-primary to-primary-dark rounded-xl lg:rounded-2xl overflow-hidden mb-8">
         <div class="absolute inset-0 opacity-10">
             <svg class="w-full h-full" viewBox="0 0 400 200"><circle cx="350" cy="50" r="120" fill="white"/><circle cx="50" cy="180" r="80" fill="white"/></svg>
         </div>
-        <div class="relative px-8 py-12 md:px-12 md:py-16 text-center">
-            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-5">
-                <i data-lucide="shield" class="w-8 h-8 text-white"></i>
+        <div class="relative px-6 py-10 md:px-12 md:py-16 text-center">
+            <div class="w-14 h-14 md:w-16 md:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="shield" class="w-7 h-7 md:w-8 md:h-8 text-white"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3">Kebijakan Privasi</h1>
-            <p class="text-white/80 text-lg max-w-xl mx-auto">Bagaimana {{ $site_settings['site_name'] ?? 'Konut.Update' }} melindungi data Anda</p>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white mb-3">Kebijakan Privasi</h1>
+            <p class="text-white/80 text-base md:text-lg max-w-xl mx-auto">Bagaimana {{ $site_settings['site_name'] ?? 'Konut.Update' }} melindungi data Anda</p>
         </div>
     </div>
 
@@ -67,15 +66,15 @@
             @endphp
 
             @foreach($sections as $section)
-                <div class="bg-surface rounded-2xl shadow-sm border border-outline p-6 md:p-8">
-                    <div class="flex items-center gap-3 mb-5">
-                        <div class="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <div class="bg-surface rounded-xl lg:rounded-2xl shadow-sm border border-outline p-5 md:p-8">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                             <i data-lucide="{{ $section['icon'] }}" class="w-5 h-5 text-primary"></i>
                         </div>
-                        <h2 class="text-xl font-bold text-on-surface">{{ $section['title'] }}</h2>
+                        <h2 class="text-lg md:text-xl font-bold text-on-surface">{{ $section['title'] }}</h2>
                     </div>
                     @if(!empty($section['desc']))
-                        <p class="text-on-surface-variant leading-relaxed">{{ $section['desc'] }}</p>
+                        <p class="text-on-surface-variant leading-relaxed text-sm md:text-base">{{ $section['desc'] }}</p>
                     @endif
                     @if(!empty($section['list']))
                         <ul class="space-y-3 mt-1">
@@ -84,7 +83,7 @@
                                     <div class="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                                         <i data-lucide="check" class="w-3 h-3 text-primary"></i>
                                     </div>
-                                    <span class="text-on-surface-variant leading-relaxed">{{ $item }}</span>
+                                    <span class="text-on-surface-variant leading-relaxed text-sm md:text-base">{{ $item }}</span>
                                 </li>
                             @endforeach
                         </ul>

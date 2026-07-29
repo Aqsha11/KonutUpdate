@@ -37,9 +37,6 @@
 @endsection
 
 @section('content')
-    {{-- Reading Progress --}}
-    <div class="reading-progress"><div class="reading-progress-bar" id="readingProgressBar"></div></div>
-
     {{-- Sticky Share (Desktop) --}}
     <div class="sticky-share" id="stickyShare">
         <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
@@ -63,12 +60,12 @@
                 <a href="{{ route('categories.show', $post->category->slug) }}">{{ $post->category->name }}</a>
                 <i data-lucide="chevron-right" class="w-2.5 h-2.5"></i>
             @endif
-            <span class="truncate max-w-[160px] md:max-w-[300px]">{{ $post->title }}</span>
+            <span class="truncate max-w-[140px] md:max-w-[300px]">{{ $post->title }}</span>
         </nav>
 
         <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
             {{-- Main Content --}}
-            <div class="lg:w-[68%]">
+            <div class="lg:w-[68%] min-w-0">
                 {{-- Category Badges --}}
                 @if($post->categories->count() > 0)
                     @foreach($post->categories as $cat)
@@ -89,8 +86,8 @@
                 {{-- Author + Date --}}
                 <div class="article-meta-bar">
                     <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span class="text-primary font-bold text-xs">{{ strtoupper(substr($post->author->name ?? 'R', 0, 1)) }}</span>
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span class="text-primary font-bold text-sm">{{ strtoupper(substr($post->author->name ?? 'R', 0, 1)) }}</span>
                         </div>
                         <div>
                             <span class="article-author">{{ $post->author->name ?? 'Redaksi' }}</span>
@@ -99,9 +96,9 @@
                     </div>
                     <div class="flex items-center gap-2">
                         @if(!$post->isVideo())
-                        <span class="text-[10px] text-on-surface-variant flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> {{ readTime($post->body) }}</span>
+                        <span class="text-[10px] md:text-[11px] text-on-surface-variant flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> {{ readTime($post->body) }}</span>
                         @endif
-                        <span class="text-[10px] text-on-surface-variant flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> {{ number_format($post->views_count) }}</span>
+                        <span class="text-[10px] md:text-[11px] text-on-surface-variant flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> {{ number_format($post->views_count) }}</span>
                     </div>
                 </div>
 
@@ -190,7 +187,7 @@
                     {!! $post->body !!}
                 </div>
 
-                {{-- Iklan Mobile — tampil hanya di mobile --}}
+                {{-- Iklan Mobile --}}
                 @if(isset($sidebarAdsTop) && $sidebarAdsTop->count() > 0)
                 <div class="lg:hidden mt-3 mb-3 space-y-2">
                     @foreach($sidebarAdsTop as $ad)
@@ -294,7 +291,7 @@
                 @if(isset($nextPost) || isset($prevPost))
                 <div class="flex flex-col sm:flex-row gap-2 mt-6 pt-4 border-t border-outline">
                     @if(isset($prevPost))
-                    <a href="{{ route('posts.show', $prevPost->slug) }}" class="flex-1 flex items-center gap-2 p-2.5 rounded-lg bg-surface-container-low no-underline group hover:bg-primary-light transition-colors">
+                    <a href="{{ route('posts.show', $prevPost->slug) }}" class="flex-1 flex items-center gap-2 p-3 rounded-lg bg-surface-container-low no-underline group hover:bg-primary-light transition-colors">
                         <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-on-surface-variant group-hover:text-primary shrink-0"></i>
                         <div class="min-w-0">
                             <span class="text-[9px] font-semibold text-on-surface-variant uppercase tracking-wider">Sebelumnya</span>
@@ -303,7 +300,7 @@
                     </a>
                     @endif
                     @if(isset($nextPost))
-                    <a href="{{ route('posts.show', $nextPost->slug) }}" class="flex-1 flex items-center gap-2 p-2.5 rounded-lg bg-surface-container-low no-underline group hover:bg-primary-light transition-colors sm:text-right sm:flex-row-reverse">
+                    <a href="{{ route('posts.show', $nextPost->slug) }}" class="flex-1 flex items-center gap-2 p-3 rounded-lg bg-surface-container-low no-underline group hover:bg-primary-light transition-colors sm:text-right sm:flex-row-reverse">
                         <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-on-surface-variant group-hover:text-primary shrink-0"></i>
                         <div class="min-w-0">
                             <span class="text-[9px] font-semibold text-on-surface-variant uppercase tracking-wider">Selanjutnya</span>
@@ -325,7 +322,6 @@
     </article>
 
     <script>
-    // Sticky share visibility on scroll
     document.addEventListener('DOMContentLoaded', function() {
         var stickyShare = document.getElementById('stickyShare');
         if (!stickyShare) return;
@@ -333,11 +329,7 @@
         if (!shareBar) return;
         window.addEventListener('scroll', function() {
             var rect = shareBar.getBoundingClientRect();
-            if (rect.bottom < 0) {
-                stickyShare.classList.add('visible');
-            } else {
-                stickyShare.classList.remove('visible');
-            }
+            if (rect.bottom < 0) { stickyShare.classList.add('visible'); } else { stickyShare.classList.remove('visible'); }
         }, { passive: true });
     });
     </script>

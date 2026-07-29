@@ -1,5 +1,5 @@
-<footer class="bg-inverse-surface text-inverse-on-surface dark:bg-gray-900 dark:text-gray-300 mt-10 lg:mt-12">
-    {{-- Decorative Wave --}}
+<footer class="bg-inverse-surface text-inverse-on-surface dark:bg-gray-900 dark:text-gray-300 mt-8 lg:mt-12">
+    {{-- Wave --}}
     <div class="footer-wave">
         <svg viewBox="0 0 1440 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0,16 C240,0 480,32 720,16 C960,0 1200,32 1440,16 L1440,32 L0,32 Z" fill="var(--color-primary, #189B39)" opacity="0.12"/>
@@ -7,13 +7,13 @@
         </svg>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-8 lg:py-10">
+    <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {{-- About --}}
             <div class="lg:col-span-1">
                 <a href="{{ url('/') }}" class="inline-block mb-4 no-underline">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-14 w-auto object-contain">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-12 lg:h-14 w-auto object-contain">
                     @else
                         <span class="text-xl font-extrabold">
                             <span class="text-primary-fixed-dim">KONUT</span><span class="text-accent-fixed-dim">UPDATE</span>
@@ -33,6 +33,9 @@
                     @endif
                     @if(!empty($site_settings['tiktok']))
                         <a href="{{ $site_settings['tiktok'] }}" target="_blank" class="social-icon bg-white/10 hover:bg-[#000000]"><i class="fab fa-tiktok text-sm"></i></a>
+                    @endif
+                    @if(!empty($site_settings['whatsapp']))
+                        <a href="{{ $site_settings['whatsapp'] }}" target="_blank" class="social-icon bg-white/10 hover:bg-[#25d366]"><i class="fab fa-whatsapp text-sm"></i></a>
                     @endif
                     @if(!empty($site_settings['email']))
                         <a href="mailto:{{ $site_settings['email'] }}" class="social-icon bg-white/10 hover:bg-accent"><i data-lucide="mail" class="w-4 h-4"></i></a>

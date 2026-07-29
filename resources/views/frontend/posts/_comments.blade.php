@@ -19,7 +19,7 @@
                 <input type="email" name="email" value="{{ old('email') }}" required maxlength="255" autocomplete="email"
                        class="comment-input" placeholder="Email">
             </div>
-            <textarea name="body" rows="2" required maxlength="2000"
+            <textarea name="body" rows="3" required maxlength="2000"
                       class="comment-input w-full resize-none mb-2"
                       placeholder="Tulis komentar Anda...">{{ old('body') }}</textarea>
             <div style="position:absolute;left:-9999px" aria-hidden="true">
@@ -34,18 +34,18 @@
 
     {{-- Comments List --}}
     @if($comments->count() > 0)
-        <div class="space-y-2">
+        <div class="space-y-3">
             @foreach($comments as $comment)
-                <div class="flex items-start gap-2.5 py-2.5 border-b border-outline/50 last:border-b-0">
-                    <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <span class="text-primary font-bold text-[10px]">{{ strtoupper(substr($comment->name, 0, 1)) }}</span>
+                <div class="flex items-start gap-2.5 py-3 border-b border-outline/50 last:border-b-0">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <span class="text-primary font-bold text-xs">{{ strtoupper(substr($comment->name, 0, 1)) }}</span>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-0.5">
-                            <span class="text-xs font-semibold text-on-surface">{{ $comment->name }}</span>
+                            <span class="text-sm font-semibold text-on-surface">{{ $comment->name }}</span>
                             <span class="text-[10px] text-on-surface-variant/60">{{ $comment->created_at->diffForHumans() }}</span>
                         </div>
-                        <p class="text-xs text-on-surface leading-relaxed">{{ $comment->body }}</p>
+                        <p class="text-sm text-on-surface leading-relaxed">{{ $comment->body }}</p>
                     </div>
                 </div>
             @endforeach
@@ -53,7 +53,7 @@
     @else
         <div class="text-center py-4 text-on-surface-variant">
             <i data-lucide="message-circle" class="w-6 h-6 mx-auto mb-1 opacity-40"></i>
-            <p class="text-[11px]">Belum ada komentar.</p>
+            <p class="text-[12px]">Belum ada komentar.</p>
         </div>
     @endif
 </section>

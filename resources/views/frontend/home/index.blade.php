@@ -49,17 +49,16 @@
     ];
 
     $latestChunks = $latestPosts->chunk(6);
-
     $heroSlides = $headlinePosts->chunk(3);
 @endphp
 
 @section('content')
 
-    {{-- ═══════════════════════════════════════════════════════════
-         HERO CAROUSEL — 1 big + 2 small per slide
-         ═══════════════════════════════════════════════════════════ --}}
+    {{-- ════════════════════════════════════════════
+         HERO CAROUSEL
+         ════════════════════════════════════════════ --}}
     @if($headlinePosts->count() > 0)
-    <section class="mb-4">
+    <section class="mb-3 lg:mb-4">
         <div class="hero-carousel" x-data="{ active: 0, total: {{ $heroSlides->count() }} }" x-init="setInterval(() => { if(total > 1) active = (active + 1) % total }, 5000)">
             <div class="hero-carousel-track" :style="'transform: translateX(-' + (active * 100) + '%)'">
                 @foreach($heroSlides as $slideIndex => $slide)
@@ -69,7 +68,7 @@
                         $smalls = $slide->slice(1);
                     @endphp
                     <div class="hero-slide-grid">
-                        {{-- POST BESAR --}}
+                        {{-- Big Post --}}
                         <div class="hero-slide-big">
                             <a href="{{ route('posts.show', $big->slug) }}">
                                 <img src="{{ $big->thumbnail ? Storage::url($big->thumbnail) : ($big->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $big->title }}" class="hero-slide-big-img" loading="{{ $slideIndex === 0 ? 'eager' : 'lazy' }}">
@@ -111,7 +110,7 @@
                             </div>
                         </div>
 
-                        {{-- POST KECIL 2 --}}
+                        {{-- Small Posts --}}
                         <div class="hero-slide-smalls">
                             @foreach($smalls as $small)
                             <div class="hero-slide-small">
@@ -152,7 +151,6 @@
                                 </div>
                             </div>
                             @endforeach
-                            {{-- Placeholder jika kurang dari 2 small --}}
                             @if($smalls->count() < 2)
                             @for($i = $smalls->count(); $i < 2; $i++)
                             <div class="hero-slide-small hero-slide-placeholder">
@@ -168,15 +166,12 @@
                 @endforeach
             </div>
 
-            {{-- Indicators --}}
             @if($heroSlides->count() > 1)
             <div class="hero-carousel-indicators">
                 @foreach($heroSlides as $i => $_)
                 <button type="button" class="hero-carousel-dot" :class="active === {{ $i }} ? 'active' : ''" @click="active = {{ $i }}"></button>
                 @endforeach
             </div>
-
-            {{-- Nav --}}
             <button type="button" class="hero-carousel-prev" @click="active = active > 0 ? active - 1 : total - 1">
                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
             </button>
@@ -188,16 +183,16 @@
     </section>
     @endif
 
-    {{-- ═══════════════════════════════════════════════════════════
-         BERITA TERBARU — Mobile: 10 items, Desktop: 3 Kolom × 6
-         ═══════════════════════════════════════════════════════════ --}}
-    <section class="mb-4">
+    {{-- ════════════════════════════════════════════
+         BERITA TERBARU — Mobile: flat list, Desktop: 3-col grid
+         ════════════════════════════════════════════ --}}
+    <section class="mb-3 lg:mb-4">
         <div class="section-bar">
             <h2 class="section-bar-title"><span class="section-bar-dot bg-primary"></span>Berita Terbaru</h2>
-            <a href="{{ route('search') }}" class="section-bar-link">Semua Berita <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+            <a href="{{ route('search') }}" class="section-bar-link">Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
         </div>
 
-        {{-- Mobile: flat list 10 items --}}
+        {{-- Mobile: flat list --}}
         <div class="news-mobile-list">
             <div class="news-list">
                 @foreach($latestPosts->take(10) as $post)
@@ -284,9 +279,9 @@
         </div>
     </section>
 
-    {{-- ═══════════════════════════════════════════════════════════
-         CATEGORY SECTIONS — Portrait card + List
-         ═══════════════════════════════════════════════════════════ --}}
+    {{-- ════════════════════════════════════════════
+         CATEGORY SECTIONS
+         ════════════════════════════════════════════ --}}
     @foreach($categorySlugs as $slug)
         @php
             $catData = $categoryData[$slug] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
@@ -294,7 +289,7 @@
         @endphp
 
         @if($catData['hero'] || $catData['trending']->count() > 0 || $catData['latest']->count() > 0)
-        <section class="mb-4">
+        <section class="mb-3 lg:mb-4">
             <div class="cat-header">
                 <div class="cat-header-title">
                     <span class="cat-header-dot bg-{{ $meta['color'] }}"></span>
@@ -304,7 +299,7 @@
             </div>
 
             <div class="cat-3col-layout">
-                {{-- ══ KOLAM 1: Portrait Hero Card ═─ --}}
+                {{-- Kolom 1: Portrait Hero --}}
                 <div class="cat-3col-hero">
                     @if($catData['hero'])
                     <div class="cat-portrait-card">
@@ -342,11 +337,11 @@
                     @endif
                 </div>
 
-                {{-- ══ KOLAM 2: Trending Kategori ═─ --}}
+                {{-- Kolom 2: Trending --}}
                 <div class="cat-3col-list">
                     <div class="cat-3col-label">
                         <i data-lucide="flame" class="w-2.5 h-2.5 text-accent"></i>
-                        Trending {{ $meta['name'] }}
+                        Trending
                     </div>
                     @forelse($catData['trending'] as $index => $post)
                     <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group">
@@ -381,11 +376,11 @@
                     @endforelse
                 </div>
 
-                {{-- ══ KOLAM 3: Terbaru Kategori ═─ --}}
+                {{-- Kolom 3: Terbaru --}}
                 <div class="cat-3col-list">
                     <div class="cat-3col-label">
                         <i data-lucide="clock" class="w-2.5 h-2.5 text-primary"></i>
-                        Terbaru {{ $meta['name'] }}
+                        Terbaru
                     </div>
                     @forelse($catData['latest'] as $post)
                     <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group">

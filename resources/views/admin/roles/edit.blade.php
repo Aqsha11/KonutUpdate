@@ -21,7 +21,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="name" class="form-label">Nama Role <span class="required">*</span></label>
-                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $role->name) }}" required>
+                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Nama Role" value="{{ old('name', $role->name) }}" required>
                     @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -30,7 +30,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="slug" class="form-label">Slug <span class="required">*</span></label>
-                    <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug', $role->slug) }}" required>
+                    <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror" placeholder="slug-role" value="{{ old('slug', $role->slug) }}" required>
                     @error('slug')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -39,7 +39,7 @@
         </div>
         <div class="form-group">
             <label for="description" class="form-label">Deskripsi</label>
-            <textarea name="description" id="description" rows="3" class="form-control @error('description') is-invalid @enderror">{{ old('description', $role->description) }}</textarea>
+            <textarea name="description" id="description" rows="3" class="form-control @error('description') is-invalid @enderror" placeholder="Deskripsi Role (opsional)">{{ old('description', $role->description) }}</textarea>
             @error('description')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror

@@ -18,14 +18,14 @@
         @csrf
         <div class="form-group">
             <label for="name" class="form-label">Nama Kecamatan <span class="required">*</span></label>
-            <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+            <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Nama Kecamatan" value="{{ old('name') }}" required>
             @error('name')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
         <div class="form-group">
             <label for="description" class="form-label">Deskripsi</label>
-            <textarea name="description" id="description" rows="3" class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+            <textarea name="description" id="description" rows="3" class="form-control @error('description') is-invalid @enderror" placeholder="Deskripsi Kecamatan (opsional)">{{ old('description') }}</textarea>
             <div class="form-text">Contoh: "Pusat pemerintahan kabupaten" atau "Kecamatan dengan wilayah terluas"</div>
             @error('description')
             <div class="invalid-feedback">{{ $message }}</div>
@@ -33,7 +33,7 @@
         </div>
         <div class="form-group">
             <label for="sort_order" class="form-label">Urutan</label>
-            <input type="number" name="sort_order" id="sort_order" class="form-control @error('sort_order') is-invalid @enderror" value="{{ old('sort_order', 0) }}" min="0">
+            <input type="number" name="sort_order" id="sort_order" class="form-control @error('sort_order') is-invalid @enderror" placeholder="Urutan" value="{{ old('sort_order', 0) }}" min="0">
             @error('sort_order')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror

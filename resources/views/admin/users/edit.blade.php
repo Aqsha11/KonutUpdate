@@ -21,7 +21,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="name" class="form-label">Nama <span class="required">*</span></label>
-                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
+                    <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Nama Lengkap" value="{{ old('name', $user->name) }}" required>
                     @error('name')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -30,7 +30,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="email" class="form-label">Email <span class="required">*</span></label>
-                    <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
+                    <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" placeholder="email@example.com" value="{{ old('email', $user->email) }}" required>
                     @error('email')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -39,7 +39,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror">
+                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password baru (kosongkan jika tidak diubah)">
                     <div class="form-text">Kosongkan jika tidak ingin mengubah password.</div>
                     @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -49,7 +49,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
-                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
+                    <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Konfirmasi Password baru">
                 </div>
             </div>
             <div class="col-12">

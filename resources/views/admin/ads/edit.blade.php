@@ -21,7 +21,7 @@
             <div class="col-md-8">
                 <div class="form-group">
                     <label for="title" class="form-label">Judul Iklan <span class="required">*</span></label>
-                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $ad->title) }}" required>
+                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" placeholder="Judul Iklan" value="{{ old('title', $ad->title) }}" required>
                     @error('title')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -74,7 +74,7 @@
                 </div>
                 <div class="form-group">
                     <label for="sort_order" class="form-label">Urutan</label>
-                    <input type="number" name="sort_order" id="sort_order" class="form-control" value="{{ old('sort_order', $ad->sort_order) }}" min="0">
+                    <input type="number" name="sort_order" id="sort_order" class="form-control" placeholder="Urutan" value="{{ old('sort_order', $ad->sort_order) }}" min="0">
                     <div class="form-text">Semakin kecil semakin atas</div>
                 </div>
                 <div class="form-group">
@@ -85,12 +85,12 @@
                 </div>
                 <div class="form-group">
                     <label for="starts_at" class="form-label">Tanggal Mulai</label>
-                    <input type="date" name="starts_at" id="starts_at" class="form-control" value="{{ old('starts_at', $ad->starts_at ? $ad->starts_at->format('Y-m-d') : '') }}">
+                    <input type="date" name="starts_at" id="starts_at" class="form-control" placeholder="Tanggal Mulai" value="{{ old('starts_at', $ad->starts_at ? $ad->starts_at->format('Y-m-d') : '') }}">
                     <div class="form-text">Kosongkan jika tidak ada batas</div>
                 </div>
                 <div class="form-group">
                     <label for="ends_at" class="form-label">Tanggal Berakhir</label>
-                    <input type="date" name="ends_at" id="ends_at" class="form-control" value="{{ old('ends_at', $ad->ends_at ? $ad->ends_at->format('Y-m-d') : '') }}">
+                    <input type="date" name="ends_at" id="ends_at" class="form-control" placeholder="Tanggal Berakhir" value="{{ old('ends_at', $ad->ends_at ? $ad->ends_at->format('Y-m-d') : '') }}">
                     <div class="form-text">Kosongkan jika tidak ada batas</div>
                 </div>
                 <div class="d-flex gap-2">

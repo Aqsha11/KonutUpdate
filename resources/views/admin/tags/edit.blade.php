@@ -19,7 +19,7 @@
         @method('PUT')
         <div class="form-group">
             <label for="name" class="form-label">Nama Tag <span class="required">*</span></label>
-            <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $tag->name) }}" required>
+            <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Nama Tag" value="{{ old('name', $tag->name) }}" required>
             @error('name')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror

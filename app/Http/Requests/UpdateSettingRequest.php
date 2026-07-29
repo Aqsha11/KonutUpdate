@@ -23,6 +23,7 @@ class UpdateSettingRequest extends FormRequest
             'instagram' => 'nullable|string|max:255',
             'tiktok' => 'nullable|string|max:255',
             'youtube' => 'nullable|string|max:255',
+            'whatsapp' => 'nullable|string|max:255',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
             'favicon' => 'nullable|image|mimes:jpeg,png,jpg,ico,webp|max:1024',
             'meta_title' => 'nullable|string|max:255',
@@ -36,6 +37,7 @@ class UpdateSettingRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'whatsapp' => 'WhatsApp',
             'site_name' => 'Nama Website',
             'tagline' => 'Tagline',
             'email' => 'Email',

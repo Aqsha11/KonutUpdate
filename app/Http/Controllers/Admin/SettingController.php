@@ -21,7 +21,7 @@ class SettingController extends Controller
     {
         $validKeys = [
             'site_name', 'tagline', 'email', 'phone', 'address',
-            'facebook', 'instagram', 'tiktok', 'youtube',
+            'facebook', 'instagram', 'tiktok', 'youtube', 'whatsapp',
             'logo', 'favicon', 'meta_title', 'meta_description', 'meta_keywords',
             'primary_color', 'accent_color',
         ];
