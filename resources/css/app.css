@@ -350,10 +350,11 @@ body {
 .cat-header h2 { font-size: 14px; font-weight: 800; color: var(--color-on-surface); }
 .cat-header-link { font-size: 11px; font-weight: 600; color: var(--color-primary); display: flex; align-items: center; gap: 2px; text-decoration: none; }
 .cat-header-link:hover { text-decoration: underline; }
-.cat-3col-layout { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 14px; align-items: stretch; }
+.cat-3col-layout { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 14px; align-items: stretch; height: 260px; }
+@media (max-width: 639px) { .cat-3col-layout { height: auto; } }
 
 .cat-3col-hero { min-width: 0; height: 100%; }
-.cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; height: 100%; min-height: 240px; isolation: isolate; }
+.cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; height: 100%; min-height: 260px; isolation: isolate; }
 @media (max-width: 639px) { .cat-portrait-card { min-height: 70px; } }
 
 .cat-portrait-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s; }
@@ -370,7 +371,8 @@ body {
 .cat-stat-btn:hover { color: white; }
 .cat-stat-btn.liked { color: var(--color-error); }
 .cat-portrait-empty { display: flex; align-items: center; justify-content: center; height: 100%; min-height: 200px; background: var(--color-surface-container-low); border-radius: 8px; }
-.cat-3col-list { display: flex; flex-direction: column; }
+.cat-3col-list { display: flex; flex-direction: column; overflow-y: auto; }
+@media (max-width: 639px) { .cat-3col-list { overflow-y: visible; } }
 
 .cat-3col-list::-webkit-scrollbar { width: 3px; }
 .cat-3col-list::-webkit-scrollbar-thumb { background: var(--color-outline-variant); border-radius: 2px; }
