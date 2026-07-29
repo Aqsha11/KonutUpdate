@@ -241,38 +241,40 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         initCKEditor('editor');
+        initThumbnailCropper('thumbnail', 'thumbnailPreview');
 
         var typeSelect = document.getElementById('type');
         var videoFields = document.getElementById('videoFields');
         typeSelect.addEventListener('change', function() {
             videoFields.style.display = this.value === 'video' ? 'block' : 'none';
         });
-    });
-    initThumbnailCropper('thumbnail', 'thumbnailPreview');
-    // Update label crop saat toggle Headline berubah
-    document.getElementById('isHeadline')?.addEventListener('change', function() {
-        document.getElementById('cropLabel').textContent = this.checked ? 'bebas' : '16:9';
-    });
-    document.getElementById('video_file').addEventListener('change', function(e) {
-        var preview = document.getElementById('videoPreview');
-        preview.innerHTML = '';
-        var file = e.target.files[0];
-        if (file) {
-            var size = (file.size / (1024 * 1024)).toFixed(1);
-            var info = document.createElement('div');
-            info.className = 'alert alert-info py-2 px-3 mb-0 mt-2';
-            info.innerHTML = '<i class="bi bi-film"></i> ' + file.name + ' <span class="text-muted">(' + size + ' MB)</span>';
-            preview.appendChild(info);
-        }
-    });
 
-    document.querySelectorAll('.category-checkbox').forEach(function(cb) {
-        cb.addEventListener('change', function() {
-            var checked = document.querySelectorAll('.category-checkbox:checked');
-            if (checked.length > 3) {
-                this.checked = false;
-                alert('Maksimal 3 kategori saja.');
+        // Update label crop saat toggle Headline berubah
+        document.getElementById('isHeadline')?.addEventListener('change', function() {
+            document.getElementById('cropLabel').textContent = this.checked ? 'bebas' : '16:9';
+        });
+
+        document.getElementById('video_file').addEventListener('change', function(e) {
+            var preview = document.getElementById('videoPreview');
+            preview.innerHTML = '';
+            var file = e.target.files[0];
+            if (file) {
+                var size = (file.size / (1024 * 1024)).toFixed(1);
+                var info = document.createElement('div');
+                info.className = 'alert alert-info py-2 px-3 mb-0 mt-2';
+                info.innerHTML = '<i class="bi bi-film"></i> ' + file.name + ' <span class="text-muted">(' + size + ' MB)</span>';
+                preview.appendChild(info);
             }
+        });
+
+        document.querySelectorAll('.category-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                var checked = document.querySelectorAll('.category-checkbox:checked');
+                if (checked.length > 3) {
+                    this.checked = false;
+                    alert('Maksimal 3 kategori saja.');
+                }
+            });
         });
     });
 </script>
