@@ -243,23 +243,7 @@
             </div>
         </nav>
 
-        {{-- Mobile Category Scroll --}}
-        <nav class="md:hidden bg-surface border-b border-outline overflow-x-auto hide-scrollbar relative">
-            <div class="flex flex-nowrap items-center gap-1 px-2 py-2 whitespace-nowrap">
-                <a href="{{ url('/') }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold {{ request()->routeIs('home') ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container' }} no-underline transition-colors shrink-0">
-                    Home
-                </a>
-                <a href="{{ route('trending') }}" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold {{ request()->routeIs('trending') ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container' }} no-underline transition-colors shrink-0">
-                    <i data-lucide="flame" class="w-3 h-3"></i> Trending
-                </a>
-                @foreach($categories as $cat)
-                    <a href="{{ route('categories.show', $cat->slug) }}"
-                       class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'bg-primary text-white' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container' }} no-underline transition-colors shrink-0">
-                        {{ $cat->name }}
-                    </a>
-                @endforeach
-            </div>
-        </nav>
+
     </header>
 
     {{-- Breaking News Ticker --}}
