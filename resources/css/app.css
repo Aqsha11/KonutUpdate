@@ -351,7 +351,7 @@ body {
 .cat-header-link { font-size: 11px; font-weight: 600; color: var(--color-primary); display: flex; align-items: center; gap: 2px; text-decoration: none; }
 .cat-header-link:hover { text-decoration: underline; }
 .cat-3col-layout { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 14px; align-items: stretch; }
-@media (max-width: 639px) { .cat-3col-layout { grid-template-columns: 1fr; gap: 8px; } }
+
 .cat-3col-hero { min-width: 0; height: 100%; }
 .cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; height: 100%; min-height: 240px; isolation: isolate; }
 @media (max-width: 768px) { .cat-portrait-card { min-height: 180px; } }
@@ -370,8 +370,8 @@ body {
 .cat-stat-btn:hover { color: white; }
 .cat-stat-btn.liked { color: var(--color-error); }
 .cat-portrait-empty { display: flex; align-items: center; justify-content: center; height: 100%; min-height: 200px; background: var(--color-surface-container-low); border-radius: 8px; }
-.cat-3col-list { display: flex; flex-direction: column; max-height: 200px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--color-outline-variant) transparent; }
-@media (max-width: 768px) { .cat-3col-list { max-height: none; overflow-y: visible; } }
+.cat-3col-list { display: flex; flex-direction: column; }
+
 .cat-3col-list::-webkit-scrollbar { width: 3px; }
 .cat-3col-list::-webkit-scrollbar-thumb { background: var(--color-outline-variant); border-radius: 2px; }
 .cat-3col-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--color-on-surface-variant); padding: 4px 0 3px; border-bottom: 1px solid var(--color-outline); display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
@@ -600,7 +600,6 @@ body.is-offline .sticky-header { top: 28px; }
     .cat-header h2 { font-size: 12px; }
     .cat-header-dot { width: 5px; height: 5px; }
     .cat-header-link { font-size: 9px; }
-    .cat-3col-layout { grid-template-columns: 1fr; gap: 6px; }
     .cat-portrait-content { padding: 8px; }
     .cat-portrait-badge { font-size: 7px; padding: 2px 4px; margin-bottom: 3px; }
     .cat-portrait-title { font-size: 12px; line-height: 1.25; }
