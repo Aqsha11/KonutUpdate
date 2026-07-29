@@ -118,6 +118,7 @@ window.togglePreview = function() {
 
 // ===== Cropper.js Thumbnail =====
 import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
 
 window.initThumbnailCropper = function(inputId, previewId) {
     const input = document.getElementById(inputId);
