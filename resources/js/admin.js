@@ -164,8 +164,10 @@ window.initThumbnailCropper = function(inputId, previewId) {
                     aspectRatio: isHeadline() ? NaN : 16 / 9,
                     viewMode: isHeadline() ? 0 : 1,
                     dragMode: 'move',
-                    autoCropArea: isHeadline() ? 1 : 0.6,
+                    autoCropArea: isHeadline() ? 1 : 0.35,
                     responsive: true,
+                    zoomable: false,
+                    toggleDragModeOnDblclick: false,
                 });
             }, 300);
         };
