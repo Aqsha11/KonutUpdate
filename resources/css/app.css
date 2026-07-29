@@ -350,9 +350,7 @@ body {
 .cat-header h2 { font-size: 14px; font-weight: 800; color: var(--color-on-surface); }
 .cat-header-link { font-size: 11px; font-weight: 600; color: var(--color-primary); display: flex; align-items: center; gap: 2px; text-decoration: none; }
 .cat-header-link:hover { text-decoration: underline; }
-.cat-3col-layout { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 14px; align-items: stretch; height: 235px; }
-@media (max-width: 1023px) { .cat-3col-layout { height: 200px; } }
-@media (max-width: 639px) { .cat-3col-layout { height: auto; min-height: 80px; } }
+.cat-3col-layout { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 14px; align-items: stretch; }
 
 .cat-3col-hero { min-width: 0; height: 100%; }
 .cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; height: 100%; isolation: isolate; }
