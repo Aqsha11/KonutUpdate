@@ -233,6 +233,10 @@
     .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: all 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
     .toggle-switch input:checked + .toggle-slider { background: #189B39; }
     .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+    .cropper-point { width: 10px !important; height: 10px !important; background: #FF6B00 !important; opacity: 1 !important; border-radius: 2px; }
+    .cropper-line { background: #FF6B00 !important; opacity: 0.4 !important; }
+    .cropper-view-box { outline-color: #FF6B00 !important; }
 </style>
 @endpush
 
