@@ -207,6 +207,22 @@
             videoFields.style.display = this.value === 'video' ? 'block' : 'none';
         });
 
+        document.getElementById('thumbnail').addEventListener('change', function(e) {
+            var preview = document.getElementById('thumbnailPreview');
+            preview.innerHTML = '';
+            var file = e.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    var img = document.createElement('img');
+                    img.src = ev.target.result;
+                    img.className = 'img-preview';
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
         document.getElementById('video_file').addEventListener('change', function(e) {
             var preview = document.getElementById('videoPreview');
             preview.innerHTML = '';
