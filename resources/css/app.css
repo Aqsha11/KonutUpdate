@@ -354,7 +354,7 @@ body {
 
 .cat-3col-hero { min-width: 0; height: 100%; }
 .cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; height: 100%; min-height: 240px; isolation: isolate; }
-@media (max-width: 639px) { .cat-portrait-card { min-height: 90px; } }
+@media (max-width: 639px) { .cat-portrait-card { min-height: 70px; } }
 
 .cat-portrait-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s; }
 .cat-portrait-card:hover .cat-portrait-img { transform: scale(1.04); }
