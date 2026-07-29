@@ -1,0 +1,60 @@
+{
+  "_brands-KCN6L7z4.css": {
+    "file": "assets/brands-KCN6L7z4.css",
+    "src": "_brands-KCN6L7z4.css"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2": {
+    "file": "assets/fa-brands-400-BK5CuonO.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2"
+  },
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
+    "file": "assets/bootstrap-icons-BeopsB42.woff",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
+  },
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
+    "file": "assets/bootstrap-icons-mSm7cUeB.woff2",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
+  },
+  "resources/css/admin.css": {
+    "file": "assets/admin-CBZYjKbX.css",
+    "src": "resources/css/admin.css",
+    "isEntry": true,
+    "name": "admin",
+    "names": [
+      "admin.css"
+    ]
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-DUVVf5rG.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/admin.js": {
+    "file": "assets/admin-BxRloqH6.js",
+    "name": "admin",
+    "src": "resources/js/admin.js",
+    "isEntry": true,
+    "css": [
+      "assets/brands-KCN6L7z4.css"
+    ],
+    "assets": [
+      "assets/fa-brands-400-BK5CuonO.woff2"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-Kqj7ih6_.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "css": [
+      "assets/brands-KCN6L7z4.css"
+    ],
+    "assets": [
+      "assets/fa-brands-400-BK5CuonO.woff2"
+    ]
+  }
+}
