@@ -133,7 +133,7 @@
                 </div>
                 <div class="form-group">
                     <!-- Label thumbnail: teks berubah dinamis via JS (16:9 / bebas) sesuai toggle Headline -->
-                    <label for="thumbnail" class="form-label">Thumbnail <span class="text-muted" style="font-size:0.75rem;">(crop otomatis <span id="cropLabel">16:9</span>)</span></label>
+                    <label for="thumbnail" class="form-label">Thumbnail <span class="text-muted" style="font-size:0.75rem;">(16:9)</span></label>
                     @if($post->thumbnail)
                     <div class="mb-2">
                         <img src="{{ Storage::url($post->thumbnail) }}" alt="Current Thumbnail" class="img-preview">
@@ -191,31 +191,7 @@
 </div>
 @endsection
 
-{{-- Crop Modal --}}
-<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Crop Thumbnail</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info py-2 mb-3" style="font-size:0.85rem;">
-                    <i class="bi bi-crop"></i> Atur posisi gambar agar sesuai dengan ukuran card (16:9).
-                </div>
-                <div class="crop-container text-center">
-                    <img id="cropImage" style="max-width:100%;max-height:65vh;display:block;margin:0 auto;">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-admin btn-admin-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn-admin btn-admin-primary" id="cropConfirmBtn">
-                    <i class="bi bi-check-lg"></i> Crop & Simpan
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 @push('styles')
 <style>
@@ -242,17 +218,11 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         initCKEditor('editor');
-        initThumbnailCropper('thumbnail', 'thumbnailPreview');
 
         var typeSelect = document.getElementById('type');
         var videoFields = document.getElementById('videoFields');
         typeSelect.addEventListener('change', function() {
             videoFields.style.display = this.value === 'video' ? 'block' : 'none';
-        });
-
-        // Update label crop saat toggle Headline berubah
-        document.getElementById('isHeadline')?.addEventListener('change', function() {
-            document.getElementById('cropLabel').textContent = this.checked ? 'bebas' : '16:9';
         });
 
         document.getElementById('video_file').addEventListener('change', function(e) {

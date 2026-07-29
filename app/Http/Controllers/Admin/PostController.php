@@ -81,6 +81,8 @@ class PostController extends Controller
             $manager = new ImageManager(new Driver);
             $image = $manager->read($request->file('thumbnail'));
             if (!$request->boolean('is_headline')) {
+                $image->cover(1200, 675);
+            } else {
                 $image->resizeDown(1200);
             }
             $path = 'thumbnails/' . Str::random(40) . '.webp';
@@ -151,6 +153,8 @@ class PostController extends Controller
             $manager = new ImageManager(new Driver);
             $image = $manager->read($request->file('thumbnail'));
             if (!$request->boolean('is_headline')) {
+                $image->cover(1200, 675);
+            } else {
                 $image->resizeDown(1200);
             }
             $path = 'thumbnails/' . Str::random(40) . '.webp';

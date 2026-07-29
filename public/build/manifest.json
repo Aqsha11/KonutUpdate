@@ -34,12 +34,11 @@
     ]
   },
   "resources/js/admin.js": {
-    "file": "assets/admin-DKuSrPy0.js",
+    "file": "assets/admin-BflTPEmL.js",
     "name": "admin",
     "src": "resources/js/admin.js",
     "isEntry": true,
     "css": [
-      "assets/admin-BMfBBlHj.css",
       "assets/brands-KCN6L7z4.css"
     ],
     "assets": [
