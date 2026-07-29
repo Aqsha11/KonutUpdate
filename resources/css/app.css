@@ -165,9 +165,13 @@ body {
 .hero-slide-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 4px; }
 @media (max-width: 768px) { .hero-slide-grid { grid-template-columns: 1fr; } }
 
+/* Container big slide: relatif untuk anchor absolute & overlay */
 .hero-slide-big { position: relative; overflow: hidden; min-height: 180px; }
+/* Anchor absolute memenuhi container agar gambar bisa height:100% konsisten di semua slide */
+.hero-slide-big > a { position: absolute; inset: 0; }
 
-.hero-slide-big-img { width: 100%; aspect-ratio: 16/14; object-fit: cover; display: block; transition: transform 0.6s ease; }
+/* Gambar memenuhi full container, object-fit:cover memotong otomatis sesuai rasio asli */
+.hero-slide-big-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.6s ease; }
 .hero-slide-big:hover .hero-slide-big-img { transform: scale(1.04); }
 .hero-slide-big-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 40%, transparent 65%); }
 .hero-slide-big-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 18px; z-index: 2; }

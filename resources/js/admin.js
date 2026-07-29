@@ -128,6 +128,22 @@ window.initThumbnailCropper = function(inputId, previewId) {
     let cropping = false;
     const modalEl = document.getElementById('cropModal');
     const modal = new bootstrap.Modal(modalEl);
+    // Cek status checkbox Headline untuk menentukan mode crop
+    const headlineCheckbox = document.getElementById('isHeadline');
+
+    function isHeadline() {
+        return headlineCheckbox && headlineCheckbox.checked;
+    }
+
+    // Update teks info di modal crop sesuai mode Headline
+    function updateCropInfo() {
+        const info = document.querySelector('#cropModal .alert-info');
+        if (info) {
+            info.innerHTML = isHeadline()
+                ? '<i class="bi bi-crop"></i> Headline: bebas crop, ukuran asli dipertahankan.'
+                : '<i class="bi bi-crop"></i> Atur posisi gambar agar sesuai dengan ukuran card (16:9).';
+        }
+    }
 
     input.addEventListener('change', function(e) {
         if (cropping) { cropping = false; return; }
@@ -139,11 +155,13 @@ window.initThumbnailCropper = function(inputId, previewId) {
             const img = document.getElementById('cropImage');
             img.src = ev.target.result;
             if (cropper) cropper.destroy();
+            updateCropInfo();
             modal.show();
             setTimeout(() => {
+                // Headline: bebas crop (NaN). Non-headline: paksa 16:9.
                 cropper = new Cropper(img, {
-                    aspectRatio: 16 / 9,
-                    viewMode: 1,
+                    aspectRatio: isHeadline() ? NaN : 16 / 9,
+                    viewMode: isHeadline() ? 0 : 1,
                     dragMode: 'move',
                     autoCropArea: 1,
                     responsive: true,
@@ -155,13 +173,17 @@ window.initThumbnailCropper = function(inputId, previewId) {
 
     document.getElementById('cropConfirmBtn').addEventListener('click', function() {
         if (!cropper) return;
-        const canvas = cropper.getCroppedCanvas({
-            width: 1200,
-            height: 675,
-            imageSmoothingQuality: 'high',
-        });
+        const isHeadlineActive = isHeadline();
+        // Headline: output ukuran asli. Non-headline: paksa 1200x675 (16:9).
+        const canvas = cropper.getCroppedCanvas(
+            isHeadlineActive
+                ? { imageSmoothingQuality: 'high' }
+                : { width: 1200, height: 675, imageSmoothingQuality: 'high' }
+        );
         canvas.toBlob(function(blob) {
-            const croppedFile = new File([blob], input.files[0].name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+            // Headline: pertahankan ekstensi asli. Non-headline: konversi ke .jpg.
+            const ext = isHeadlineActive ? input.files[0].name.match(/\.\w+$/)?.[0] || '.jpg' : '.jpg';
+            const croppedFile = new File([blob], input.files[0].name.replace(/\.[^.]+$/, ext), { type: isHeadlineActive ? blob.type : 'image/jpeg' });
             const dt = new DataTransfer();
             dt.items.add(croppedFile);
             cropping = true;
@@ -169,10 +191,10 @@ window.initThumbnailCropper = function(inputId, previewId) {
 
             preview.innerHTML = '';
             const img = document.createElement('img');
-            img.src = canvas.toDataURL('image/jpeg');
+            img.src = canvas.toDataURL(isHeadlineActive ? 'image/png' : 'image/jpeg');
             img.className = 'img-preview';
             preview.appendChild(img);
-        }, 'image/jpeg', 0.92);
+        }, isHeadlineActive ? 'image/png' : 'image/jpeg', isHeadlineActive ? 1 : 0.92);
         cropper.destroy();
         cropper = null;
         modal.hide();

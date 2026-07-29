@@ -119,7 +119,8 @@
                     <div class="form-text">Contoh: politik, ekonomi, olahraga</div>
                 </div>
                 <div class="form-group">
-                    <label for="thumbnail" class="form-label">Thumbnail <span class="text-muted" style="font-size:0.75rem;">(crop otomatis 16:9)</span></label>
+                    <!-- Label thumbnail: teks berubah dinamis via JS (16:9 / bebas) sesuai toggle Headline -->
+                    <label for="thumbnail" class="form-label">Thumbnail <span class="text-muted" style="font-size:0.75rem;">(crop otomatis <span id="cropLabel">16:9</span>)</span></label>
                     <input type="file" name="thumbnail" id="thumbnail" class="form-control @error('thumbnail') is-invalid @enderror" accept="image/*">
                     @error('thumbnail')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -230,6 +231,10 @@
         });
     });
     initThumbnailCropper('thumbnail', 'thumbnailPreview');
+    // Update label crop saat toggle Headline berubah
+    document.getElementById('isHeadline')?.addEventListener('change', function() {
+        document.getElementById('cropLabel').textContent = this.checked ? 'bebas' : '16:9';
+    });
     document.getElementById('video_file').addEventListener('change', function(e) {
         var preview = document.getElementById('videoPreview');
         preview.innerHTML = '';
