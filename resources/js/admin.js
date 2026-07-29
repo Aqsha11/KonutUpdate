@@ -142,7 +142,7 @@ window.initThumbnailCropper = function(inputId, previewId) {
         if (info) {
             info.innerHTML = isHeadline()
                 ? '<i class="bi bi-crop"></i> Headline: bebas crop, ukuran asli dipertahankan.'
-                : '<i class="bi bi-crop"></i> Atur posisi & resize box crop (16:9). Seret sudut/tepi box untuk memperbesar/memperkecil.';
+                : '<i class="bi bi-crop"></i> Geser gambar untuk menyesuaikan posisi dalam box crop 16:9.';
         }
     }
 
@@ -165,8 +165,9 @@ window.initThumbnailCropper = function(inputId, previewId) {
                     aspectRatio: isHeadline() ? NaN : 16 / 9,
                     viewMode: isHeadline() ? 0 : 1,
                     dragMode: 'move',
-                    autoCropArea: isHeadline() ? 1 : 0.35,
+                    autoCropArea: 1,
                     responsive: true,
+                    cropBoxResizable: false,
                     zoomable: false,
                     toggleDragModeOnDblclick: false,
                 });

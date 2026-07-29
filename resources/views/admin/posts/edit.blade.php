@@ -234,9 +234,6 @@
     .toggle-switch input:checked + .toggle-slider { background: #189B39; }
     .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
 
-    .cropper-point { width: 10px !important; height: 10px !important; background: #FF6B00 !important; opacity: 1 !important; border-radius: 2px; }
-    .cropper-line { background: #FF6B00 !important; opacity: 0.4 !important; }
-    .cropper-view-box { outline-color: #FF6B00 !important; }
 </style>
 @endpush
 
