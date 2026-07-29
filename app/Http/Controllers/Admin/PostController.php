@@ -80,10 +80,7 @@ class PostController extends Controller
         if ($request->hasFile('thumbnail')) {
             $manager = new ImageManager(new Driver);
             $image = $manager->read($request->file('thumbnail'));
-            // Headline: pertahankan ukuran asli gambar. Non-headline: resize ke max 1200px.
-            if (!$request->boolean('is_headline')) {
-                $image->resizeDown(1200);
-            }
+            $image->cover(1200, 800);
             $path = 'thumbnails/' . Str::random(40) . '.webp';
             Storage::disk('public')->put($path, $image->toWebp(85));
             $data['thumbnail'] = $path;
@@ -151,10 +148,7 @@ class PostController extends Controller
             }
             $manager = new ImageManager(new Driver);
             $image = $manager->read($request->file('thumbnail'));
-            // Headline: pertahankan ukuran asli gambar. Non-headline: resize ke max 1200px.
-            if (!$request->boolean('is_headline')) {
-                $image->resizeDown(1200);
-            }
+            $image->cover(1200, 800);
             $path = 'thumbnails/' . Str::random(40) . '.webp';
             Storage::disk('public')->put($path, $image->toWebp(85));
             $data['thumbnail'] = $path;
