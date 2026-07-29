@@ -202,6 +202,7 @@
                         @if($post->isVideo())
                         <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                         @endif
+                        <div class="viewed-badge"><i data-lucide="eye" class="w-2.5 h-2.5"></i></div>
                     </a>
                     <div class="news-item-body">
                         <div class="news-item-meta">
@@ -220,6 +221,10 @@
                                 <i data-lucide="heart" class="w-3 h-3"></i>
                                 <span id="like-count-m-{{ $post->id }}">{{ $post->likesCount() }}</span>
                             </button>
+                            <span class="stat-btn">
+                                <i data-lucide="eye" class="w-3 h-3"></i>
+                                <span>{{ number_format($post->views_count) }}</span>
+                            </span>
                             <a href="{{ route('posts.show', $post->slug) }}#comments" class="stat-btn">
                                 <i data-lucide="message-circle" class="w-3 h-3"></i>
                                 <span>{{ $post->commentsCount() }}</span>
@@ -245,6 +250,7 @@
                         @if($post->isVideo())
                         <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                         @endif
+                        <div class="viewed-badge"><i data-lucide="eye" class="w-2.5 h-2.5"></i></div>
                     </a>
                     <div class="news-item-body">
                         <div class="news-item-meta">
@@ -263,6 +269,10 @@
                                 <i data-lucide="heart" class="w-3 h-3"></i>
                                 <span id="like-count-{{ $post->id }}">{{ $post->likesCount() }}</span>
                             </button>
+                            <span class="stat-btn">
+                                <i data-lucide="eye" class="w-3 h-3"></i>
+                                <span>{{ number_format($post->views_count) }}</span>
+                            </span>
                             <a href="{{ route('posts.show', $post->slug) }}#comments" class="stat-btn">
                                 <i data-lucide="message-circle" class="w-3 h-3"></i>
                                 <span>{{ $post->commentsCount() }}</span>
