@@ -369,7 +369,7 @@ body {
 .cat-stat-btn:hover { color: white; }
 .cat-stat-btn.liked { color: var(--color-error); }
 .cat-portrait-empty { display: flex; align-items: center; justify-content: center; height: 100%; min-height: 200px; background: var(--color-surface-container-low); border-radius: 8px; }
-.cat-3col-list { display: flex; flex-direction: column; }
+.cat-3col-list { display: flex; flex-direction: column; overflow-y: auto; max-height: 170px; }
 
 .cat-3col-list::-webkit-scrollbar { width: 3px; }
 .cat-3col-list::-webkit-scrollbar-thumb { background: var(--color-outline-variant); border-radius: 2px; }
@@ -560,6 +560,7 @@ body.is-offline .sticky-header { top: 28px; }
     .cat-3col-layout { grid-template-columns: 1fr 1fr 1fr; gap: 4px; }
     .cat-3col-item-thumb { width: 36px; min-width: 36px; height: 28px; }
     .cat-3col-item { padding: 2px 0; gap: 2px; }
+    .cat-3col-list { max-height: 120px; }
     .cat-3col-title { font-size: 8px; -webkit-line-clamp: 1; }
     .cat-3col-meta, .cat-3col-stats { display: none; }
     .cat-portrait-content { padding: 6px; }
