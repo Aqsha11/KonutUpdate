@@ -158,7 +158,9 @@ window.initThumbnailCropper = function(inputId, previewId) {
             if (cropper) cropper.destroy();
             updateCropInfo();
             modal.show();
-            setTimeout(() => {
+            function initCropper() {
+                modalEl.removeEventListener('shown.bs.modal', initCropper);
+                if (cropper) cropper.destroy();
                 // Headline: bebas crop (NaN). Non-headline: paksa 16:9.
                 cropper = new Cropper(img, {
                     aspectRatio: isHeadline() ? NaN : 16 / 9,
@@ -169,7 +171,8 @@ window.initThumbnailCropper = function(inputId, previewId) {
                     zoomable: false,
                     toggleDragModeOnDblclick: false,
                 });
-            }, 300);
+            }
+            modalEl.addEventListener('shown.bs.modal', initCropper);
         };
         reader.readAsDataURL(file);
     });
