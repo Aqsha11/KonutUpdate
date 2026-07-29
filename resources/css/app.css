@@ -353,10 +353,9 @@ body {
 .cat-3col-layout { display: grid; grid-template-columns: 260px 1fr 1fr; gap: 14px; align-items: stretch; }
 
 .cat-3col-hero { min-width: 0; height: 100%; }
-.cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; height: 100%; min-height: 240px; isolation: isolate; }
-@media (max-width: 639px) { .cat-portrait-card { min-height: 70px; } }
+.cat-portrait-card { display: block; position: relative; z-index: 0; border-radius: 8px; overflow: hidden; isolation: isolate; }
 
-.cat-portrait-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s; }
+.cat-portrait-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; transition: transform 0.5s; }
 .cat-portrait-card:hover .cat-portrait-img { transform: scale(1.04); }
 .cat-portrait-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 40%, transparent 60%); }
 .cat-portrait-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px; z-index: 2; }
@@ -563,7 +562,6 @@ body.is-offline .sticky-header { top: 28px; }
     .cat-3col-item { padding: 2px 0; gap: 2px; }
     .cat-3col-title { font-size: 8px; -webkit-line-clamp: 1; }
     .cat-3col-meta, .cat-3col-stats { display: none; }
-    .cat-portrait-card { min-height: 70px; }
     .cat-portrait-content { padding: 6px; }
     .cat-portrait-badge { font-size: 6px; padding: 1px 3px; margin-bottom: 2px; }
     .cat-portrait-title { font-size: 9px; line-height: 1.2; -webkit-line-clamp: 2; }
