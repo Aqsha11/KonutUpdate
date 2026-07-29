@@ -29,12 +29,12 @@
     </div>
 
     @if(isset($categories) && $categories->count() > 0)
-    <div class="flex flex-wrap gap-1.5 mb-4">
-        <a href="{{ route('search') }}{{ $query ? '?q='.urlencode($query) : '' }}" class="filter-chip {{ empty($categorySlug) ? 'filter-chip-active' : '' }}">
+    <div class="flex flex-nowrap lg:flex-wrap gap-1.5 mb-4 overflow-x-auto lg:overflow-visible hide-scrollbar">
+        <a href="{{ route('search') }}{{ $query ? '?q='.urlencode($query) : '' }}" class="filter-chip shrink-0 {{ empty($categorySlug) ? 'filter-chip-active' : '' }}">
             <i data-lucide="layers" class="w-3 h-3"></i> Semua
         </a>
         @foreach($categories as $cat)
-            <a href="{{ route('search') }}?{{ http_build_query(array_merge(request()->query(), ['category' => $cat->slug])) }}" class="filter-chip {{ $categorySlug === $cat->slug ? 'filter-chip-active' : '' }}">
+            <a href="{{ route('search') }}?{{ http_build_query(array_merge(request()->query(), ['category' => $cat->slug])) }}" class="filter-chip shrink-0 {{ $categorySlug === $cat->slug ? 'filter-chip-active' : '' }}">
                 {{ $cat->name }}
                 @if($cat->posts_count > 0)
                     <span class="filter-chip-count">{{ $cat->posts_count }}</span>
@@ -100,5 +100,9 @@
                 @include('frontend.partials.sidebar')
             </div>
         </div>
+    </div>
+
+    <div class="lg:hidden mt-5 space-y-4">
+        @include('frontend.partials.sidebar')
     </div>
 @endsection

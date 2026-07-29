@@ -312,12 +312,17 @@
                 @endif
             </div>
 
-            {{-- Sidebar --}}
+            {{-- Sidebar Desktop --}}
             <div class="hidden lg:block lg:w-[32%]">
                 <div class="lg:sticky lg:top-20 space-y-4">
                     @include('frontend.partials.sidebar')
                 </div>
             </div>
+        </div>
+
+        {{-- Sidebar Mobile (inline setelah konten) --}}
+        <div class="lg:hidden mt-5 space-y-4">
+            @include('frontend.partials.sidebar')
         </div>
     </article>
 

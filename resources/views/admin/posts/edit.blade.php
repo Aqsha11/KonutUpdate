@@ -132,7 +132,7 @@
                     <div class="form-text">Contoh: politik, ekonomi, olahraga</div>
                 </div>
                 <div class="form-group">
-                    <label for="thumbnail" class="form-label">Thumbnail</label>
+                    <label for="thumbnail" class="form-label">Thumbnail <span class="text-muted" style="font-size:0.75rem;">(crop otomatis 16:9)</span></label>
                     @if($post->thumbnail)
                     <div class="mb-2">
                         <img src="{{ Storage::url($post->thumbnail) }}" alt="Current Thumbnail" class="img-preview">
@@ -190,6 +190,32 @@
 </div>
 @endsection
 
+{{-- Crop Modal --}}
+<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crop Thumbnail</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info py-2 mb-3" style="font-size:0.85rem;">
+                    <i class="bi bi-crop"></i> Atur posisi gambar agar sesuai dengan ukuran card (16:9).
+                </div>
+                <div class="crop-container text-center">
+                    <img id="cropImage" style="max-width:100%;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-admin btn-admin-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn-admin btn-admin-primary" id="cropConfirmBtn">
+                    <i class="bi bi-check-lg"></i> Crop & Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('styles')
 <style>
     .ck-editor__editable { min-height: 500px; }
@@ -221,21 +247,7 @@
             videoFields.style.display = this.value === 'video' ? 'block' : 'none';
         });
     });
-    document.getElementById('thumbnail').addEventListener('change', function(e) {
-        var preview = document.getElementById('thumbnailPreview');
-        preview.innerHTML = '';
-        var file = e.target.files[0];
-        if (file) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                var img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'img-preview';
-                preview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    initThumbnailCropper('thumbnail', 'thumbnailPreview');
     document.getElementById('video_file').addEventListener('change', function(e) {
         var preview = document.getElementById('videoPreview');
         preview.innerHTML = '';

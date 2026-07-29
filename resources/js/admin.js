@@ -116,7 +116,73 @@ window.togglePreview = function() {
     }
 };
 
-// ===== Toast Notification =====
+// ===== Cropper.js Thumbnail =====
+import Cropper from 'cropperjs';
+
+window.initThumbnailCropper = function(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    if (!input) return;
+
+    let cropper = null;
+    let cropping = false;
+    const modalEl = document.getElementById('cropModal');
+    const modal = new bootstrap.Modal(modalEl);
+
+    input.addEventListener('change', function(e) {
+        if (cropping) { cropping = false; return; }
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const img = document.getElementById('cropImage');
+            img.src = ev.target.result;
+            if (cropper) cropper.destroy();
+            modal.show();
+            setTimeout(() => {
+                cropper = new Cropper(img, {
+                    aspectRatio: 16 / 9,
+                    viewMode: 1,
+                    dragMode: 'move',
+                    autoCropArea: 1,
+                    responsive: true,
+                });
+            }, 300);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('cropConfirmBtn').addEventListener('click', function() {
+        if (!cropper) return;
+        const canvas = cropper.getCroppedCanvas({
+            width: 1200,
+            height: 675,
+            imageSmoothingQuality: 'high',
+        });
+        canvas.toBlob(function(blob) {
+            const croppedFile = new File([blob], input.files[0].name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' });
+            const dt = new DataTransfer();
+            dt.items.add(croppedFile);
+            cropping = true;
+            input.files = dt.files;
+
+            preview.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL('image/jpeg');
+            img.className = 'img-preview';
+            preview.appendChild(img);
+        }, 'image/jpeg', 0.92);
+        cropper.destroy();
+        cropper = null;
+        modal.hide();
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', function() {
+        if (cropper) { cropper.destroy(); cropper = null; }
+        if (!input.files.length) { preview.innerHTML = ''; }
+    });
+};
 window.showToast = function(message, type = 'success', duration = 4000) {
     const container = document.getElementById('toastAdminContainer');
     if (!container) return;

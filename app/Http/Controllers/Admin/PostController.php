@@ -13,6 +13,8 @@ use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class PostController extends Controller
 {
@@ -76,7 +78,12 @@ class PostController extends Controller
         $data['user_id'] = auth()->id();
 
         if ($request->hasFile('thumbnail')) {
-            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $manager = new ImageManager(new Driver);
+            $image = $manager->read($request->file('thumbnail'));
+            $image->resizeDown(1200);
+            $path = 'thumbnails/' . Str::random(40) . '.webp';
+            Storage::disk('public')->put($path, $image->toWebp(85));
+            $data['thumbnail'] = $path;
         }
 
         if ($data['type'] === 'video') {
@@ -139,7 +146,12 @@ class PostController extends Controller
             if ($post->thumbnail) {
                 Storage::disk('public')->delete($post->thumbnail);
             }
-            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $manager = new ImageManager(new Driver);
+            $image = $manager->read($request->file('thumbnail'));
+            $image->resizeDown(1200);
+            $path = 'thumbnails/' . Str::random(40) . '.webp';
+            Storage::disk('public')->put($path, $image->toWebp(85));
+            $data['thumbnail'] = $path;
         }
 
         if ($data['type'] === 'video') {
@@ -235,7 +247,11 @@ class PostController extends Controller
             'upload' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
-        $path = $request->file('upload')->store('uploads/images', 'public');
+        $manager = new ImageManager(new Driver);
+        $image = $manager->read($request->file('upload'));
+        $image->resizeDown(1200);
+        $path = 'uploads/images/' . Str::random(40) . '.webp';
+        Storage::disk('public')->put($path, $image->toWebp(85));
 
         return response()->json([
             'url' => Storage::url($path),

@@ -69,4 +69,8 @@
             </div>
         </div>
     </div>
+
+    <div class="lg:hidden mt-5 space-y-4">
+        @include('frontend.partials.sidebar')
+    </div>
 @endsection
