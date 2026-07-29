@@ -157,7 +157,6 @@ window.initThumbnailCropper = function(inputId, previewId) {
             img.src = ev.target.result;
             if (cropper) cropper.destroy();
             updateCropInfo();
-            modal.show();
             function initCropper() {
                 modalEl.removeEventListener('shown.bs.modal', initCropper);
                 if (cropper) cropper.destroy();
@@ -172,7 +171,12 @@ window.initThumbnailCropper = function(inputId, previewId) {
                     toggleDragModeOnDblclick: false,
                 });
             }
-            modalEl.addEventListener('shown.bs.modal', initCropper);
+            if (modalEl.classList.contains('show')) {
+                initCropper();
+            } else {
+                modalEl.addEventListener('shown.bs.modal', initCropper);
+            }
+            modal.show();
         };
         reader.readAsDataURL(file);
     });
