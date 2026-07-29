@@ -167,7 +167,7 @@ body {
 
 .hero-slide-big { position: relative; overflow: hidden; min-height: 180px; }
 
-.hero-slide-big-img { width: 100%; aspect-ratio: 16/5; object-fit: cover; display: block; transition: transform 0.6s ease; }
+.hero-slide-big-img { width: 100%; aspect-ratio: 16/6; object-fit: cover; display: block; transition: transform 0.6s ease; }
 .hero-slide-big:hover .hero-slide-big-img { transform: scale(1.04); }
 .hero-slide-big-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 40%, transparent 65%); }
 .hero-slide-big-content { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 18px; z-index: 2; }
