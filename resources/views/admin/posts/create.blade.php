@@ -186,7 +186,7 @@
                     <i class="bi bi-crop"></i> Atur posisi gambar agar sesuai dengan ukuran card (16:9).
                 </div>
                 <div class="crop-container text-center">
-                    <img id="cropImage" style="max-width:100%;max-height:65vh;display:block;margin:0 auto;">
+                    <img id="cropImage" style="max-width:100%;display:block;margin:0 auto;">
                 </div>
             </div>
             <div class="modal-footer">

@@ -163,10 +163,11 @@ window.initThumbnailCropper = function(inputId, previewId) {
                 // Headline: bebas crop (NaN). Non-headline: paksa 16:9.
                 cropper = new Cropper(img, {
                     aspectRatio: isHeadline() ? NaN : 16 / 9,
-                    viewMode: isHeadline() ? 0 : 1,
+                    viewMode: isHeadline() ? 0 : 2,
                     dragMode: 'move',
                     autoCropArea: 1,
                     responsive: true,
+                    cropBoxMovable: false,
                     cropBoxResizable: false,
                     zoomable: false,
                     toggleDragModeOnDblclick: false,
