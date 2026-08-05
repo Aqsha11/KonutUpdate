@@ -92,6 +92,12 @@
                         @if($post->is_headline)
                         <span class="badge-admin badge-admin-info ms-1">Headline</span>
                         @endif
+                        @if($post->headline_expires_at)
+                        <span class="badge-admin badge-admin-secondary ms-1 text-nowrap" title="Headline berakhir otomatis setelah 7 hari">Headline s.d. {{ $post->headline_expires_at->format('d M Y') }}</span>
+                        @endif
+                        @if($post->breaking_expires_at)
+                        <span class="badge-admin badge-admin-secondary ms-1 text-nowrap" title="Breaking berakhir otomatis setelah 7 hari">Breaking s.d. {{ $post->breaking_expires_at->format('d M Y') }}</span>
+                        @endif
                         @if($post->isVideo())
                         <span class="badge-admin badge-admin-orange ms-1"><i class="bi bi-play-circle"></i> Video</span>
                         @endif

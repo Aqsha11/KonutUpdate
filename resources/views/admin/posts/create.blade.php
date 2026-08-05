@@ -159,6 +159,7 @@
                             </label>
                         </div>
                     </div>
+                    <small class="text-muted d-block mt-2">Headline &amp; Breaking News akan berakhir otomatis setelah 7 hari.</small>
                 </div>
                 <div class="form-group">
                     <label for="published_at" class="form-label">Published At</label>

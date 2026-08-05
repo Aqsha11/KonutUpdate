@@ -70,7 +70,7 @@ class AppServiceProvider extends ServiceProvider
 
             $breakingNews = Cache::remember('breaking_news', 3600, function () {
                 return Post::published()
-                    ->where('is_breaking', true)
+                    ->breaking()
                     ->with(['categories', 'author'])
                     ->orderBy('published_at', 'desc')
                     ->take(10)

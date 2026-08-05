@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -28,6 +29,8 @@ class Post extends Model
         'status',
         'is_breaking',
         'is_headline',
+        'headline_expires_at',
+        'breaking_expires_at',
         'published_at',
         'views_count',
     ];
@@ -37,6 +40,8 @@ class Post extends Model
         return [
             'is_breaking' => 'boolean',
             'is_headline' => 'boolean',
+            'headline_expires_at' => 'datetime',
+            'breaking_expires_at' => 'datetime',
             'published_at' => 'datetime',
             'views_count' => 'integer',
             'status' => 'string',
@@ -57,22 +62,27 @@ class Post extends Model
 
     public function scopeHeadline(Builder $query): Builder
     {
-        return $query->where('is_headline', true);
+        return $query->where('is_headline', true)
+            ->where(fn (Builder $q) => $q->whereNull('headline_expires_at')->orWhere('headline_expires_at', '>', now()));
     }
 
     public function scopeFeatured(Builder $query): Builder
     {
-        return $query->where('is_headline', true);
+        return $query->headline();
     }
 
     public function scopeExcludeHeadline(Builder $query): Builder
     {
-        return $query->where('is_headline', '!=', true);
+        return $query->where(function (Builder $q) {
+            $q->where('is_headline', '!=', true)
+                ->orWhere(fn (Builder $q2) => $q2->whereNotNull('headline_expires_at')->where('headline_expires_at', '<=', now()));
+        });
     }
 
     public function scopeBreaking(Builder $query): Builder
     {
-        return $query->where('is_breaking', true);
+        return $query->where('is_breaking', true)
+            ->where(fn (Builder $q) => $q->whereNull('breaking_expires_at')->orWhere('breaking_expires_at', '>', now()));
     }
 
     public function scopePopular(Builder $query, int $minViews = 100): Builder

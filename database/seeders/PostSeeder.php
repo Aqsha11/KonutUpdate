@@ -273,6 +273,8 @@ class PostSeeder extends Seeder
                 'status' => $status,
                 'is_breaking' => $isBreaking,
                 'is_headline' => $isFeatured,
+                'breaking_expires_at' => $isBreaking ? (clone $publishedAt)->modify('+7 days') : null,
+                'headline_expires_at' => $isFeatured ? (clone $publishedAt)->modify('+7 days') : null,
                 'published_at' => $publishedAt,
                 'views_count' => rand(50, 5000),
                 'created_at' => $createdAt,

@@ -16,44 +16,37 @@ class SearchController extends Controller
         $categorySlug = $request->input('category');
         $categories = Category::withCount('posts')->orderBy('name')->get();
 
-        if (! empty($query)) {
-            $posts = Post::published()
-                ->with(['categories', 'author'])
-                ->where(function ($q) use ($query) {
+        $posts = Post::published()
+            ->with(['categories', 'author'])
+            ->when($query, function ($q) use ($query) {
+                $q->where(function ($q) use ($query) {
                     $q->where('title', 'LIKE', "%{$query}%")
                         ->orWhere('body', 'LIKE', "%{$query}%");
                 });
-
-            if (! empty($categorySlug)) {
-                $posts->whereHas('categories', function ($q) use ($categorySlug) {
+            })
+            ->when($categorySlug, function ($q) use ($categorySlug) {
+                $q->whereHas('categories', function ($q) use ($categorySlug) {
                     $q->where('slug', $categorySlug);
                 });
-            }
-
-            $posts = $posts->paginate(12)->withQueryString();
-
-            // AJAX live search
-            if ($request->ajax() || $request->input('ajax') == '1') {
-                $results = $posts->map(function ($post) {
-                    return [
-                        'title' => $post->title,
-                        'url' => route('posts.show', $post->slug),
-                        'category' => $post->categories->first()->name ?? ($post->category?->name ?? ''),
-                        'date' => $post->published_at ? Carbon::parse($post->published_at)->format('d F Y') : '',
-                        'thumb' => $post->thumbnail ? asset('storage/'.$post->thumbnail) : '',
-                    ];
-                });
-
-                return response()->json($results);
-            }
-
-            return view('frontend.search.index', compact('posts', 'query', 'categories', 'categorySlug'));
-        }
-
-        $posts = Post::published()
-            ->with(['categories', 'author'])
+            })
             ->latest()
-            ->paginate(12);
+            ->paginate(12)
+            ->withQueryString();
+
+        // AJAX live search
+        if ($request->ajax() || $request->input('ajax') == '1') {
+            $results = $posts->map(function ($post) {
+                return [
+                    'title' => $post->title,
+                    'url' => route('posts.show', $post->slug),
+                    'category' => $post->categories->first()->name ?? ($post->category?->name ?? ''),
+                    'date' => $post->published_at ? Carbon::parse($post->published_at)->format('d F Y') : '',
+                    'thumb' => $post->thumbnail ? asset('storage/'.$post->thumbnail) : '',
+                ];
+            });
+
+            return response()->json($results);
+        }
 
         return view('frontend.search.index', compact('posts', 'query', 'categories', 'categorySlug'));
     }

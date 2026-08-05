@@ -8,12 +8,12 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
             {{-- About --}}
-            <div class="lg:col-span-1">
+            <div class="col-span-2 md:col-span-1">
                 <a href="{{ url('/') }}" class="inline-block mb-4 no-underline">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-12 lg:h-14 w-auto object-contain">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-12 lg:h-14 w-auto object-contain footer-logo">
                     @else
                         <span class="text-xl font-extrabold">
                             <span class="text-primary-fixed-dim">KONUT</span><span class="text-accent-fixed-dim">UPDATE</span>
@@ -40,14 +40,13 @@
                     @if(!empty($site_settings['email']))
                         <a href="mailto:{{ $site_settings['email'] }}" class="social-icon bg-white/10 hover:bg-accent"><i data-lucide="mail" class="w-4 h-4"></i></a>
                     @endif
-                    <a href="{{ url('/feed') }}" target="_blank" class="social-icon bg-white/10 hover:bg-[#ee802f]" title="RSS Feed"><i data-lucide="rss" class="w-4 h-4"></i></a>
                 </div>
             </div>
 
             {{-- Kategori --}}
             <div>
                 <h4 class="font-bold text-xs uppercase tracking-wider mb-3 text-inverse-on-surface dark:text-gray-100">Kategori</h4>
-                <ul class="space-y-1.5 text-xs list-none p-0">
+                <ul class="grid grid-cols-2 gap-x-2 gap-y-1 lg:block lg:space-y-1.5 text-xs list-none p-0">
                     @foreach($categories->take(6) as $cat)
                         <li><a href="{{ route('categories.show', $cat->slug) }}" class="opacity-70 hover:opacity-100 hover:translate-x-1 inline-block transition-all no-underline text-inverse-on-surface dark:text-gray-300">{{ $cat->name }}</a></li>
                     @endforeach
@@ -57,7 +56,7 @@
             {{-- Halaman --}}
             <div>
                 <h4 class="font-bold text-xs uppercase tracking-wider mb-3 text-inverse-on-surface dark:text-gray-100">Halaman</h4>
-                <ul class="space-y-1.5 text-xs list-none p-0">
+                <ul class="grid grid-cols-2 gap-x-2 gap-y-1 lg:block lg:space-y-1.5 text-xs list-none p-0">
                     @foreach($footerPages as $page)
                         <li><a href="{{ route('pages.show', $page->slug) }}" class="opacity-70 hover:opacity-100 hover:translate-x-1 inline-block transition-all no-underline text-inverse-on-surface dark:text-gray-300">{{ $page->title }}</a></li>
                     @endforeach
@@ -68,7 +67,7 @@
             </div>
 
             {{-- Kontak --}}
-            <div>
+            <div class="col-span-2 md:col-span-1">
                 <h4 class="font-bold text-xs uppercase tracking-wider mb-3 text-inverse-on-surface dark:text-gray-100">Kontak</h4>
                 <ul class="space-y-2 text-xs list-none p-0">
                     <li class="flex gap-2 opacity-70">
@@ -103,7 +102,7 @@
         </div>
     </div>
     <div class="border-t border-white/10">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-1 text-xs opacity-60">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-1 text-xs opacity-60 footer-bottom">
             <p>&copy; {{ date('Y') }} {{ $site_settings['site_name'] ?? 'Konut.Update' }}. All rights reserved.</p>
             <p>Portal Berita Terpercaya Konawe Utara</p>
             <a href="https://viteks.id" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity no-underline">

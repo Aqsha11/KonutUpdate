@@ -13,8 +13,8 @@ use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class PostController extends Controller
 {
@@ -76,12 +76,14 @@ class PostController extends Controller
         $data['slug'] = Str::slug($data['title']);
         $data['slug'] = $this->uniqueSlug($data['slug']);
         $data['user_id'] = auth()->id();
+        $data['headline_expires_at'] = ! empty($data['is_headline']) ? now()->addDays(7) : null;
+        $data['breaking_expires_at'] = ! empty($data['is_breaking']) ? now()->addDays(7) : null;
 
         if ($request->hasFile('thumbnail')) {
             $manager = new ImageManager(new Driver);
             $image = $manager->read($request->file('thumbnail'));
             $image->cover(1200, 675);
-            $path = 'thumbnails/' . Str::random(40) . '.webp';
+            $path = 'thumbnails/'.Str::random(40).'.webp';
             Storage::disk('public')->put($path, $image->toWebp(85));
             $data['thumbnail'] = $path;
         }
@@ -141,6 +143,8 @@ class PostController extends Controller
 
         $data['slug'] = Str::slug($data['title']);
         $data['slug'] = $this->uniqueSlug($data['slug'], $post->id);
+        $data['headline_expires_at'] = ! empty($data['is_headline']) ? now()->addDays(7) : null;
+        $data['breaking_expires_at'] = ! empty($data['is_breaking']) ? now()->addDays(7) : null;
 
         if ($request->hasFile('thumbnail')) {
             if ($post->thumbnail) {
@@ -149,7 +153,7 @@ class PostController extends Controller
             $manager = new ImageManager(new Driver);
             $image = $manager->read($request->file('thumbnail'));
             $image->cover(1200, 675);
-            $path = 'thumbnails/' . Str::random(40) . '.webp';
+            $path = 'thumbnails/'.Str::random(40).'.webp';
             Storage::disk('public')->put($path, $image->toWebp(85));
             $data['thumbnail'] = $path;
         }
@@ -250,7 +254,7 @@ class PostController extends Controller
         $manager = new ImageManager(new Driver);
         $image = $manager->read($request->file('upload'));
         $image->resizeDown(1200);
-        $path = 'uploads/images/' . Str::random(40) . '.webp';
+        $path = 'uploads/images/'.Str::random(40).'.webp';
         Storage::disk('public')->put($path, $image->toWebp(85));
 
         return response()->json([

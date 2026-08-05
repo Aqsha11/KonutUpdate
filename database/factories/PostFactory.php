@@ -41,6 +41,7 @@ class PostFactory extends Factory
     {
         return $this->state(fn (array $attrs) => [
             'is_headline' => true,
+            'headline_expires_at' => now()->addDays(7),
         ]);
     }
 
@@ -48,6 +49,17 @@ class PostFactory extends Factory
     {
         return $this->state(fn (array $attrs) => [
             'is_breaking' => true,
+            'breaking_expires_at' => now()->addDays(7),
+        ]);
+    }
+
+    public function expired(): static
+    {
+        return $this->state(fn (array $attrs) => [
+            'is_headline' => true,
+            'headline_expires_at' => now()->subDay(),
+            'is_breaking' => true,
+            'breaking_expires_at' => now()->subDay(),
         ]);
     }
 }

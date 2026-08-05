@@ -214,12 +214,28 @@
             <div class="max-w-7xl mx-auto px-4 w-full flex items-center justify-center">
                 <a href="{{ url('/') }}" class="nav-link-custom {{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
                 <a href="{{ route('trending') }}" class="nav-link-custom whitespace-nowrap {{ request()->routeIs('trending') ? 'active' : '' }}">Trending</a>
-                @foreach($categories as $cat)
-                    <a href="{{ route('categories.show', $cat->slug) }}"
-                       class="nav-link-custom whitespace-nowrap {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'active' : '' }}">
-                        {{ $cat->name }}
-                    </a>
-                @endforeach
+
+                @if(isset($categories) && $categories->count() > 0)
+                <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                    <button class="nav-link-custom whitespace-nowrap flex items-center gap-1 cursor-pointer bg-transparent border-none {{ request()->routeIs('categories.show') ? 'active' : '' }}" x-on:click="open = !open">
+                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                        Kategori
+                        <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="open && 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
+                         class="absolute top-full left-0 mt-0 w-56 bg-surface rounded-xl shadow-xl border border-outline py-2 z-50 max-h-[400px] overflow-y-auto">
+                        @foreach($categories as $cat)
+                            <a href="{{ route('categories.show', $cat->slug) }}"
+                               class="flex items-center justify-between gap-2 px-4 py-2 text-sm {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container-low' }} no-underline transition-colors">
+                                <span>{{ $cat->name }}</span>
+                                @if(isset($cat->all_posts_count) ? $cat->all_posts_count > 0 : $cat->posts_count > 0)
+                                    <span class="text-[10px] text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full">{{ $cat->all_posts_count ?? $cat->posts_count }}</span>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
 
                 @if(isset($kecamatans) && $kecamatans->count() > 0)
                 <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
@@ -229,7 +245,7 @@
                         <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="open && 'rotate-180'"></i>
                     </button>
                     <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="absolute top-full left-0 mt-0 w-64 bg-surface rounded-xl shadow-xl border border-outline py-2 z-50 max-h-[400px] overflow-y-auto">
+                         class="absolute top-full right-0 mt-0 w-64 bg-surface rounded-xl shadow-xl border border-outline py-2 z-50 max-h-[400px] overflow-y-auto">
                         @foreach($kecamatans as $k)
                             <a href="{{ route('kecamatan.show', $k->slug) }}"
                                class="flex items-center gap-2.5 px-4 py-2 text-sm {{ request()->routeIs('kecamatan.show') && request('slug') == $k->slug ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container-low' }} no-underline transition-colors">
@@ -250,7 +266,7 @@
     @include('frontend.partials.breaking-news')
 
     {{-- Main Content --}}
-    <main class="max-w-7xl mx-auto px-3 lg:px-4 py-4 lg:py-8 flex-1">
+    <main class="max-w-7xl lg:mx-auto px-3 lg:px-4 py-4 lg:py-8 flex-1">
         @yield('content')
     </main>
 
