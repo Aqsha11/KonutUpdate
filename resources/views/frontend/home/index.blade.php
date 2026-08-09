@@ -238,33 +238,35 @@
             </div>
         </div>
 
-        {{-- Tablet & Desktop: responsive multi-column grid --}}
+        {{-- Tablet & Desktop: editorial card grid --}}
         <div class="news-3col-grid">
             @foreach($latestPosts as $post)
-            <article class="news-item" data-post-id="{{ $post->id }}">
-                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
-                    <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+            <article class="news-card" data-post-id="{{ $post->id }}">
+                <a href="{{ route('posts.show', $post->slug) }}" class="news-card-thumb">
+                    <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/640x400/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                     @endif
-                    <div class="viewed-badge"><i data-lucide="eye" class="w-2.5 h-2.5"></i></div>
                 </a>
-                <div class="news-item-body">
-                    <div class="news-item-meta">
+                <div class="news-card-body">
+                    <div class="news-card-meta">
                         @if($post->categories->count() > 0)
-                            <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="news-item-cat">{{ $post->categories->first()->name }}</a>
+                            <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="news-card-cat">{{ $post->categories->first()->name }}</a>
                         @elseif($post->category)
-                            <a href="{{ route('categories.show', $post->category->slug) }}" class="news-item-cat">{{ $post->category->name }}</a>
+                            <a href="{{ route('categories.show', $post->category->slug) }}" class="news-card-cat">{{ $post->category->name }}</a>
                         @endif
                         <span class="news-item-time">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
                     </div>
-                    <h3 class="news-item-title">
+                    <h3 class="news-card-title">
                         <a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a>
                     </h3>
-                    <div class="news-item-stats">
-                        <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-{{ $post->id }}" class="stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                    @if($post->excerpt)
+                    <p class="news-card-excerpt">{{ \Illuminate\Support\Str::limit(strip_tags($post->excerpt), 110) }}</p>
+                    @endif
+                    <div class="news-card-stats">
+                        <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-g-{{ $post->id }}" class="stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
                             <i data-lucide="heart" class="w-3 h-3"></i>
-                            <span id="like-count-{{ $post->id }}">{{ $post->likesCount() }}</span>
+                            <span id="like-count-g-{{ $post->id }}">{{ $post->likesCount() }}</span>
                         </button>
                         <span class="stat-btn">
                             <i data-lucide="eye" class="w-3 h-3"></i>
@@ -291,6 +293,19 @@
         @php
             $catData = $categoryData[$slug] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
             $meta = $categoryMeta[$slug] ?? ['name' => ucfirst($slug), 'icon' => 'folder', 'color' => 'primary'];
+            $catHero = $catData['trending']->first() ?? $catData['hero'];
+            $catTrending = $catData['trending']->slice(1)->values();
+
+            if ($catTrending->count() < 4) {
+                $usedIds = $catTrending->pluck('id')
+                    ->merge([$catHero?->id])
+                    ->filter()
+                    ->unique();
+                $fill = $catData['latest']
+                    ->whereNotIn('id', $usedIds)
+                    ->take(4 - $catTrending->count());
+                $catTrending = $catTrending->merge($fill);
+            }
         @endphp
 
         @if($catData['hero'] || $catData['trending']->count() > 0 || $catData['latest']->count() > 0)
@@ -304,32 +319,35 @@
             </div>
 
             <div class="cat-3col-layout">
-                {{-- Kolom 1: Portrait Hero --}}
+                {{-- Kolom 1: Portrait Hero (trending #1) --}}
                 <div class="cat-3col-hero">
-                    @if($catData['hero'])
-                    <div class="cat-portrait-card" data-post-id="{{ $catData['hero']->id }}">
-                        <a href="{{ route('posts.show', $catData['hero']->slug) }}">
-                            <img src="{{ $catData['hero']->thumbnail ? Storage::url($catData['hero']->thumbnail) : ($catData['hero']->video_poster ?? 'https://placehold.co/400x520/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $catData['hero']->title }}" class="cat-portrait-img" loading="lazy">
+                    @if($catHero)
+                    <div class="cat-portrait-card" data-post-id="{{ $catHero->id }}">
+                        <a href="{{ route('posts.show', $catHero->slug) }}">
+                            <img src="{{ $catHero->thumbnail ? Storage::url($catHero->thumbnail) : ($catHero->video_poster ?? 'https://placehold.co/400x520/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $catHero->title }}" class="cat-portrait-img" loading="lazy">
                         </a>
                         <div class="cat-portrait-overlay"></div>
                         <div class="cat-portrait-content">
-                            <span class="cat-portrait-badge">{{ $meta['name'] }}</span>
-                            <h3 class="cat-portrait-title"><a href="{{ route('posts.show', $catData['hero']->slug) }}">{{ $catData['hero']->title }}</a></h3>
+                            <span class="cat-portrait-badge">
+                                <i data-lucide="flame" class="w-2.5 h-2.5"></i>
+                                <span>#1 Terpopuler</span>
+                            </span>
+                            <h3 class="cat-portrait-title"><a href="{{ route('posts.show', $catHero->slug) }}">{{ $catHero->title }}</a></h3>
                             <div class="cat-portrait-meta">
-                                <span class="cat-portrait-author">{{ $catData['hero']->author->name ?? 'Redaksi' }}</span>
+                                <span class="cat-portrait-author">{{ $catHero->author->name ?? 'Redaksi' }}</span>
                                 <span>·</span>
-                                <span>{{ $catData['hero']->published_at ? \Carbon\Carbon::parse($catData['hero']->published_at)->diffForHumans() : '' }}</span>
+                                <span>{{ $catHero->published_at ? \Carbon\Carbon::parse($catHero->published_at)->diffForHumans() : '' }}</span>
                             </div>
                             <div class="cat-portrait-stats">
-                                <button type="button" onclick="event.preventDefault();toggleLike({{ $catData['hero']->id }})" id="like-btn-{{ $catData['hero']->id }}" class="cat-stat-btn {{ $catData['hero']->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                <button type="button" onclick="event.preventDefault();toggleLike({{ $catHero->id }})" data-like-btn="{{ $catHero->id }}" id="like-btn-{{ $catHero->id }}" class="cat-stat-btn {{ $catHero->isLikedBy(request()->ip()) ? 'liked' : '' }}">
                                     <i data-lucide="heart" class="w-2.5 h-2.5"></i>
-                                    <span id="like-count-{{ $catData['hero']->id }}">{{ $catData['hero']->likesCount() }}</span>
+                                    <span data-like-count="{{ $catHero->id }}" id="like-count-{{ $catHero->id }}">{{ $catHero->likesCount() }}</span>
                                 </button>
-                                <a href="{{ route('posts.show', $catData['hero']->slug) }}#comments" class="cat-stat-btn" onclick="event.stopPropagation()">
+                                <a href="{{ route('posts.show', $catHero->slug) }}#comments" class="cat-stat-btn" onclick="event.stopPropagation()">
                                     <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
-                                    <span>{{ $catData['hero']->commentsCount() }}</span>
+                                    <span>{{ $catHero->commentsCount() }}</span>
                                 </a>
-                                <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $catData['hero']->slug) }}', '{{ addslashes($catData['hero']->title) }}')" class="cat-stat-btn">
+                                <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $catHero->slug) }}', '{{ addslashes($catHero->title) }}')" class="cat-stat-btn">
                                     <i data-lucide="share-2" class="w-2.5 h-2.5"></i>
                                 </button>
                             </div>
@@ -342,24 +360,33 @@
                     @endif
                 </div>
 
-                {{-- Kolom 2: Trending --}}
+                {{-- Kolom 2: Trending (mulai #2) --}}
                 <div class="cat-3col-list">
                     <div class="cat-3col-label">
                         <i data-lucide="flame" class="w-2.5 h-2.5 text-accent"></i>
                         Trending
                     </div>
-                    @forelse($catData['trending'] as $index => $post)
+
+                    <div class="cat-3col-scroll">
+                    @forelse($catTrending as $index => $post)
                     <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group" data-post-id="{{ $post->id }}">
-                        <span class="cat-3col-num {{ $index < 3 ? 'hot' : '' }}">{{ $index + 1 }}</span>
+                        <span class="cat-3col-num {{ $index < 2 ? 'hot' : '' }}">{{ str_pad($index + 2, 2, '0', STR_PAD_LEFT) }}</span>
                         <div class="cat-3col-item-thumb">
-                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/80x60/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/160x100/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" loading="lazy">
                         </div>
                         <div class="cat-3col-item-body">
                             <h4 class="cat-3col-title">{{ $post->title }}</h4>
                             <div class="cat-3col-meta">
+                                @if($post->categories->count() > 0)
+                                <span class="cat-3col-cat">{{ $post->categories->first()->name }}</span>
+                                <span>·</span>
+                                @elseif($post->category)
+                                <span class="cat-3col-cat">{{ $post->category->name }}</span>
+                                <span>·</span>
+                                @endif
                                 <span>{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
                                 <span>·</span>
-                                <span>{{ number_format($post->views_count) }} views</span>
+                                <span>{{ number_format($post->views_count) }} dibaca</span>
                             </div>
                             <div class="cat-3col-stats">
                                 <button type="button" onclick="event.preventDefault();toggleLike({{ $post->id }})" id="like-btn-t-{{ $post->id }}" class="cat-3col-stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
@@ -377,8 +404,11 @@
                         </div>
                     </a>
                     @empty
+                    @if($catData['trending']->count() === 0)
                     <p class="cat-3col-empty">Belum ada berita</p>
+                    @endif
                     @endforelse
+                    </div>
                 </div>
             </div>
         </section>

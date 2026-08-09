@@ -83,7 +83,9 @@ class AppServiceProvider extends ServiceProvider
 
             $articleAds = Ad::active()->position('in_article')->sorted()->take(2)->get();
 
-            $kecamatans = Kecamatan::ordered()->get();
+            $kecamatans = Kecamatan::withCount(['posts' => function ($q) {
+                $q->published();
+            }])->ordered()->get();
 
             $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAdsTop', 'sidebarAdsBottom', 'articleAds', 'kecamatans'));
         });

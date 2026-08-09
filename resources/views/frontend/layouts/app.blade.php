@@ -316,20 +316,7 @@
                     </button>
                 </div>
                 <div class="p-4 space-y-1">
-                    <a href="{{ url('/') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold {{ request()->routeIs('home') ? 'text-primary bg-primary-light' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
-                        <i data-lucide="home" class="w-4 h-4"></i>
-                        Home
-                    </a>
-                    <a href="{{ route('trending') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold {{ request()->routeIs('trending') ? 'text-primary bg-primary-light' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
-                        <i data-lucide="flame" class="w-4 h-4"></i>
-                        Trending
-                    </a>
-                    <a href="{{ route('search') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm {{ request()->routeIs('search') ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
-                        <i data-lucide="search" class="w-4 h-4"></i>
-                        Cari Berita
-                    </a>
-
-                    <div class="pt-4 mt-4 border-t border-outline">
+                    <div>
                         <p class="text-xs font-semibold text-on-surface-variant px-3 mb-2 uppercase tracking-wider">Kategori</p>
                         @foreach($categories as $cat)
                             <a href="{{ route('categories.show', $cat->slug) }}"
@@ -351,7 +338,10 @@
                                 <a href="{{ route('kecamatan.show', $k->slug) }}"
                                    class="flex items-center gap-2 px-2.5 py-2.5 rounded-xl text-[13px] {{ request()->routeIs('kecamatan.show') ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
                                     <i data-lucide="map-pin" class="w-3 h-3 text-on-surface-variant"></i>
-                                    {{ $k->name }}
+                                    <span class="truncate">{{ $k->name }}</span>
+                                    @if(isset($k->posts_count) && $k->posts_count > 0)
+                                        <span class="ml-auto text-[10px] text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full shrink-0">{{ $k->posts_count }}</span>
+                                    @endif
                                 </a>
                             @endforeach
                         </div>
@@ -519,6 +509,12 @@
                     if (data.liked) { btn.classList.add('liked'); } else { btn.classList.remove('liked'); }
                 }
                 if (countEl) countEl.textContent = data.count;
+                document.querySelectorAll('[data-like-btn="' + postId + '"]').forEach(function(el) {
+                    if (data.liked) { el.classList.add('liked'); } else { el.classList.remove('liked'); }
+                });
+                document.querySelectorAll('[data-like-count="' + postId + '"]').forEach(function(el) {
+                    el.textContent = data.count;
+                });
             })
             .catch(() => {});
         }

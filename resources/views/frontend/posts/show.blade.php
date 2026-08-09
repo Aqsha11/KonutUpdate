@@ -43,8 +43,21 @@
         <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
         <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-        <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-sticky" class="sticky-share-btn like {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+        <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-sticky" data-like-btn="{{ $post->id }}" class="sticky-share-btn like {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
             <i data-lucide="heart" class="w-4 h-4"></i>
+        </button>
+    </div>
+
+    {{-- Sticky Share Mobile --}}
+    <div class="sticky-share-mobile" id="stickyShareMobile">
+        <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+        <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+        <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn twitter" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+        <span class="ssm-divider"></span>
+        <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-mshare-{{ $post->id }}" data-like-btn="{{ $post->id }}" class="ssm-btn like {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+            <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+            <span data-like-count="{{ $post->id }}" id="like-count-mshare-{{ $post->id }}">{{ $post->likesCount() }}</span>
         </button>
     </div>
 
@@ -100,18 +113,6 @@
                         @endif
                         <span class="text-[10px] md:text-[11px] text-on-surface-variant flex items-center gap-1"><i data-lucide="eye" class="w-3 h-3"></i> {{ number_format($post->views_count) }}</span>
                     </div>
-                </div>
-
-                {{-- Share Bar --}}
-                <div class="share-bar">
-                    <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-                    <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-                    <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
-                    <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-{{ $post->id }}" class="like-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
-                        <i data-lucide="heart" class="w-3.5 h-3.5"></i>
-                        <span id="like-count-{{ $post->id }}">{{ $post->likesCount() }}</span>
-                    </button>
                 </div>
 
                 {{-- Video Player --}}
@@ -229,15 +230,6 @@
                     </div>
                 @endif
 
-                {{-- Share Bottom --}}
-                <div class="share-bar mt-4 pt-3 border-t border-outline">
-                    <span class="text-xs font-semibold text-on-surface-variant mr-1">Bagikan:</span>
-                    <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn facebook"><i class="fab fa-facebook"></i></a>
-                    <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn whatsapp"><i class="fab fa-whatsapp"></i></a>
-                    <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn telegram"><i class="fab fa-telegram"></i></a>
-                    <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-btn twitter"><i class="fab fa-x-twitter"></i></a>
-                </div>
-
                 {{-- Iklan Mobile Bawah --}}
                 @if(isset($sidebarAdsBottom) && $sidebarAdsBottom->count() > 0)
                 <div class="lg:hidden mt-3 mb-3 space-y-2">
@@ -329,12 +321,18 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         var stickyShare = document.getElementById('stickyShare');
-        if (!stickyShare) return;
-        var shareBar = document.querySelector('.share-bar');
-        if (!shareBar) return;
+        var stickyShareMobile = document.getElementById('stickyShareMobile');
+        var trigger = document.querySelector('.article-meta-bar') || document.querySelector('.article-hero-media');
+        if (!trigger) return;
         window.addEventListener('scroll', function() {
-            var rect = shareBar.getBoundingClientRect();
-            if (rect.bottom < 0) { stickyShare.classList.add('visible'); } else { stickyShare.classList.remove('visible'); }
+            var rect = trigger.getBoundingClientRect();
+            if (rect.bottom < 0) {
+                if (stickyShare) stickyShare.classList.add('visible');
+                if (stickyShareMobile) stickyShareMobile.classList.add('visible');
+            } else {
+                if (stickyShare) stickyShare.classList.remove('visible');
+                if (stickyShareMobile) stickyShareMobile.classList.remove('visible');
+            }
         }, { passive: true });
     });
     </script>

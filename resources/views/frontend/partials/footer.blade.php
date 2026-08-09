@@ -7,21 +7,21 @@
         </svg>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-6 lg:py-10">
-        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+    <div class="max-w-7xl mx-auto px-4 py-8 lg:py-10">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-8 lg:gap-8">
             {{-- About --}}
-            <div class="col-span-2 md:col-span-1">
-                <a href="{{ url('/') }}" class="inline-block mb-4 no-underline">
+            <div class="col-span-2 lg:col-span-1">
+                <a href="{{ url('/') }}" class="inline-block mb-3 no-underline">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-12 lg:h-14 w-auto object-contain footer-logo">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-11 lg:h-14 w-auto object-contain footer-logo">
                     @else
                         <span class="text-xl font-extrabold">
                             <span class="text-primary-fixed-dim">KONUT</span><span class="text-accent-fixed-dim">UPDATE</span>
                         </span>
                     @endif
                 </a>
-                <p class="text-xs leading-relaxed opacity-70">{{ $site_settings['description'] ?? 'Portal berita online terpercaya dari Konawe Utara, Sulawesi Tenggara.' }}</p>
-                <div class="flex gap-2 mt-4">
+                <p class="text-xs leading-relaxed opacity-70 max-w-xs">{{ $site_settings['description'] ?? 'Portal berita online terpercaya dari Konawe Utara, Sulawesi Tenggara.' }}</p>
+                <div class="flex flex-wrap gap-2.5 mt-4">
                     @if(!empty($site_settings['facebook']))
                         <a href="{{ $site_settings['facebook'] }}" target="_blank" class="social-icon bg-white/10 hover:bg-[#1877f2]"><i class="fab fa-facebook text-sm"></i></a>
                     @endif
@@ -45,8 +45,8 @@
 
             {{-- Kategori --}}
             <div>
-                <h4 class="font-bold text-xs uppercase tracking-wider mb-3 text-inverse-on-surface dark:text-gray-100">Kategori</h4>
-                <ul class="grid grid-cols-2 gap-x-2 gap-y-1 lg:block lg:space-y-1.5 text-xs list-none p-0">
+                <h4 class="font-bold text-xs uppercase tracking-wider mb-4 text-inverse-on-surface dark:text-gray-100">Kategori</h4>
+                <ul class="space-y-2.5 text-xs list-none p-0">
                     @foreach($categories->take(6) as $cat)
                         <li><a href="{{ route('categories.show', $cat->slug) }}" class="opacity-70 hover:opacity-100 hover:translate-x-1 inline-block transition-all no-underline text-inverse-on-surface dark:text-gray-300">{{ $cat->name }}</a></li>
                     @endforeach
@@ -55,8 +55,8 @@
 
             {{-- Halaman --}}
             <div>
-                <h4 class="font-bold text-xs uppercase tracking-wider mb-3 text-inverse-on-surface dark:text-gray-100">Halaman</h4>
-                <ul class="grid grid-cols-2 gap-x-2 gap-y-1 lg:block lg:space-y-1.5 text-xs list-none p-0">
+                <h4 class="font-bold text-xs uppercase tracking-wider mb-4 text-inverse-on-surface dark:text-gray-100">Halaman</h4>
+                <ul class="space-y-2.5 text-xs list-none p-0">
                     @foreach($footerPages as $page)
                         <li><a href="{{ route('pages.show', $page->slug) }}" class="opacity-70 hover:opacity-100 hover:translate-x-1 inline-block transition-all no-underline text-inverse-on-surface dark:text-gray-300">{{ $page->title }}</a></li>
                     @endforeach
@@ -67,9 +67,9 @@
             </div>
 
             {{-- Kontak --}}
-            <div class="col-span-2 md:col-span-1">
-                <h4 class="font-bold text-xs uppercase tracking-wider mb-3 text-inverse-on-surface dark:text-gray-100">Kontak</h4>
-                <ul class="space-y-2 text-xs list-none p-0">
+            <div class="col-span-2 lg:col-span-1">
+                <h4 class="font-bold text-xs uppercase tracking-wider mb-4 text-inverse-on-surface dark:text-gray-100">Kontak</h4>
+                <ul class="space-y-2.5 text-xs list-none p-0">
                     <li class="flex gap-2 opacity-70">
                         <i data-lucide="map-pin" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
                         <span>{{ $site_settings['address'] ?? 'Konawe Utara, Sulawesi Tenggara' }}</span>
@@ -88,23 +88,27 @@
                             <span>{{ $site_settings['phone'] }}</span>
                         </li>
                     @endif
-                    <li class="mt-2">
-                        <a href="https://maps.app.goo.gl/Us9tSdkMkJWC56m38" target="_blank" rel="noopener" class="block rounded-lg overflow-hidden border border-white/10 group">
-                            <iframe src="https://maps.google.com/maps?q=Konawe+Utara&output=embed&z=11" width="100%" height="200" style="border:0; display:block;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                            <div class="flex items-center justify-center gap-1 py-1.5 text-[10px] text-inverse-on-surface/60 bg-white/5 group-hover:bg-white/10 group-hover:text-inverse-on-surface transition-all">
-                                <i data-lucide="external-link" class="w-3 h-3"></i>
-                                <span>Buka di Google Maps</span>
-                            </div>
-                        </a>
-                    </li>
                 </ul>
+
+                {{-- Maps: tombol di mobile, iframe di desktop --}}
+                <a href="https://maps.app.goo.gl/Us9tSdkMkJWC56m38" target="_blank" rel="noopener" class="lg:hidden mt-4 flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-inverse-on-surface/80 hover:bg-white/10 hover:text-inverse-on-surface transition-all no-underline">
+                    <i data-lucide="map" class="w-4 h-4"></i>
+                    Buka Lokasi di Google Maps
+                </a>
+                <a href="https://maps.app.goo.gl/Us9tSdkMkJWC56m38" target="_blank" rel="noopener" class="hidden lg:block mt-4 rounded-lg overflow-hidden border border-white/10 group">
+                    <iframe src="https://maps.google.com/maps?q=Konawe+Utara&output=embed&z=11" width="100%" height="200" style="border:0; display:block;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <div class="flex items-center justify-center gap-1 py-1.5 text-[10px] text-inverse-on-surface/60 bg-white/5 group-hover:bg-white/10 group-hover:text-inverse-on-surface transition-all">
+                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                        <span>Buka di Google Maps</span>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
+
     <div class="border-t border-white/10">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-1 text-xs opacity-60 footer-bottom">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-xs opacity-60 footer-bottom">
             <p>&copy; {{ date('Y') }} {{ $site_settings['site_name'] ?? 'Konut.Update' }}. All rights reserved.</p>
-            <p>Portal Berita Terpercaya Konawe Utara</p>
             <a href="https://viteks.id" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity no-underline">
                 <img src="https://viteks.id/storage/site/J5MNxOhayYQO9ENI3oFOxy0fQd50ll84bFpyFshl.png" alt="Viteks Logo" class="h-5 w-auto brightness-0 invert opacity-90">
                 <span class="text-xs text-white/70">Powered by <span style="color:#0ea5a0">Viteks</span></span>
