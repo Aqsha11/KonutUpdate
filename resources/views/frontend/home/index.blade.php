@@ -26,12 +26,6 @@
 @endsection
 
 @php
-    $kriminalPosts = $categoryPosts['kriminal'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
-    $pemerintahanPosts = $categoryPosts['pemerintahan'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
-    $tambangPosts = $categoryPosts['tambang'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
-    $ekonomiPosts = $categoryPosts['ekonomi'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
-    $olahragaPosts = $categoryPosts['olahraga'] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
-
     $categoryMeta = [
         'kriminal' => ['name' => 'Kriminal', 'icon' => 'shield-alert', 'color' => 'error'],
         'pemerintahan' => ['name' => 'Pemerintahan', 'icon' => 'landmark', 'color' => 'primary'],
@@ -40,13 +34,7 @@
         'olahraga' => ['name' => 'Olahraga', 'icon' => 'trophy', 'color' => 'accent'],
     ];
 
-    $categoryData = [
-        'kriminal' => $kriminalPosts,
-        'pemerintahan' => $pemerintahanPosts,
-        'tambang' => $tambangPosts,
-        'ekonomi' => $ekonomiPosts,
-        'olahraga' => $olahragaPosts,
-    ];
+    $categoryData = $categoryPosts;
 
     $heroSlides = $headlinePosts->chunk(3);
 @endphp
@@ -292,19 +280,12 @@
     @foreach($categorySlugs as $slug)
         @php
             $catData = $categoryData[$slug] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
-            $meta = $categoryMeta[$slug] ?? ['name' => ucfirst($slug), 'icon' => 'folder', 'color' => 'primary'];
+            $meta = $categoryMeta[$slug] ?? ['name' => $categoryNames[$slug] ?? ucfirst($slug), 'icon' => 'folder', 'color' => 'primary'];
             $catHero = $catData['trending']->first() ?? $catData['hero'];
-            $catTrending = $catData['trending']->slice(1)->values();
+            $catTrending = $catData['trending']->slice(1)->values()->merge($catData['latest']);
 
-            if ($catTrending->count() < 4) {
-                $usedIds = $catTrending->pluck('id')
-                    ->merge([$catHero?->id])
-                    ->filter()
-                    ->unique();
-                $fill = $catData['latest']
-                    ->whereNotIn('id', $usedIds)
-                    ->take(4 - $catTrending->count());
-                $catTrending = $catTrending->merge($fill);
+            if ($catData['hero'] && $catHero && $catHero->id !== $catData['hero']->id) {
+                $catTrending = $catTrending->push($catData['hero']);
             }
         @endphp
 
@@ -404,7 +385,7 @@
                         </div>
                     </a>
                     @empty
-                    @if($catData['trending']->count() === 0)
+                    @if(!$catHero)
                     <p class="cat-3col-empty">Belum ada berita</p>
                     @endif
                     @endforelse

@@ -37,4 +37,23 @@ class PostExpiryTest extends TestCase
 
         $this->assertTrue($ids->contains($expired->id));
     }
+
+    public function test_expire_featured_command_resets_expired_flags(): void
+    {
+        $expired = Post::factory()->published()->expired()->create();
+        $active = Post::factory()->published()->headline()->breaking()->create();
+
+        $this->artisan('posts:expire-featured')->assertSuccessful();
+
+        $expired->refresh();
+        $active->refresh();
+
+        $this->assertFalse($expired->is_headline);
+        $this->assertNull($expired->headline_expires_at);
+        $this->assertFalse($expired->is_breaking);
+        $this->assertNull($expired->breaking_expires_at);
+
+        $this->assertTrue($active->is_headline);
+        $this->assertTrue($active->is_breaking);
+    }
 }

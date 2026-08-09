@@ -14,7 +14,7 @@ class PostRepository
         protected Post $model,
     ) {}
 
-    public function getHeadlinePosts(int $limit = 5): Collection
+    public function getHeadlinePosts(?int $limit = null): Collection
     {
         return $this->model->query()
             ->headline()
@@ -22,7 +22,7 @@ class PostRepository
             ->with(['author', 'categories', 'kecamatan'])
             ->withCount('likes', 'comments')
             ->latest()
-            ->take($limit)
+            ->when($limit, fn (Builder $q) => $q->take($limit))
             ->get();
     }
 
@@ -73,7 +73,6 @@ class PostRepository
 
         $baseQuery = $category->allPosts()
             ->published()
-            ->excludeHeadline()
             ->when($excludeIds, fn($q) => $q->whereNotIn('posts.id', $excludeIds))
             ->with(['author', 'categories']);
 
@@ -86,19 +85,9 @@ class PostRepository
             ->when($hero, fn($q) => $q->where('posts.id', '!=', $hero->id))
             ->withCount('likes', 'comments')
             ->orderByDesc('posts.views_count')
-            ->take(8)
             ->get();
 
-        $usedIds = collect([$hero?->id])->filter()->merge($trending->pluck('id'))->unique()->toArray();
-
-        $latest = (clone $baseQuery)
-            ->whereNotIn('posts.id', $usedIds)
-            ->withCount('likes', 'comments')
-            ->latest('posts.published_at')
-            ->take(8)
-            ->get();
-
-        return ['hero' => $hero, 'trending' => $trending, 'latest' => $latest];
+        return ['hero' => $hero, 'trending' => $trending, 'latest' => collect()];
     }
 
     public function getTrendingExcludeHeadline(int $limit = 10): Collection

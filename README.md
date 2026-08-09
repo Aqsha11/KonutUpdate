@@ -224,8 +224,8 @@ php artisan serve
 ## Alur Headline Carousel
 
 1. Admin centang "Headline" di form create/edit berita
-2. `PostRepository::getHeadlinePosts(9)` → ambil max 9 post headline terbaru yang published
-3. Di-homepage, 9 post di-chunk jadi 3 slide (@3 post/slide):
+2. `PostRepository::getHeadlinePosts()` → ambil semua post headline terbaru yang published (tanpa batas jumlah)
+3. Di-homepage, semua post headline di-chunk jadi 3 slide (@3 post/slide):
    - **1 big post** — gambar besar, judul, kategori, author, actions
    - **2 small posts** — gambar kecil, judul, kategori, author
 4. Carousel auto-slide tiap 5 detik (Alpine.js `setInterval`)
