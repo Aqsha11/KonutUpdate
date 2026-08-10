@@ -23,8 +23,10 @@ class PostController extends Controller
         $query = Post::with(['author', 'categories', 'kecamatan'])->latest();
 
         if ($request->filled('category')) {
-            $query->whereHas('categories', function ($q) use ($request) {
-                $q->where('categories.id', $request->category);
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('categories', function ($q2) use ($request) {
+                    $q2->where('categories.id', $request->category);
+                })->orWhere('category_id', $request->category);
             });
         }
 

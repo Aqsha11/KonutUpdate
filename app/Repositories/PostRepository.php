@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Category;
+use App\Models\Kecamatan;
 use App\Models\Post;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -73,7 +74,7 @@ class PostRepository
 
         $baseQuery = $category->allPosts()
             ->published()
-            ->when($excludeIds, fn($q) => $q->whereNotIn('posts.id', $excludeIds))
+            ->when($excludeIds, fn ($q) => $q->whereNotIn('posts.id', $excludeIds))
             ->with(['author', 'categories']);
 
         $hero = (clone $baseQuery)
@@ -82,9 +83,37 @@ class PostRepository
             ->first();
 
         $trending = (clone $baseQuery)
-            ->when($hero, fn($q) => $q->where('posts.id', '!=', $hero->id))
+            ->when($hero, fn ($q) => $q->where('posts.id', '!=', $hero->id))
             ->withCount('likes', 'comments')
             ->orderByDesc('posts.views_count')
+            ->get();
+
+        return ['hero' => $hero, 'trending' => $trending, 'latest' => collect()];
+    }
+
+    public function getKecamatanWithStructure(string $kecamatanSlug, array $excludeIds = []): array
+    {
+        $kecamatan = Kecamatan::where('slug', $kecamatanSlug)->first();
+
+        if (! $kecamatan) {
+            return ['hero' => null, 'trending' => collect(), 'latest' => collect()];
+        }
+
+        $baseQuery = $kecamatan->posts()
+            ->published()
+            ->when($excludeIds, fn ($q) => $q->whereNotIn('posts.id', $excludeIds))
+            ->with(['author', 'categories', 'kecamatan']);
+
+        $hero = (clone $baseQuery)
+            ->withCount('likes', 'comments')
+            ->latest('posts.published_at')
+            ->first();
+
+        $trending = (clone $baseQuery)
+            ->when($hero, fn ($q) => $q->where('posts.id', '!=', $hero->id))
+            ->withCount('likes', 'comments')
+            ->orderByDesc('posts.views_count')
+            ->take(5)
             ->get();
 
         return ['hero' => $hero, 'trending' => $trending, 'latest' => collect()];

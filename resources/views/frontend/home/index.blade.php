@@ -396,4 +396,14 @@
         @endif
     @endforeach
 
+    {{-- ════════════════════════════════════════════
+         KECAMATAN SECTIONS
+         ════════════════════════════════════════════ --}}
+    @foreach($kecamatanSlugs as $kecamatanSlug)
+        @include('frontend.partials.kecamatan-section', [
+            'kecamatanData' => $kecamatanPosts[$kecamatanSlug] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()],
+            'kecamatanName' => $kecamatanNames[$kecamatanSlug] ?? ucfirst($kecamatanSlug),
+        ])
+    @endforeach
+
 @endsection

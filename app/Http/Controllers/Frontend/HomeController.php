@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Kecamatan;
 use App\Models\Post;
 use App\Repositories\PostRepository;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
@@ -56,6 +56,24 @@ class HomeController extends Controller
             $categoryPosts[$slug] = $structure;
         }
 
+        $kecamatans = Kecamatan::whereHas('posts', fn ($q) => $q->published())
+            ->ordered()
+            ->get();
+
+        $kecamatanSlugs = $kecamatans->pluck('slug')->toArray();
+        $kecamatanNames = $kecamatans->pluck('name', 'slug')->toArray();
+
+        $kecamatanPosts = [];
+        foreach ($kecamatanSlugs as $slug) {
+            $structure = $this->postRepository->getKecamatanWithStructure($slug, $excludeIds);
+
+            if (! $structure['hero'] && $structure['trending']->isEmpty() && $structure['latest']->isEmpty()) {
+                $structure = $this->postRepository->getKecamatanWithStructure($slug, []);
+            }
+
+            $kecamatanPosts[$slug] = $structure;
+        }
+
         return view('frontend.home.index', compact(
             'headlinePosts',
             'headlineIds',
@@ -64,6 +82,9 @@ class HomeController extends Controller
             'categoryPosts',
             'categorySlugs',
             'categoryNames',
+            'kecamatanPosts',
+            'kecamatanSlugs',
+            'kecamatanNames',
         ))->with('breakingNews', $headlinePosts);
     }
 }

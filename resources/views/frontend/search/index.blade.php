@@ -36,8 +36,8 @@
         @foreach($categories as $cat)
             <a href="{{ route('search') }}?{{ http_build_query(array_merge(request()->query(), ['category' => $cat->slug])) }}" class="filter-chip shrink-0 {{ $categorySlug === $cat->slug ? 'filter-chip-active' : '' }}">
                 {{ $cat->name }}
-                @if($cat->posts_count > 0)
-                    <span class="filter-chip-count">{{ $cat->posts_count }}</span>
+                @if($cat->all_posts_count > 0)
+                    <span class="filter-chip-count">{{ $cat->all_posts_count }}</span>
                 @endif
             </a>
         @endforeach

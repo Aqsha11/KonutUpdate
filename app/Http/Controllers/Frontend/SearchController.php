@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Post;
 use App\Models\Category;
+use App\Models\Post;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -14,7 +14,9 @@ class SearchController extends Controller
     {
         $query = $request->input('q');
         $categorySlug = $request->input('category');
-        $categories = Category::withCount('posts')->orderBy('name')->get();
+        $categories = Category::withCount(['allPosts' => fn ($q) => $q->published()])
+            ->orderBy('name')
+            ->get();
 
         $posts = Post::published()
             ->with(['categories', 'author'])
