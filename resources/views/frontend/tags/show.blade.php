@@ -40,6 +40,9 @@
                                 @elseif($post->category)
                                     <a href="{{ route('categories.show', $post->category->slug) }}" class="news-item-cat">{{ $post->category->name }}</a>
                                 @endif
+                                @if($post->type === 'opini')
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-accent/10 text-accent text-[9px] md:text-[10px] font-bold uppercase tracking-wide">Opini</span>
+                                @endif
                                 <span class="news-item-time">{{ formatDate($post->published_at) }}</span>
                             </div>
                             <h3 class="news-item-title">

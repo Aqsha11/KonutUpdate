@@ -11,14 +11,15 @@ window.$ = window.jQuery = $;
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 class AdminUploadAdapter {
-    constructor(loader) {
+    constructor(loader, uploadUrl) {
         this.loader = loader;
+        this.uploadUrl = uploadUrl;
     }
     upload() {
         return this.loader.file.then(file => new Promise((resolve, reject) => {
             const data = new FormData();
             data.append('upload', file);
-            fetch('/admin/posts/upload-image', {
+            fetch(this.uploadUrl, {
                 method: 'POST',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content },
                 body: data,
@@ -31,19 +32,19 @@ class AdminUploadAdapter {
     abort() { }
 }
 
-function AdminUploadAdapterPlugin(editor) {
+function AdminUploadAdapterPlugin(editor, uploadUrl) {
     editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-        return new AdminUploadAdapter(loader);
+        return new AdminUploadAdapter(loader, uploadUrl);
     };
 }
 
-window.initCKEditor = function(elementId) {
+window.initCKEditor = function(elementId, placeholder = 'Tulis konten berita di sini...', uploadUrl = '/admin/posts/upload-image') {
     const element = document.getElementById(elementId);
     if (!element) return;
 
     ClassicEditor
         .create(element, {
-            extraPlugins: [AdminUploadAdapterPlugin],
+            extraPlugins: [function(editor) { return AdminUploadAdapterPlugin(editor, uploadUrl); }],
             toolbar: {
                 items: [
                     'undo', 'redo',
@@ -83,7 +84,7 @@ window.initCKEditor = function(elementId) {
                     }
                 }
             },
-            placeholder: 'Tulis konten berita di sini...',
+            placeholder: placeholder,
             shouldNotGroupWhenFull: false,
         })
         .then(editor => {

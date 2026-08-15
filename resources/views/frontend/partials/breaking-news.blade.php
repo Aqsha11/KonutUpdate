@@ -1,3 +1,6 @@
+@php
+    $tickerDuration = min(35, max(12, (int) ($breakingNews->count() * 3.5)));
+@endphp
 @if($breakingNews->count() > 0)
     <div class="bg-gradient-to-r from-primary to-primary-hover text-white border-b border-primary/20">
         <div class="max-w-7xl mx-auto px-2 lg:px-4 flex items-center h-7 lg:h-8">
@@ -5,7 +8,7 @@
                 <span class="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Breaking
             </span>
             <div class="breaking-ticker flex-1 overflow-hidden relative">
-                <div class="breaking-ticker-track">
+                <div class="breaking-ticker-track" style="animation-duration: {{ $tickerDuration }}s;">
                     @foreach($breakingNews as $news)
                         <a href="{{ route('posts.show', $news->slug) }}" class="text-[11px] lg:text-xs font-medium text-white/85 hover:text-white no-underline whitespace-nowrap px-2 transition-colors">
                             {{ $news->title }}

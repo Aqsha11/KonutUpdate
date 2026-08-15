@@ -49,16 +49,22 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
+        View::composer('admin.layouts.app', function ($view) {
+            if (Schema::hasTable('posts')) {
+                $view->with('pendingOpiniCount', Post::pending()->where('type', 'opini')->count());
+            }
+        });
+
         View::composer(['frontend.layouts.app', 'frontend.partials.*', 'frontend.posts.show'], function ($view) {
             if (! Schema::hasTable('categories') || ! Schema::hasTable('posts')) {
                 return;
             }
 
-            $categories = Cache::remember('frontend_categories', 3600, function () {
-                return Category::withCount(['allPosts' => function ($q) {
-                    $q->published();
-                }])->get();
-            });
+            $categories = Category::whereHas('allPosts', function ($q) {
+                $q->published();
+            })->withCount(['allPosts' => function ($q) {
+                $q->published();
+            }])->get();
 
             $trendingPosts = Cache::remember('trending_posts', 3600, function () {
                 return Post::published()
@@ -68,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
                     ->get();
             });
 
-            $breakingNews = Cache::remember('breaking_news', 3600, function () {
+            $breakingNews = Cache::remember('breaking_news', 300, function () {
                 return Post::published()
                     ->breaking()
                     ->with(['categories', 'author'])
@@ -83,11 +89,15 @@ class AppServiceProvider extends ServiceProvider
 
             $articleAds = Ad::active()->position('in_article')->sorted()->take(2)->get();
 
-            $kecamatans = Kecamatan::withCount(['posts' => function ($q) {
+            $posterAds = Ad::active()->position('poster_right')->sorted()->take(1)->get();
+
+            $kecamatans = Kecamatan::whereHas('posts', function ($q) {
+                $q->published();
+            })->withCount(['posts' => function ($q) {
                 $q->published();
             }])->ordered()->get();
 
-            $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAdsTop', 'sidebarAdsBottom', 'articleAds', 'kecamatans'));
+            $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAdsTop', 'sidebarAdsBottom', 'articleAds', 'posterAds', 'kecamatans'));
         });
     }
 }

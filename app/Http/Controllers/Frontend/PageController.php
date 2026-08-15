@@ -18,38 +18,36 @@ class PageController extends Controller
 
     public function about()
     {
-        $page = Page::where('slug', 'tentang-kami')->published()->first();
-        if ($page) {
-            $page->content = app(HtmlSanitizer::class)->sanitize($page->content);
+        $page = $this->pageFromAdmin('tentang-kami');
 
-            return view('frontend.pages.show', compact('page'));
-        }
-
-        return view('frontend.pages.about');
+        return view('frontend.pages.show', compact('page'));
     }
 
     public function pedoman()
     {
-        $page = Page::where('slug', 'pedoman-media-siber')->published()->first();
-        if ($page) {
-            $page->content = app(HtmlSanitizer::class)->sanitize($page->content);
+        $page = $this->pageFromAdmin('pedoman-media-siber');
 
-            return view('frontend.pages.show', compact('page'));
-        }
-
-        return view('frontend.pages.pedoman');
+        return view('frontend.pages.show', compact('page'));
     }
 
     public function privacy()
     {
-        $page = Page::where('slug', 'privacy-policy')->published()->first();
-        if ($page) {
-            $page->content = app(HtmlSanitizer::class)->sanitize($page->content);
+        $page = $this->pageFromAdmin('privacy-policy');
 
-            return view('frontend.pages.show', compact('page'));
+        return view('frontend.pages.show', compact('page'));
+    }
+
+    private function pageFromAdmin(string $slug): Page
+    {
+        $page = Page::where('slug', $slug)->published()->first();
+
+        if (! $page) {
+            abort(404);
         }
 
-        return view('frontend.pages.privacy');
+        $page->content = app(HtmlSanitizer::class)->sanitize($page->content);
+
+        return $page;
     }
 
     public function kontak()

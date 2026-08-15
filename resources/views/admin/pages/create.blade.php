@@ -38,11 +38,18 @@
             </div>
         </div>
         <div class="form-group">
-            <label for="content" class="form-label">Konten</label>
-            <textarea name="content" id="content" rows="15" class="form-control @error('content') is-invalid @enderror" placeholder="Tulis konten halaman di sini...">{{ old('content') }}</textarea>
+            <label for="editor" class="form-label">Konten</label>
+            <textarea name="content" id="editor" rows="12" class="form-control @error('content') is-invalid @enderror" placeholder="Tulis konten halaman di sini..." style="display:none;">{{ old('content') }}</textarea>
+            <div id="editor-container" style="min-height:500px;"></div>
             @error('content')
             <div class="invalid-feedback">{{ $message }}</div>
             @enderror
+            <div class="mt-2 d-flex gap-2">
+                <button type="button" class="btn-admin btn-admin-sm btn-admin-secondary" onclick="togglePreview()">
+                    <i class="bi bi-eye"></i> Preview
+                </button>
+            </div>
+            <div id="preview" class="mt-3 p-4 border rounded d-none"></div>
         </div>
         <div class="form-group">
             <div class="form-check">
@@ -59,6 +66,19 @@
 
 @push('styles')
 <style>
-    textarea#content { font-family: var(--font-family); font-size: 15px; line-height: 1.6; }
+    .ck-editor__editable { min-height: 500px; }
+    .ck-editor__editable a { color: #FF6B00; }
+    .ck.ck-editor { border-radius: 10px; overflow: hidden; border: 1.5px solid var(--border); transition: border-color 300ms; }
+    .ck.ck-editor:focus-within { border-color: #FF6B00; box-shadow: 0 0 0 3px rgba(255,107,0,0.08); }
+    .ck.ck-toolbar { border: none !important; border-bottom: 1px solid var(--border) !important; background: #F8FAFC !important; }
+    .ck.ck-content { border: none !important; }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initCKEditor('editor', 'Tulis konten halaman di sini...');
+    });
+</script>
 @endpush

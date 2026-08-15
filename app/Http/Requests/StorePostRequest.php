@@ -17,7 +17,7 @@ class StorePostRequest extends FormRequest
             'title' => 'required|string|max:255',
             'excerpt' => 'nullable|string|max:500',
             'body' => 'required|string',
-            'type' => 'required|in:article,video',
+            'type' => 'required|in:article,video,opini',
             'thumbnail' => 'required_if:type,video|nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'video_file' => 'nullable|file|mimes:mp4,webm,mov,avi|max:51200',
             'video_url' => 'nullable|url|max:500',
@@ -28,6 +28,7 @@ class StorePostRequest extends FormRequest
             'tags' => 'nullable|string',
             'status' => 'required|in:draft,published',
             'is_breaking' => 'boolean',
+            'is_featured' => 'boolean',
             'is_headline' => 'boolean',
             'published_at' => 'nullable|date',
         ];
@@ -47,6 +48,7 @@ class StorePostRequest extends FormRequest
             'tags' => 'Tags',
             'status' => 'Status',
             'is_breaking' => 'Breaking News',
+            'is_featured' => 'Konten Pilihan',
             'is_headline' => 'Headline',
         ];
     }

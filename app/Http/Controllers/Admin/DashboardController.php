@@ -22,6 +22,7 @@ class DashboardController extends Controller
         $recentPosts = Post::with(['categories', 'author', 'kecamatan'])->latest()->take(5)->get();
         $draftPosts = Post::whereNull('published_at')->count();
         $publishedPosts = Post::whereNotNull('published_at')->count();
+        $pendingPosts = Post::pending()->count();
 
         return view('admin.dashboard.index', compact(
             'totalPosts',
@@ -32,7 +33,8 @@ class DashboardController extends Controller
             'popularPosts',
             'recentPosts',
             'draftPosts',
-            'publishedPosts'
+            'publishedPosts',
+            'pendingPosts'
         ));
     }
 }

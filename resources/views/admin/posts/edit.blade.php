@@ -13,6 +13,14 @@
     </div>
 </div>
 
+@if($post->rejection_reason)
+<div class="alert-admin alert-admin-danger mb-4">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <strong>Kiriman ini ditolak.</strong> Alasan: {{ $post->rejection_reason }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
 <div class="form-card">
     <form action="{{ route('admin.posts.update', $post->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -54,6 +62,7 @@
                     <select name="type" id="type" class="form-select @error('type') is-invalid @enderror">
                         <option value="article" {{ old('type', $post->type) === 'article' ? 'selected' : '' }}>Artikel (Gambar)</option>
                         <option value="video" {{ old('type', $post->type) === 'video' ? 'selected' : '' }}>Video</option>
+                        <option value="opini" {{ old('type', $post->type) === 'opini' ? 'selected' : '' }}>Opini</option>
                     </select>
                     @error('type')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -156,6 +165,12 @@
                             <input type="radio" name="status" id="statusPublished" value="published" class="form-check-input" {{ old('status', $post->status) === 'published' ? 'checked' : '' }}>
                             <label for="statusPublished" class="form-check-label">Published</label>
                         </div>
+                        @if(old('status', $post->status) === 'pending')
+                        <div class="form-check">
+                            <input type="radio" name="status" id="statusPending" value="pending" class="form-check-input" checked>
+                            <label for="statusPending" class="form-check-label">Menunggu Verifikasi</label>
+                        </div>
+                        @endif
                     </div>
                     @error('status')
                     <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
@@ -167,6 +182,11 @@
                             <input type="hidden" name="is_breaking" value="0">
                             <input type="checkbox" name="is_breaking" id="isBreaking" value="1" class="form-check-input" {{ old('is_breaking', $post->is_breaking) ? 'checked' : '' }}>
                             <label for="isBreaking" class="form-check-label">Breaking News</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="hidden" name="is_featured" value="0">
+                            <input type="checkbox" name="is_featured" id="isFeatured" value="1" class="form-check-input" {{ old('is_featured', $post->is_featured) ? 'checked' : '' }}>
+                            <label for="isFeatured" class="form-check-label">Konten Pilihan</label>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <label class="form-label mb-0 fw-semibold">Headline</label>

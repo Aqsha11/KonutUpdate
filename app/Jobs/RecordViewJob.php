@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\PageView;
 use App\Models\Post;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
 class RecordViewJob

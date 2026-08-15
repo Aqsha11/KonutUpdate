@@ -70,10 +70,6 @@
             <div class="col-span-2 lg:col-span-1">
                 <h4 class="font-bold text-xs uppercase tracking-wider mb-4 text-inverse-on-surface dark:text-gray-100">Kontak</h4>
                 <ul class="space-y-2.5 text-xs list-none p-0">
-                    <li class="flex gap-2 opacity-70">
-                        <i data-lucide="map-pin" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
-                        <span>{{ $site_settings['address'] ?? 'Konawe Utara, Sulawesi Tenggara' }}</span>
-                    </li>
                     @if(!empty($site_settings['email']))
                         <li>
                             <a href="mailto:{{ $site_settings['email'] }}" class="flex gap-2 opacity-70 hover:opacity-100 transition-all no-underline text-inverse-on-surface dark:text-gray-300">
@@ -89,19 +85,6 @@
                         </li>
                     @endif
                 </ul>
-
-                {{-- Maps: tombol di mobile, iframe di desktop --}}
-                <a href="https://maps.app.goo.gl/Us9tSdkMkJWC56m38" target="_blank" rel="noopener" class="lg:hidden mt-4 flex items-center justify-center gap-2 rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-inverse-on-surface/80 hover:bg-white/10 hover:text-inverse-on-surface transition-all no-underline">
-                    <i data-lucide="map" class="w-4 h-4"></i>
-                    Buka Lokasi di Google Maps
-                </a>
-                <a href="https://maps.app.goo.gl/Us9tSdkMkJWC56m38" target="_blank" rel="noopener" class="hidden lg:block mt-4 rounded-lg overflow-hidden border border-white/10 group">
-                    <iframe src="https://maps.google.com/maps?q=Konawe+Utara&output=embed&z=11" width="100%" height="200" style="border:0; display:block;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    <div class="flex items-center justify-center gap-1 py-1.5 text-[10px] text-inverse-on-surface/60 bg-white/5 group-hover:bg-white/10 group-hover:text-inverse-on-surface transition-all">
-                        <i data-lucide="external-link" class="w-3 h-3"></i>
-                        <span>Buka di Google Maps</span>
-                    </div>
-                </a>
             </div>
         </div>
     </div>

@@ -5,11 +5,11 @@ namespace App\Console\Commands;
 use App\Models\Post;
 use Illuminate\Console\Command;
 
-class ExpireFeaturedPosts extends Command
+class ExpireFlags extends Command
 {
-    protected $signature = 'posts:expire-featured';
+    protected $signature = 'posts:expire-flags';
 
-    protected $description = 'Reset is_headline/is_breaking untuk berita yang sudah kadaluarsa (7 hari)';
+    protected $description = 'Reset is_headline (7 hari) dan is_breaking (3 hari) yang sudah kadaluarsa. Konten Pilihan (is_featured) hanya dimatikan manual, tidak terpengaruh command ini.';
 
     public function handle(): int
     {

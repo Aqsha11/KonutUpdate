@@ -62,8 +62,16 @@
                 </div>
                 <div class="nav-label">Konten</div>
                 <div class="nav-item">
-                    <a href="{{ route('admin.posts.index') }}" class="nav-link {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.posts.index') }}" class="nav-link {{ request()->routeIs('admin.posts.*') && !(request('status') == 'pending' && request('type') == 'opini') ? 'active' : '' }}">
                         <i class="bi bi-newspaper"></i> Berita
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.posts.index', ['status' => 'pending', 'type' => 'opini']) }}" class="nav-link {{ request()->routeIs('admin.posts.*') && request('status') == 'pending' && request('type') == 'opini' ? 'active' : '' }}">
+                        <i class="bi bi-clipboard-check"></i> Verifikasi Opini
+                        @if(!empty($pendingOpiniCount) && $pendingOpiniCount > 0)
+                        <span class="nav-badge">{{ $pendingOpiniCount }}</span>
+                        @endif
                     </a>
                 </div>
                 <div class="nav-item">
@@ -218,6 +226,20 @@
         </div>
     </div>
 
+    {{-- Session Idle Timeout Warning --}}
+    <div id="sessionExpiryOverlay" class="session-expiry-overlay" aria-hidden="true">
+        <div class="session-expiry-dialog">
+            <div class="confirm-icon warning">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h5 class="confirm-title">Sesi Hampir Berakhir</h5>
+            <p class="confirm-message">Tidak ada aktivitas selama 5 menit. Sesi Anda akan berakhir otomatis dalam <strong id="sessionExpiryCountdown">30</strong> detik.</p>
+            <div class="session-expiry-actions">
+                <button type="button" class="btn-admin btn-admin-primary" id="sessionExpiryContinue">Lanjutkan Sesi</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Dark Mode
         (function() {
@@ -298,6 +320,53 @@
                 });
             }, 5000);
         });
+    </script>
+    <script>
+        // Idle timeout: auto logout setelah 5 menit tanpa interaksi
+        (function() {
+            var IDLE_MINUTES = 5;
+            var WARN_SECONDS = 30;
+            var overlay = document.getElementById('sessionExpiryOverlay');
+            var countdownEl = document.getElementById('sessionExpiryCountdown');
+            var continueBtn = document.getElementById('sessionExpiryContinue');
+            var logoutForm = document.getElementById('logout-form');
+            var timer = null;
+            var warnInterval = null;
+            var secondsLeft = WARN_SECONDS;
+
+            function autoLogout() {
+                if (logoutForm) { logoutForm.submit(); return; }
+                window.location.href = '{{ route('login') }}';
+            }
+
+            function showWarning() {
+                secondsLeft = WARN_SECONDS;
+                if (countdownEl) countdownEl.textContent = secondsLeft;
+                if (overlay) overlay.classList.add('show');
+                clearInterval(warnInterval);
+                warnInterval = setInterval(function() {
+                    secondsLeft--;
+                    if (countdownEl) countdownEl.textContent = secondsLeft;
+                    if (secondsLeft <= 0) {
+                        clearInterval(warnInterval);
+                        autoLogout();
+                    }
+                }, 1000);
+            }
+
+            function resetIdle() {
+                clearTimeout(timer);
+                clearInterval(warnInterval);
+                if (overlay && overlay.classList.contains('show')) overlay.classList.remove('show');
+                timer = setTimeout(showWarning, IDLE_MINUTES * 60 * 1000 - WARN_SECONDS * 1000);
+            }
+
+            if (continueBtn) continueBtn.addEventListener('click', resetIdle);
+            ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(function(ev) {
+                window.addEventListener(ev, resetIdle, { passive: true });
+            });
+            resetIdle();
+        })();
     </script>
     @stack('scripts')
 </body>

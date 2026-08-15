@@ -46,6 +46,7 @@
                                 @case('sidebar_top') Sidebar Atas @break
                                 @case('sidebar_bottom') Sidebar Bawah @break
                                 @case('in_article') Dalam Artikel @break
+                                @case('poster_right') Poster Kanan (Potrait) @break
                                 @default {{ $ad->position }}
                             @endswitch
                         </span>

@@ -49,7 +49,7 @@ class PostFactory extends Factory
     {
         return $this->state(fn (array $attrs) => [
             'is_breaking' => true,
-            'breaking_expires_at' => now()->addDays(7),
+            'breaking_expires_at' => now()->addDays(3),
         ]);
     }
 

@@ -56,6 +56,7 @@
                         <option value="sidebar_top" {{ old('position') === 'sidebar_top' ? 'selected' : '' }}>Sidebar Atas</option>
                         <option value="sidebar_bottom" {{ old('position') === 'sidebar_bottom' ? 'selected' : '' }}>Sidebar Bawah</option>
                         <option value="in_article" {{ old('position') === 'in_article' ? 'selected' : '' }}>Dalam Artikel</option>
+                        <option value="poster_right" {{ old('position') === 'poster_right' ? 'selected' : '' }}>Poster Kanan (Potrait)</option>
                     </select>
                     @error('position')
                     <div class="invalid-feedback">{{ $message }}</div>

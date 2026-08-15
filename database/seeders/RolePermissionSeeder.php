@@ -26,7 +26,10 @@ class RolePermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $perm) {
-            Permission::create($perm);
+            Permission::firstOrCreate(
+                ['slug' => $perm['slug']],
+                $perm
+            );
         }
 
         $superAdmin = Role::where('slug', 'super_admin')->first();

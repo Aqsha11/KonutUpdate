@@ -36,7 +36,7 @@
 
     $categoryData = $categoryPosts;
 
-    $heroSlides = $headlinePosts->chunk(3);
+    $heroSlides = $headlinePosts;
 @endphp
 
 @section('content')
@@ -48,17 +48,16 @@
     <section class="mb-3 lg:mb-4">
         <div class="hero-carousel" x-data="{ active: 0, total: {{ $heroSlides->count() }} }" x-init="setInterval(() => { if(total > 1) active = (active + 1) % total }, 5000)">
             <div class="hero-carousel-track" :style="'transform: translateX(-' + (active * 100) + '%)'">
-                @foreach($heroSlides as $slideIndex => $slide)
+                @foreach($heroSlides as $slideIndex => $big)
                 <div class="hero-carousel-slide">
                     @php
-                        $big = $slide->first();
-                        $smalls = $slide->slice(1);
+                        $smalls = $heroSlides->skip($slideIndex + 1)->take(2);
                     @endphp
                     <div class="hero-slide-grid">
                         {{-- Big Post --}}
                         <div class="hero-slide-big" data-post-id="{{ $big->id }}">
                             <a href="{{ route('posts.show', $big->slug) }}">
-                                <img src="{{ $big->thumbnail ? Storage::url($big->thumbnail) : ($big->video_poster ?? 'https://placehold.co/800x500/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $big->title }}" class="hero-slide-big-img" loading="{{ $slideIndex === 0 ? 'eager' : 'lazy' }}">
+                                <img src="{{ postThumbnail($big) }}" alt="{{ $big->title }}" class="hero-slide-big-img" loading="{{ $slideIndex === 0 ? 'eager' : 'lazy' }}">
                             </a>
                             <div class="hero-slide-big-overlay"></div>
                             @if($big->isVideo())
@@ -76,10 +75,10 @@
                                         @if($big->author && $big->author->avatar)
                                         <img src="{{ Storage::url($big->author->avatar) }}" alt="{{ $big->author->name }}">
                                         @else
-                                        <span>{{ substr($big->author->name ?? 'R', 0, 1) }}</span>
+                                        <span>{{ substr($big->author_name, 0, 1) }}</span>
                                         @endif
                                     </div>
-                                    <span class="hero-slide-author-name">{{ $big->author->name ?? 'Redaksi' }}</span>
+                                    <span class="hero-slide-author-name">{{ $big->author_name }}</span>
                                 </div>
                                 <div class="hero-slide-actions">
                                     <button type="button" onclick="event.preventDefault();event.stopPropagation();toggleLike({{ $big->id }})" id="like-btn-hero-{{ $big->id }}" class="hero-slide-btn {{ $big->isLikedBy(request()->ip()) ? 'liked' : '' }}">
@@ -88,6 +87,7 @@
                                     </button>
                                     <a href="{{ route('posts.show', $big->slug) }}#comments" class="hero-slide-btn" onclick="event.preventDefault();event.stopPropagation()">
                                         <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                        <span>{{ $big->commentsCount() }}</span>
                                     </a>
                                     <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $big->slug) }}', '{{ addslashes($big->title) }}')" class="hero-slide-btn">
                                         <i data-lucide="share-2" class="w-3 h-3"></i>
@@ -102,7 +102,7 @@
                             @foreach($smalls as $small)
                             <div class="hero-slide-small" data-post-id="{{ $small->id }}">
                                 <a href="{{ route('posts.show', $small->slug) }}">
-                                    <img src="{{ $small->thumbnail ? Storage::url($small->thumbnail) : ($small->video_poster ?? 'https://placehold.co/400x250/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $small->title }}" class="hero-slide-small-img" loading="lazy">
+                                    <img src="{{ postThumbnail($small) }}" alt="{{ $small->title }}" class="hero-slide-small-img" loading="lazy">
                                 </a>
                                 <div class="hero-slide-small-overlay"></div>
                                 <div class="hero-slide-small-content">
@@ -117,10 +117,10 @@
                                             @if($small->author && $small->author->avatar)
                                             <img src="{{ Storage::url($small->author->avatar) }}" alt="{{ $small->author->name }}">
                                             @else
-                                            <span>{{ substr($small->author->name ?? 'R', 0, 1) }}</span>
+                                            <span>{{ substr($small->author_name, 0, 1) }}</span>
                                             @endif
                                         </div>
-                                        <span class="hero-slide-author-name-sm">{{ $small->author->name ?? 'Redaksi' }}</span>
+                                        <span class="hero-slide-author-name-sm">{{ $small->author_name }}</span>
                                     </div>
                                     <div class="hero-slide-actions-sm">
                                         <button type="button" onclick="event.preventDefault();event.stopPropagation();toggleLike({{ $small->id }})" id="like-btn-hero-sm-{{ $small->id }}" class="hero-slide-btn-sm {{ $small->isLikedBy(request()->ip()) ? 'liked' : '' }}">
@@ -171,12 +171,122 @@
     @endif
 
     {{-- ════════════════════════════════════════════
-         BERITA TERBARU — Mobile: flat list, Desktop: 3-col grid
+         VIDEO — satu baris scroll horizontal
+         ════════════════════════════════════════════ --}}
+    @if(isset($videoPosts) && $videoPosts->count() > 0)
+    <section class="mb-3 lg:mb-4">
+        <div class="section-bar">
+            <h2 class="section-bar-title"><i data-lucide="play-circle" class="w-4 h-4 text-accent"></i>Video</h2>
+            <a href="{{ route('search', ['type' => 'video']) }}" class="section-bar-link">Lihat Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+        </div>
+        <div class="ku-video-row hide-scrollbar">
+            @foreach($videoPosts as $post)
+            <article class="ku-video-card" data-post-id="{{ $post->id }}">
+                <a href="{{ route('posts.show', $post->slug) }}" class="ku-video-thumb">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    <div class="ku-video-play"><i data-lucide="play" class="w-5 h-5 text-primary ml-0.5"></i></div>
+                </a>
+                <div class="ku-video-body">
+                    <div class="ku-video-meta">
+                        @if($post->categories->count() > 0)
+                            <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="ku-video-cat">{{ $post->categories->first()->name }}</a>
+                        @elseif($post->category)
+                            <a href="{{ route('categories.show', $post->category->slug) }}" class="ku-video-cat">{{ $post->category->name }}</a>
+                        @endif
+                        <span class="ku-video-time">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
+                    </div>
+                    <h3 class="ku-video-title"><a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a></h3>
+                </div>
+            </article>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- ════════════════════════════════════════════
+         KONTEN PILIHAN — satu baris scroll horizontal
+         ════════════════════════════════════════════ --}}
+    @if(isset($featuredPosts) && $featuredPosts->count() > 0)
+    <section class="mb-3 lg:mb-4">
+        <div class="section-bar">
+            <h2 class="section-bar-title"><i data-lucide="layout-grid" class="w-4 h-4 text-primary"></i>Konten Pilihan</h2>
+        </div>
+        <div class="ku-feat-row hide-scrollbar">
+            @foreach($featuredPosts as $post)
+            <article class="ku-feat-card" data-post-id="{{ $post->id }}">
+                <div class="ku-feat-media">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="ku-feat-thumb">
+                        <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    </a>
+                    <div class="ku-feat-overlay"></div>
+                    <div class="ku-feat-content">
+                        <div class="ku-coll-meta">
+                            @if($post->categories->count() > 0)
+                                <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="ku-coll-cat">{{ $post->categories->first()->name }}</a>
+                            @elseif($post->category)
+                                <a href="{{ route('categories.show', $post->category->slug) }}" class="ku-coll-cat">{{ $post->category->name }}</a>
+                            @endif
+                            <span class="ku-feat-time">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
+                        </div>
+                        <h3 class="ku-feat-title"><a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a></h3>
+                    </div>
+                    <div class="ku-feat-stats">
+                        <button type="button" onclick="toggleLike({{ $post->id }})" data-like-btn="{{ $post->id }}" class="stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                            <i data-lucide="heart" class="w-3 h-3"></i>
+                            <span data-like-count="{{ $post->id }}">{{ $post->likesCount() }}</span>
+                        </button>
+                        <a href="{{ route('posts.show', $post->slug) }}#comments" class="stat-btn">
+                            <i data-lucide="message-circle" class="w-3 h-3"></i>
+                            <span>{{ $post->commentsCount() }}</span>
+                        </a>
+                        <button type="button" onclick="sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="stat-btn">
+                            <i data-lucide="share-2" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                </div>
+            </article>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- ════════════════════════════════════════════
+         TRENDING
+         ════════════════════════════════════════════ --}}
+    @if(isset($trendingPosts) && $trendingPosts->count() > 0)
+    <section class="mb-3 lg:mb-4">
+        <div class="section-bar">
+            <h2 class="section-bar-title"><i data-lucide="flame" class="w-4 h-4 text-accent"></i>Trending</h2>
+            <a href="{{ route('trending') }}" class="section-bar-link">Lihat Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+        </div>
+        <div class="ku-trend-grid">
+            @foreach($trendingPosts as $index => $post)
+            <a href="{{ route('posts.show', $post->slug) }}" class="ku-trend-item group" data-post-id="{{ $post->id }}">
+                <span class="ku-trend-num {{ $index < 3 ? 'hot' : '' }}">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                <div class="ku-trend-body">
+                    <h3 class="ku-trend-title">{{ $post->title }}</h3>
+                    <div class="ku-trend-meta">
+                        <span>{{ number_format($post->views_count) }} dibaca</span>
+                        <span>·</span>
+                        <span>{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
+                    </div>
+                </div>
+                <div class="ku-trend-thumb">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- ════════════════════════════════════════════
+         TERKINI — Mobile: flat list, Desktop: 3-col grid
          ════════════════════════════════════════════ --}}
     <section class="mb-3 lg:mb-4">
         <div class="section-bar">
-            <h2 class="section-bar-title"><span class="section-bar-dot bg-primary"></span>Berita Terbaru</h2>
-            <a href="{{ route('search') }}" class="section-bar-link">Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+            <h2 class="section-bar-title"><span class="section-bar-dot bg-primary"></span>Terkini</h2>
+            <a href="{{ route('terkini') }}" class="section-bar-link">Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
         </div>
 
         {{-- Mobile: flat list --}}
@@ -185,7 +295,7 @@
                 @foreach($latestPosts->take(10) as $post)
                 <article class="news-item" data-post-id="{{ $post->id }}">
                     <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
-                        <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                        <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                         @if($post->isVideo())
                         <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                         @endif
@@ -197,6 +307,9 @@
                                 <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="news-item-cat">{{ $post->categories->first()->name }}</a>
                             @elseif($post->category)
                                 <a href="{{ route('categories.show', $post->category->slug) }}" class="news-item-cat">{{ $post->category->name }}</a>
+                            @endif
+                            @if($post->type === 'opini')
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-accent/10 text-accent text-[9px] md:text-[10px] font-bold uppercase tracking-wide">Opini</span>
                             @endif
                             <span class="news-item-time">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
                         </div>
@@ -231,7 +344,7 @@
             @foreach($latestPosts as $post)
             <article class="news-card" data-post-id="{{ $post->id }}">
                 <a href="{{ route('posts.show', $post->slug) }}" class="news-card-thumb">
-                    <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/640x400/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" loading="lazy">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                     @endif
@@ -275,122 +388,112 @@
     </section>
 
     {{-- ════════════════════════════════════════════
-         CATEGORY SECTIONS
+         OPINI — satu baris scroll horizontal
+         ════════════════════════════════════════════ --}}
+    @if(isset($opiniPosts) && $opiniPosts->count() > 0)
+    <section class="mb-3 lg:mb-4">
+        <div class="section-bar">
+            <h2 class="section-bar-title"><i data-lucide="pencil-line" class="w-4 h-4 text-accent"></i>Opini</h2>
+            <a href="{{ route('opini') }}" class="section-bar-link">Lihat Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+        </div>
+        <div class="ku-feat-row hide-scrollbar">
+            @foreach($opiniPosts as $post)
+            <article class="ku-feat-card" data-post-id="{{ $post->id }}">
+                <div class="ku-feat-media">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="ku-feat-thumb">
+                        <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    </a>
+                    <div class="ku-feat-overlay"></div>
+                    <div class="ku-feat-content">
+                        <div class="ku-coll-meta">
+                            <span class="ku-coll-cat text-accent">Opini</span>
+                            @if($post->categories->count() > 0)
+                                <span class="ku-feat-time">/</span>
+                                <a href="{{ route('categories.show', $post->categories->first()->slug) }}" class="ku-coll-cat">{{ $post->categories->first()->name }}</a>
+                            @endif
+                            <span class="ku-feat-time">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
+                        </div>
+                        <h3 class="ku-feat-title"><a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a></h3>
+                    </div>
+                    <div class="ku-feat-stats">
+                        <span class="stat-btn"><i data-lucide="user" class="w-3 h-3"></i> {{ $post->author_name }}</span>
+                        <button type="button" onclick="toggleLike({{ $post->id }})" data-like-btn="{{ $post->id }}" class="stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                            <i data-lucide="heart" class="w-3 h-3"></i>
+                            <span data-like-count="{{ $post->id }}">{{ $post->likesCount() }}</span>
+                        </button>
+                        <a href="{{ route('posts.show', $post->slug) }}#comments" class="stat-btn">
+                            <i data-lucide="message-circle" class="w-3 h-3"></i>
+                            <span>{{ $post->commentsCount() }}</span>
+                        </a>
+                    </div>
+                </div>
+            </article>
+            @endforeach
+        </div>
+    </section>
+    @endif
+
+    {{-- ════════════════════════════════════════════
+         CATEGORY SECTIONS — row kartu ala KendariInfo
          ════════════════════════════════════════════ --}}
     @foreach($categorySlugs as $slug)
         @php
             $catData = $categoryData[$slug] ?? ['hero' => null, 'trending' => collect(), 'latest' => collect()];
             $meta = $categoryMeta[$slug] ?? ['name' => $categoryNames[$slug] ?? ucfirst($slug), 'icon' => 'folder', 'color' => 'primary'];
-            $catHero = $catData['trending']->first() ?? $catData['hero'];
-            $catTrending = $catData['trending']->slice(1)->values()->merge($catData['latest']);
 
-            if ($catData['hero'] && $catHero && $catHero->id !== $catData['hero']->id) {
-                $catTrending = $catTrending->push($catData['hero']);
-            }
+            $catPosts = collect()
+                ->push($catData['hero'])
+                ->merge($catData['trending'] ?? collect())
+                ->merge($catData['latest'] ?? collect())
+                ->filter()
+                ->unique('id')
+                ->values()
+                ->take(8);
         @endphp
 
-        @if($catData['hero'] || $catData['trending']->count() > 0 || $catData['latest']->count() > 0)
+        @if($catPosts->count() > 0)
         <section class="mb-3 lg:mb-4">
-            <div class="cat-header">
-                <div class="cat-header-title">
-                    <span class="cat-header-dot bg-{{ $meta['color'] }}"></span>
-                    <h2>{{ $meta['name'] }}</h2>
-                </div>
-                <a href="{{ route('categories.show', $slug) }}" class="cat-header-link">Lihat Semua <i data-lucide="chevron-right" class="w-3 h-3"></i></a>
+            <div class="section-bar">
+                <h2 class="section-bar-title"><span class="section-bar-dot bg-{{ $meta['color'] }}"></span>{{ $meta['name'] }}</h2>
+                <a href="{{ route('categories.show', $slug) }}" class="section-bar-link">Lihat Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
             </div>
-
-            <div class="cat-3col-layout">
-                {{-- Kolom 1: Portrait Hero (trending #1) --}}
-                <div class="cat-3col-hero">
-                    @if($catHero)
-                    <div class="cat-portrait-card" data-post-id="{{ $catHero->id }}">
-                        <a href="{{ route('posts.show', $catHero->slug) }}">
-                            <img src="{{ $catHero->thumbnail ? Storage::url($catHero->thumbnail) : ($catHero->video_poster ?? 'https://placehold.co/400x520/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $catHero->title }}" class="cat-portrait-img" loading="lazy">
-                        </a>
-                        <div class="cat-portrait-overlay"></div>
-                        <div class="cat-portrait-content">
-                            <span class="cat-portrait-badge">
-                                <i data-lucide="flame" class="w-2.5 h-2.5"></i>
-                                <span>#1 Terpopuler</span>
-                            </span>
-                            <h3 class="cat-portrait-title"><a href="{{ route('posts.show', $catHero->slug) }}">{{ $catHero->title }}</a></h3>
-                            <div class="cat-portrait-meta">
-                                <span class="cat-portrait-author">{{ $catHero->author->name ?? 'Redaksi' }}</span>
-                                <span>·</span>
-                                <span>{{ $catHero->published_at ? \Carbon\Carbon::parse($catHero->published_at)->diffForHumans() : '' }}</span>
-                            </div>
-                            <div class="cat-portrait-stats">
-                                <button type="button" onclick="event.preventDefault();toggleLike({{ $catHero->id }})" data-like-btn="{{ $catHero->id }}" id="like-btn-{{ $catHero->id }}" class="cat-stat-btn {{ $catHero->isLikedBy(request()->ip()) ? 'liked' : '' }}">
-                                    <i data-lucide="heart" class="w-2.5 h-2.5"></i>
-                                    <span data-like-count="{{ $catHero->id }}" id="like-count-{{ $catHero->id }}">{{ $catHero->likesCount() }}</span>
-                                </button>
-                                <a href="{{ route('posts.show', $catHero->slug) }}#comments" class="cat-stat-btn" onclick="event.stopPropagation()">
-                                    <i data-lucide="message-circle" class="w-2.5 h-2.5"></i>
-                                    <span>{{ $catHero->commentsCount() }}</span>
-                                </a>
-                                <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $catHero->slug) }}', '{{ addslashes($catHero->title) }}')" class="cat-stat-btn">
-                                    <i data-lucide="share-2" class="w-2.5 h-2.5"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    @else
-                    <div class="cat-portrait-empty">
-                        <i data-lucide="{{ $meta['icon'] }}" class="w-6 h-6 text-on-surface-variant/30"></i>
-                    </div>
-                    @endif
-                </div>
-
-                {{-- Kolom 2: Trending (mulai #2) --}}
-                <div class="cat-3col-list">
-                    <div class="cat-3col-label">
-                        <i data-lucide="flame" class="w-2.5 h-2.5 text-accent"></i>
-                        Trending
-                    </div>
-
-                    <div class="cat-3col-scroll">
-                    @forelse($catTrending as $index => $post)
-                    <a href="{{ route('posts.show', $post->slug) }}" class="cat-3col-item group" data-post-id="{{ $post->id }}">
-                        <span class="cat-3col-num {{ $index < 2 ? 'hot' : '' }}">{{ str_pad($index + 2, 2, '0', STR_PAD_LEFT) }}</span>
-                        <div class="cat-3col-item-thumb">
-                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/160x100/1a1a2e/ffffff?text=VIDEO') }}" alt="{{ $post->title }}" loading="lazy">
-                        </div>
-                        <div class="cat-3col-item-body">
-                            <h4 class="cat-3col-title">{{ $post->title }}</h4>
-                            <div class="cat-3col-meta">
-                                @if($post->categories->count() > 0)
-                                <span class="cat-3col-cat">{{ $post->categories->first()->name }}</span>
-                                <span>·</span>
-                                @elseif($post->category)
-                                <span class="cat-3col-cat">{{ $post->category->name }}</span>
-                                <span>·</span>
+            <div class="ku-cat-row hide-scrollbar">
+                @foreach($catPosts as $post)
+                <article class="ku-cat-post" data-post-id="{{ $post->id }}">
+                    <div class="ku-cat-left">
+                        <h3 class="ku-cat-title"><a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a></h3>
+                        <div class="ku-cat-author">
+                            <div class="ku-cat-avatar">
+                                @if($post->author && $post->author->avatar)
+                                <img src="{{ Storage::url($post->author->avatar) }}" alt="{{ $post->author->name }}">
+                                @else
+                                <span>{{ strtoupper(substr($post->author_name, 0, 1)) }}</span>
                                 @endif
-                                <span>{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->diffForHumans() : '' }}</span>
-                                <span>·</span>
-                                <span>{{ number_format($post->views_count) }} dibaca</span>
                             </div>
-                            <div class="cat-3col-stats">
-                                <button type="button" onclick="event.preventDefault();toggleLike({{ $post->id }})" id="like-btn-t-{{ $post->id }}" class="cat-3col-stat-btn {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
-                                    <i data-lucide="heart" class="w-2 h-2"></i>
-                                    <span id="like-count-t-{{ $post->id }}">{{ $post->likesCount() }}</span>
-                                </button>
-                                <a href="{{ route('posts.show', $post->slug) }}#comments" class="cat-3col-stat-btn" onclick="event.preventDefault();event.stopPropagation()">
-                                    <i data-lucide="message-circle" class="w-2 h-2"></i>
-                                    <span>{{ $post->commentsCount() }}</span>
-                                </a>
-                                <button type="button" onclick="event.preventDefault();event.stopPropagation();sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="cat-3col-stat-btn">
-                                    <i data-lucide="share-2" class="w-2 h-2"></i>
-                                </button>
-                            </div>
+                            <span class="ku-cat-author-name">{{ $post->author_name }}</span>
                         </div>
-                    </a>
-                    @empty
-                    @if(!$catHero)
-                    <p class="cat-3col-empty">Belum ada berita</p>
-                    @endif
-                    @endforelse
+                        <div class="ku-cat-actions">
+                            <button type="button" onclick="toggleLike({{ $post->id }})" data-like-btn="{{ $post->id }}" class="ku-cat-act {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                                <i data-lucide="heart" class="w-3 h-3"></i>
+                                <span data-like-count="{{ $post->id }}">{{ $post->likesCount() }}</span>
+                            </button>
+                            <a href="{{ route('posts.show', $post->slug) }}#comments" class="ku-cat-act">
+                                <i data-lucide="message-circle" class="w-3 h-3"></i>
+                                <span>{{ $post->commentsCount() }}</span>
+                            </a>
+                            <button type="button" onclick="sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="ku-cat-act">
+                                <i data-lucide="share-2" class="w-3 h-3"></i>
+                            </button>
+                            <time class="ku-cat-date">{{ $post->published_at ? \Carbon\Carbon::parse($post->published_at)->format('d/m/Y') : '' }}</time>
+                        </div>
                     </div>
-                </div>
+                    <div class="ku-cat-right">
+                        <a href="{{ route('posts.show', $post->slug) }}">
+                            <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                        </a>
+                    </div>
+                </article>
+                @endforeach
             </div>
         </section>
         @endif

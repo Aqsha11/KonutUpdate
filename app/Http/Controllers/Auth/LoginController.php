@@ -34,6 +34,16 @@ class LoginController extends Controller
             $request->session()->regenerate();
             app(RateLimiter::class)->clear($this->throttleKey($request));
 
+            $role = Auth::user()->role?->slug;
+
+            if ($role === 'kontributor') {
+                if ($redirect = $this->safeRedirect($request->input('redirect'))) {
+                    return redirect($redirect);
+                }
+
+                return redirect()->intended(route('kontributor.dashboard'));
+            }
+
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -61,5 +71,16 @@ class LoginController extends Controller
     private function throttleKey(Request $request): string
     {
         return Str::lower($request->input('email')).'|'.$request->ip();
+    }
+
+    private function safeRedirect(?string $redirect): ?string
+    {
+        if (! $redirect) {
+            return null;
+        }
+
+        $host = (string) parse_url($redirect, PHP_URL_HOST);
+
+        return $host === request()->getHost() ? $redirect : null;
     }
 }

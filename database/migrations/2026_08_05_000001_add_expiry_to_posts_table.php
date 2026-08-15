@@ -22,7 +22,7 @@ return new class extends Migration
         DB::table('posts')
             ->where('is_breaking', true)
             ->whereNull('breaking_expires_at')
-            ->update(['breaking_expires_at' => now()->addDays(7)]);
+            ->update(['breaking_expires_at' => now()->addDays(3)]);
     }
 
     public function down(): void

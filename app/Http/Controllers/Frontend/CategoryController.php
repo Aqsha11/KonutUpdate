@@ -13,7 +13,7 @@ class CategoryController extends Controller
         $category = Category::where('slug', $slug)->firstOrFail();
 
         $posts = Post::published()
-            ->whereHas('categories', fn($q) => $q->where('categories.id', $category->id))
+            ->whereHas('categories', fn ($q) => $q->where('categories.id', $category->id))
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
             ->latest('posts.published_at')

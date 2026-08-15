@@ -79,6 +79,22 @@ class PageSeeder extends Seeder
 <p>Kami menerapkan langkah-langkah keamanan teknis dan organisasi yang tepat untuk melindungi informasi pribadi Anda.</p>',
                 'is_published' => true,
             ],
+            [
+                'title' => 'Pasang Iklan',
+                'slug' => 'pasang-iklan',
+                'content' => '<h2>Pasang Iklan</h2>
+<p>Konut.Update menawarkan berbagai pilihan ruang iklan untuk mempromosikan produk, layanan, atau brand Anda kepada ribuan pembaca kami di Konawe Utara dan sekitarnya.</p>
+<h3>Keunggulan Beriklan di Konut.Update</h3>
+<ul>
+<li>Jangkauan pembaca yang luas dan tersegmentasi di wilayah Konawe Utara.</li>
+<li>Posisi iklan strategis: banner atas, sidebar, dan dalam artikel.</li>
+<li>Proses pemasangan cepat dan mudah.</li>
+<li>Harga kompetitif dengan pilihan paket fleksibel.</li>
+</ul>
+<h3>Hubungi Kami</h3>
+<p>Untuk informasi lebih lanjut mengenai harga dan ketersediaan slot iklan, silakan hubungi tim kami melalui email atau kontak yang tersedia.</p>',
+                'is_published' => true,
+            ],
         ];
 
         foreach ($pages as $page) {

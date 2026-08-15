@@ -11,6 +11,7 @@ use App\Models\Post;
 use App\Models\Tag;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -79,7 +80,7 @@ class PostController extends Controller
         $data['slug'] = $this->uniqueSlug($data['slug']);
         $data['user_id'] = auth()->id();
         $data['headline_expires_at'] = ! empty($data['is_headline']) ? now()->addDays(7) : null;
-        $data['breaking_expires_at'] = ! empty($data['is_breaking']) ? now()->addDays(7) : null;
+        $data['breaking_expires_at'] = ! empty($data['is_breaking']) ? now()->addDays(3) : null;
 
         if ($request->hasFile('thumbnail')) {
             $manager = new ImageManager(new Driver);
@@ -105,6 +106,8 @@ class PostController extends Controller
         $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body'] ?? null);
 
         $post = Post::create($data);
+
+        $this->forgetFrontendCaches();
 
         $categoryIds = $request->input('category_ids', []);
         if (! empty($categoryIds)) {
@@ -146,7 +149,7 @@ class PostController extends Controller
         $data['slug'] = Str::slug($data['title']);
         $data['slug'] = $this->uniqueSlug($data['slug'], $post->id);
         $data['headline_expires_at'] = ! empty($data['is_headline']) ? now()->addDays(7) : null;
-        $data['breaking_expires_at'] = ! empty($data['is_breaking']) ? now()->addDays(7) : null;
+        $data['breaking_expires_at'] = ! empty($data['is_breaking']) ? now()->addDays(3) : null;
 
         if ($request->hasFile('thumbnail')) {
             if ($post->thumbnail) {
@@ -187,6 +190,8 @@ class PostController extends Controller
 
         $post->update($data);
 
+        $this->forgetFrontendCaches();
+
         $categoryIds = $request->input('category_ids', []);
         if (! empty($categoryIds)) {
             $post->categories()->sync(array_slice($categoryIds, 0, 3));
@@ -225,6 +230,8 @@ class PostController extends Controller
 
         $post->delete();
 
+        $this->forgetFrontendCaches();
+
         return redirect()->route('admin.posts.index')->with('success', 'Berita berhasil dihapus.');
     }
 
@@ -235,7 +242,36 @@ class PostController extends Controller
             'published_at' => now(),
         ]);
 
+        $this->forgetFrontendCaches();
+
         return redirect()->back()->with('success', 'Berita berhasil dipublikasikan.');
+    }
+
+    public function approve(Post $post)
+    {
+        $post->update([
+            'status' => 'published',
+            'rejection_reason' => null,
+            'published_at' => now(),
+        ]);
+
+        $this->forgetFrontendCaches();
+
+        return redirect()->back()->with('success', 'Kiriman disetujui dan berhasil ditayangkan.');
+    }
+
+    public function reject(Request $request, Post $post)
+    {
+        $validated = $request->validate([
+            'rejection_reason' => 'required|string|max:1000',
+        ]);
+
+        $post->update([
+            'status' => 'rejected',
+            'rejection_reason' => $validated['rejection_reason'],
+        ]);
+
+        return redirect()->back()->with('success', 'Kiriman ditolak dan alasan telah dikirim ke penulis.');
     }
 
     public function draft(Post $post)
@@ -243,6 +279,8 @@ class PostController extends Controller
         $post->update([
             'status' => 'draft',
         ]);
+
+        $this->forgetFrontendCaches();
 
         return redirect()->back()->with('success', 'Berita dikembalikan ke draft.');
     }
@@ -277,5 +315,12 @@ class PostController extends Controller
         }
 
         return $slug;
+    }
+
+    private function forgetFrontendCaches(): void
+    {
+        foreach (['frontend_categories', 'breaking_news', 'trending_posts'] as $key) {
+            Cache::forget($key);
+        }
     }
 }

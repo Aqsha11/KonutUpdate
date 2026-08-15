@@ -53,6 +53,7 @@
                     <select name="type" id="type" class="form-select @error('type') is-invalid @enderror">
                         <option value="article" {{ old('type', 'article') === 'article' ? 'selected' : '' }}>Artikel (Gambar)</option>
                         <option value="video" {{ old('type') === 'video' ? 'selected' : '' }}>Video</option>
+                        <option value="opini" {{ old('type') === 'opini' ? 'selected' : '' }}>Opini</option>
                     </select>
                     @error('type')
                     <div class="invalid-feedback">{{ $message }}</div>
@@ -149,6 +150,11 @@
                             <input type="hidden" name="is_breaking" value="0">
                             <input type="checkbox" name="is_breaking" id="isBreaking" value="1" class="form-check-input" {{ old('is_breaking') ? 'checked' : '' }}>
                             <label for="isBreaking" class="form-check-label">Breaking News</label>
+                        </div>
+                        <div class="form-check">
+                            <input type="hidden" name="is_featured" value="0">
+                            <input type="checkbox" name="is_featured" id="isFeatured" value="1" class="form-check-input" {{ old('is_featured') ? 'checked' : '' }}>
+                            <label for="isFeatured" class="form-check-label">Konten Pilihan</label>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <label class="form-label mb-0 fw-semibold">Headline</label>

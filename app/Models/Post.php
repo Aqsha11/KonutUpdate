@@ -17,6 +17,7 @@ class Post extends Model
 
     protected $fillable = [
         'user_id',
+        'author_name',
         'category_id',
         'kecamatan_id',
         'title',
@@ -27,7 +28,9 @@ class Post extends Model
         'type',
         'video_path',
         'status',
+        'rejection_reason',
         'is_breaking',
+        'is_featured',
         'is_headline',
         'headline_expires_at',
         'breaking_expires_at',
@@ -39,6 +42,7 @@ class Post extends Model
     {
         return [
             'is_breaking' => 'boolean',
+            'is_featured' => 'boolean',
             'is_headline' => 'boolean',
             'headline_expires_at' => 'datetime',
             'breaking_expires_at' => 'datetime',
@@ -60,6 +64,16 @@ class Post extends Model
         return $query->where('status', 'draft');
     }
 
+    public function scopePending(Builder $query): Builder
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeRejected(Builder $query): Builder
+    {
+        return $query->where('status', 'rejected');
+    }
+
     public function scopeHeadline(Builder $query): Builder
     {
         return $query->where('is_headline', true)
@@ -68,7 +82,7 @@ class Post extends Model
 
     public function scopeFeatured(Builder $query): Builder
     {
-        return $query->headline();
+        return $query->where('is_featured', true);
     }
 
     public function scopeExcludeHeadline(Builder $query): Builder
@@ -167,6 +181,11 @@ class Post extends Model
     public function isVideo(): bool
     {
         return $this->type === 'video';
+    }
+
+    public function getAuthorNameAttribute(): string
+    {
+        return ($this->attributes['author_name'] ?? null) ?: ($this->author?->name ?: 'Redaksi');
     }
 
     public function getVideoUrlAttribute(): ?string

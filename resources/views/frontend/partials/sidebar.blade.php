@@ -40,7 +40,7 @@
             <div class="p-3 grid grid-cols-2 gap-1.5">
                 @foreach($categories as $cat)
                     <a href="{{ route('categories.show', $cat->slug) }}"
-                       class="flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium text-on-surface hover:bg-primary-light hover:text-primary dark:hover:bg-primary-container transition-colors no-underline group">
+                       class="flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'text-primary bg-primary-light font-bold dark:bg-primary-container' : 'text-on-surface hover:bg-primary-light hover:text-primary dark:hover:bg-primary-container' }} transition-colors no-underline group">
                         <span>{{ $cat->name }}</span>
                         @if(isset($cat->all_posts_count) ? $cat->all_posts_count > 0 : $cat->posts_count > 0)
                             <span class="text-[10px] text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full group-hover:bg-primary/10 group-hover:text-primary">{{ $cat->all_posts_count ?? $cat->posts_count }}</span>
@@ -53,7 +53,7 @@
 
     {{-- Kecamatan --}}
     @if(isset($kecamatans) && $kecamatans->count() > 0)
-    <div class="bg-surface rounded-xl shadow-sm border border-outline overflow-hidden" x-data="{ open: false }">
+    <div class="bg-surface rounded-xl shadow-sm border border-outline overflow-hidden" x-data="{ open: true }">
         <button type="button" @click="open = !open" :aria-expanded="open" class="sidebar-widget-header w-full flex items-center gap-2 px-4 pt-3 pb-2 border-b border-outline hover:bg-surface-container-low transition-colors">
             <i data-lucide="map-pin" class="w-3.5 h-3.5 text-accent"></i>
             <h3 class="font-bold text-xs text-on-surface uppercase tracking-wider">Kecamatan</h3>
@@ -63,7 +63,7 @@
             <div class="p-3 grid grid-cols-2 gap-1.5">
                 @foreach($kecamatans as $k)
                     <a href="{{ route('kecamatan.show', $k->slug) }}"
-                       class="flex items-center justify-between gap-1 px-2.5 py-2 rounded-lg text-xs font-medium text-on-surface hover:bg-primary-light hover:text-primary dark:hover:bg-primary-container transition-colors no-underline group text-center">
+                       class="flex items-center justify-between gap-1 px-2.5 py-2 rounded-lg text-xs font-medium {{ request()->routeIs('kecamatan.show') && request()->slug == $k->slug ? 'text-primary bg-primary-light font-bold dark:bg-primary-container' : 'text-on-surface hover:bg-primary-light hover:text-primary dark:hover:bg-primary-container' }} transition-colors no-underline group text-center">
                         <span class="truncate">{{ $k->name }}</span>
                         @if(isset($k->posts_count) && $k->posts_count > 0)
                             <span class="text-[10px] text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full shrink-0 group-hover:bg-primary/10 group-hover:text-primary">{{ $k->posts_count }}</span>
@@ -82,35 +82,30 @@
             <h3 class="font-bold text-xs text-on-surface uppercase tracking-wider">Ikuti Kami</h3>
         </div>
         <div class="widget-body">
-            <div class="p-3 grid grid-cols-2 gap-1.5">
+            <div class="p-3 flex flex-wrap gap-2 justify-center">
                 @if(!empty($site_settings['facebook']))
-                    <a href="{{ $site_settings['facebook'] }}" target="_blank" class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-[#1877f2] text-white text-xs font-medium no-underline hover:opacity-90 transition-opacity">
-                        <i class="fab fa-facebook text-xs"></i>
-                        <span>Facebook</span>
+                    <a href="{{ $site_settings['facebook'] }}" target="_blank" aria-label="Facebook" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#1877f2] text-white no-underline hover:opacity-90 transition-opacity">
+                        <i class="fab fa-facebook text-sm"></i>
                     </a>
                 @endif
                 @if(!empty($site_settings['instagram']))
-                    <a href="{{ $site_settings['instagram'] }}" target="_blank" class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#f77737] text-white text-xs font-medium no-underline hover:opacity-90 transition-opacity">
-                        <i class="fab fa-instagram text-xs"></i>
-                        <span>Instagram</span>
+                    <a href="{{ $site_settings['instagram'] }}" target="_blank" aria-label="Instagram" class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#f77737] text-white no-underline hover:opacity-90 transition-opacity">
+                        <i class="fab fa-instagram text-sm"></i>
                     </a>
                 @endif
                 @if(!empty($site_settings['youtube']))
-                    <a href="{{ $site_settings['youtube'] }}" target="_blank" class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-[#ff0000] text-white text-xs font-medium no-underline hover:opacity-90 transition-opacity">
-                        <i class="fab fa-youtube text-xs"></i>
-                        <span>YouTube</span>
+                    <a href="{{ $site_settings['youtube'] }}" target="_blank" aria-label="YouTube" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#ff0000] text-white no-underline hover:opacity-90 transition-opacity">
+                        <i class="fab fa-youtube text-sm"></i>
                     </a>
                 @endif
                 @if(!empty($site_settings['whatsapp']))
-                    <a href="{{ $site_settings['whatsapp'] }}" target="_blank" class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-[#25d366] text-white text-xs font-medium no-underline hover:opacity-90 transition-opacity">
-                        <i class="fab fa-whatsapp text-xs"></i>
-                        <span>WhatsApp</span>
+                    <a href="{{ $site_settings['whatsapp'] }}" target="_blank" aria-label="WhatsApp" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#25d366] text-white no-underline hover:opacity-90 transition-opacity">
+                        <i class="fab fa-whatsapp text-sm"></i>
                     </a>
                 @endif
                 @if(!empty($site_settings['email']))
-                    <a href="mailto:{{ $site_settings['email'] }}" class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-on-surface text-white text-xs font-medium no-underline hover:opacity-90 transition-opacity">
-                        <i data-lucide="mail" class="w-3.5 h-3.5"></i>
-                        <span>Email</span>
+                    <a href="mailto:{{ $site_settings['email'] }}" aria-label="Email" class="w-10 h-10 flex items-center justify-center rounded-full bg-on-surface text-white no-underline hover:opacity-90 transition-opacity">
+                        <i data-lucide="mail" class="w-4 h-4"></i>
                     </a>
                 @endif
             </div>

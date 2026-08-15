@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/css/admin.css',
                 'resources/js/app.js',
                 'resources/js/admin.js',
+                'resources/js/opini-editor.js',
             ],
             refresh: true,
         }),

@@ -25,7 +25,7 @@
             @foreach($post->categories->skip(1) as $extraCat)
             <category>{{ $extraCat->name }}</category>
             @endforeach
-            <dc:creator><![CDATA[{{ $post->author->name ?? 'Redaksi' }}]]></dc:creator>
+            <dc:creator><![CDATA[{{ $post->author_name }}]]></dc:creator>
             <pubDate>{{ $post->published_at->toRfc2822String() }}</pubDate>
             @if($post->thumbnail)
             <media:thumbnail url="{{ url(Storage::url($post->thumbnail)) }}" width="800" height="450"/>

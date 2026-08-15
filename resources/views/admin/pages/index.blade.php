@@ -47,12 +47,33 @@
                             <a href="{{ route('admin.pages.edit', $page->id) }}" class="btn-action btn-action-edit" title="Edit">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <form action="{{ route('admin.pages.destroy', $page->id) }}" method="POST">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn-action btn-action-delete" title="Hapus">
-                                    <i class="bi bi-trash"></i>
+                            @if($page->is_published)
+                            <form action="{{ route('admin.pages.draft', $page->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-action btn-action-draft" title="Draft">
+                                    <i class="bi bi-archive"></i>
                                 </button>
                             </form>
+                            @else
+                            <form action="{{ route('admin.pages.publish', $page->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-action btn-action-publish" title="Publikasi">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            @endif
+                            @if(in_array($page->slug, $protectedSlugs))
+                                <span class="btn-action btn-action-lock" title="Halaman bawaan, tidak bisa dihapus">
+                                    <i class="bi bi-lock"></i>
+                                </span>
+                            @else
+                                <form action="{{ route('admin.pages.destroy', $page->id) }}" method="POST">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-action btn-action-delete" title="Hapus">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

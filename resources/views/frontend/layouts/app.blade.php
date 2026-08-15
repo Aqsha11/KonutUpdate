@@ -149,113 +149,62 @@
             </div>
         </div>
 
-        {{-- Logo + Search Row — compact on mobile --}}
-        <div class="border-b border-outline bg-surface">
-            <div class="max-w-7xl mx-auto px-3 lg:px-4 h-14 lg:h-20 flex items-center justify-between">
-                <div class="flex items-center gap-2 lg:gap-3">
-                    <button class="md:hidden flex items-center justify-center w-10 h-10 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer bg-transparent border-none" x-on:click="mobileOpen = true" aria-label="Menu">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
+        {{-- Header ala KendariInfo: hamburger kiri, logo tengah, search/theme kanan --}}
+        <div class="ku-header-wrapper bg-surface border-b border-outline">
+            <div class="max-w-7xl mx-auto px-3 lg:px-4 h-14 lg:h-20 flex items-center justify-between relative">
+                <div class="ku-header-side ku-header-left">
+                    <button class="ku-hamburger" x-on:click="mobileOpen = true" aria-label="Menu">
+                        <span></span><span></span><span></span>
                     </button>
-                    <a href="{{ url('/') }}" class="flex items-center gap-2 lg:gap-3 no-underline">
+                </div>
+                <div class="ku-header-logo">
+                    <a href="{{ url('/') }}" class="ku-header-logo-link">
                         @if(!empty($site_settings['logo']))
-                            <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-10 lg:h-16 w-auto object-contain">
+                            <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="ku-header-logo-img">
                         @else
-                            <div class="flex items-center gap-2 lg:gap-2.5">
-                                <div class="w-9 h-9 lg:w-14 lg:h-14 rounded-xl bg-primary flex items-center justify-center shadow-sm">
-                                    <span class="text-white font-extrabold text-lg lg:text-2xl">K</span>
-                                </div>
-                                <div class="flex flex-col">
-                                    <span class="text-xl lg:text-3xl font-extrabold leading-none tracking-tight">
-                                        <span class="text-primary">KONUT</span><span class="text-accent">UPDATE</span>
-                                    </span>
-                                    <span class="text-[8px] lg:text-[10px] text-on-surface-variant tracking-[0.25em] uppercase font-semibold leading-tight">Berita Terpercaya</span>
-                                </div>
-                            </div>
+                            <span class="ku-header-logo-text">
+                                <span class="text-primary">KONUT</span><span class="text-accent">UPDATE</span>
+                            </span>
                         @endif
                     </a>
                 </div>
-
-                {{-- Desktop: search + theme --}}
-                <div class="hidden md:flex items-center gap-4">
-                    <button class="flex items-center gap-2.5 bg-surface-container-low rounded-xl px-5 py-2.5 text-sm text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer border-none min-w-[240px] group" x-on:click="searchOpen = true; $nextTick(() => $refs.searchInput?.focus())">
-                        <i data-lucide="search" class="w-4 h-4 text-on-surface-variant group-hover:text-primary transition-colors"></i>
-                        <span class="flex-1 text-left">Cari berita...</span>
-                        <kbd class="hidden md:inline-flex text-[10px] bg-surface-container px-1.5 py-0.5 rounded border border-outline font-mono text-on-surface-variant">/</kbd>
-                    </button>
-                    <button class="theme-toggle" x-on:click="theme = theme === 'dark' ? 'light' : 'dark'" aria-label="Toggle theme">
-                        <span x-show="theme === 'dark'">
-                            <i data-lucide="sun" class="w-4 h-4"></i>
-                        </span>
-                        <span x-show="theme !== 'dark'">
-                            <i data-lucide="moon" class="w-4 h-4"></i>
-                        </span>
-                    </button>
-                </div>
-
-                {{-- Mobile: search + theme --}}
-                <div class="flex md:hidden items-center gap-1">
-                    <button class="flex items-center justify-center w-10 h-10 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer bg-transparent border-none" x-on:click="searchOpen = true; $nextTick(() => $refs.searchInput?.focus())" aria-label="Cari">
+                <div class="ku-header-side ku-header-right">
+                    <button class="ku-header-icon ku-header-icon-search" x-on:click="searchOpen = true; $nextTick(() => $refs.searchInput?.focus())" aria-label="Cari">
                         <i data-lucide="search" class="w-5 h-5"></i>
                     </button>
-                    <button class="theme-toggle" x-on:click="theme = theme === 'dark' ? 'light' : 'dark'" aria-label="Toggle theme">
+                    <button class="ku-header-icon theme-toggle" x-on:click="theme = theme === 'dark' ? 'light' : 'dark'" aria-label="Toggle theme">
                         <span x-show="theme === 'dark'">
-                            <i data-lucide="sun" class="w-4 h-4"></i>
+                            <i data-lucide="sun" class="w-5 h-5"></i>
                         </span>
                         <span x-show="theme !== 'dark'">
-                            <i data-lucide="moon" class="w-4 h-4"></i>
+                            <i data-lucide="moon" class="w-5 h-5"></i>
                         </span>
                     </button>
                 </div>
             </div>
         </div>
 
-        {{-- Desktop Navigation --}}
-        <nav class="hidden md:flex bg-surface border-b border-outline shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 w-full flex items-center justify-center">
-                <a href="{{ url('/') }}" class="nav-link-custom {{ request()->routeIs('home') ? 'active' : '' }}">Home</a>
-                <a href="{{ route('trending') }}" class="nav-link-custom whitespace-nowrap {{ request()->routeIs('trending') ? 'active' : '' }}">Trending</a>
-
-                @if(isset($categories) && $categories->count() > 0)
-                <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                    <button class="nav-link-custom whitespace-nowrap flex items-center gap-1 cursor-pointer bg-transparent border-none {{ request()->routeIs('categories.show') ? 'active' : '' }}" x-on:click="open = !open">
-                        <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-                        Kategori
-                        <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="open && 'rotate-180'"></i>
-                    </button>
-                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="absolute top-full left-0 mt-0 w-56 bg-surface rounded-xl shadow-xl border border-outline py-2 z-50 max-h-[400px] overflow-y-auto">
+        {{-- Nav mobile: scroll horizontal ala KendariInfo --}}
+        <nav class="ku-nav bg-surface border-b border-outline" x-data="navMenuArrows()">
+            <div class="max-w-7xl mx-auto px-2 lg:px-4 relative">
+                <button type="button" class="ku-nav-arrow ku-nav-arrow-left" x-show="canLeft" x-cloak x-on:click="scrollMenu(-180)" aria-label="Geser ke kiri">
+                    <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                </button>
+                <div class="ku-nav-menu hide-scrollbar" x-ref="navMenu" x-on:scroll="updateArrows()">
+                    <a href="{{ route('opini') }}" class="ku-nav-item {{ request()->routeIs('opini') ? 'active' : '' }}">
+                        Opini
+                    </a>
+                    @if(isset($categories) && $categories->count() > 0)
                         @foreach($categories as $cat)
-                            <a href="{{ route('categories.show', $cat->slug) }}"
-                               class="flex items-center justify-between gap-2 px-4 py-2 text-sm {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container-low' }} no-underline transition-colors">
-                                <span>{{ $cat->name }}</span>
-                                @if(isset($cat->all_posts_count) ? $cat->all_posts_count > 0 : $cat->posts_count > 0)
-                                    <span class="text-[10px] text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full">{{ $cat->all_posts_count ?? $cat->posts_count }}</span>
-                                @endif
+                            <a href="{{ route('categories.show', $cat->slug) }}" class="ku-nav-item {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'active' : '' }}">
+                                {{ $cat->name }}
                             </a>
                         @endforeach
-                    </div>
+                    @endif
                 </div>
-                @endif
-
-                @if(isset($kecamatans) && $kecamatans->count() > 0)
-                <div class="relative" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                    <button class="nav-link-custom whitespace-nowrap flex items-center gap-1 cursor-pointer bg-transparent border-none {{ request()->routeIs('kecamatan.show') ? 'active' : '' }}" x-on:click="open = !open">
-                        <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
-                        Kecamatan
-                        <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" :class="open && 'rotate-180'"></i>
-                    </button>
-                    <div x-show="open" x-cloak x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1"
-                         class="absolute top-full right-0 mt-0 w-64 bg-surface rounded-xl shadow-xl border border-outline py-2 z-50 max-h-[400px] overflow-y-auto">
-                        @foreach($kecamatans as $k)
-                            <a href="{{ route('kecamatan.show', $k->slug) }}"
-                               class="flex items-center gap-2.5 px-4 py-2 text-sm {{ request()->routeIs('kecamatan.show') && request('slug') == $k->slug ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container-low' }} no-underline transition-colors">
-                                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-on-surface-variant"></i>
-                                {{ $k->name }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
+                <button type="button" class="ku-nav-arrow ku-nav-arrow-right" x-show="canRight" x-cloak x-on:click="scrollMenu(180)" aria-label="Geser ke kanan">
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                </button>
             </div>
         </nav>
 
@@ -278,6 +227,12 @@
         <i data-lucide="arrow-up" class="w-5 h-5"></i>
     </button>
 
+    {{-- Bubble Widget Tulis Opini --}}
+    <a href="{{ route('opini.create') }}" class="ku-bubble-widget" aria-label="Tulis Opini">
+        <i data-lucide="pencil-line" class="w-5 h-5"></i>
+        <span class="ku-bubble-label">Tulis Opini</span>
+    </a>
+
     {{-- Mobile Bottom Navigation --}}
     <nav class="mobile-bottom-nav md:hidden safe-bottom">
         <div class="flex items-center justify-around max-w-lg mx-auto">
@@ -289,6 +244,10 @@
                 <i data-lucide="search" class="w-5 h-5"></i>
                 <span class="text-[9px] font-medium">Cari</span>
             </button>
+            <a href="{{ route('terkini') }}" class="flex flex-col items-center gap-0.5 py-1.5 px-3 no-underline min-w-0 {{ request()->routeIs('terkini') ? 'text-primary' : 'text-on-surface-variant' }}" aria-label="Terkini">
+                <i data-lucide="clock" class="w-5 h-5"></i>
+                <span class="text-[9px] font-medium">Terkini</span>
+            </a>
             <a href="{{ route('trending') }}" class="flex flex-col items-center gap-0.5 py-1.5 px-3 no-underline min-w-0 {{ request()->routeIs('trending') ? 'text-primary' : 'text-on-surface-variant' }}" aria-label="Trending">
                 <i data-lucide="flame" class="w-5 h-5"></i>
                 <span class="text-[9px] font-medium">Trending</span>
@@ -300,27 +259,71 @@
         </div>
     </nav>
 
+    {{-- Share Popup ala KendariInfo --}}
+    <div id="sharePopup" class="ku-share-popup" role="dialog" aria-modal="true" aria-label="Bagikan">
+        <div class="ku-share-backdrop" x-on:click="document.getElementById('sharePopup').classList.remove('open')"></div>
+        <div class="ku-share-sheet">
+            <div class="ku-share-handle"></div>
+            <div class="ku-share-header">
+                <span class="ku-share-title">Bagikan Berita</span>
+                <button class="ku-share-close" x-on:click="document.getElementById('sharePopup').classList.remove('open')" aria-label="Tutup">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="ku-share-body">
+                <a class="ku-share-opt" id="shareWa" href="#" target="_blank" rel="noopener">
+                    <span class="ku-share-icon ku-share-wa"><svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span>
+                    WhatsApp
+                </a>
+                <a class="ku-share-opt" id="shareFb" href="#" target="_blank" rel="noopener">
+                    <span class="ku-share-icon ku-share-fb"><svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
+                    Facebook
+                </a>
+                <a class="ku-share-opt" id="shareTg" href="#" target="_blank" rel="noopener">
+                    <span class="ku-share-icon ku-share-tg"><svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></span>
+                    Telegram
+                </a>
+                <a class="ku-share-opt" id="shareTw" href="#" target="_blank" rel="noopener">
+                    <span class="ku-share-icon ku-share-tw"><svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
+                    X
+                </a>
+                <button class="ku-share-opt" id="shareCopy" x-on:click="document.getElementById('sharePopup').classList.remove('open')">
+                    <span class="ku-share-icon ku-share-copy"><i data-lucide="link" class="w-5 h-5"></i></span>
+                    Salin Link
+                </button>
+            </div>
+        </div>
+    </div>
+
     {{-- Mobile Offcanvas Menu --}}
     <template x-teleport="body">
         <div>
             <div class="fixed inset-0 bg-black/50 z-50 transition-opacity" x-show="mobileOpen" x-on:click="mobileOpen = false" x-cloak style="z-index: 105;"></div>
-            <div class="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-surface transform transition-transform duration-300 shadow-2xl overflow-y-auto" x-show="mobileOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" x-cloak @click.away="mobileOpen = false" style="z-index: 106;">
-                <div class="relative flex items-center justify-center p-4 border-b border-outline">
+            <div class="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-surface transform transition-transform duration-300 shadow-2xl overflow-y-auto" x-ref="mobileDrawer" x-effect="if (mobileOpen) { const el = $refs.mobileDrawer.querySelector('.drawer-active'); if (el) { $nextTick(() => { const drawer = $refs.mobileDrawer; drawer.scrollTop = Math.max(0, el.offsetTop - drawer.clientHeight / 2 + el.offsetHeight / 2); }); } }" x-show="mobileOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" x-cloak @click.away="mobileOpen = false" style="z-index: 106;">
+                <div class="relative flex items-center justify-center px-4 py-4 border-b border-outline bg-surface-container-low">
                     @if(!empty($site_settings['logo']))
                         <img src="{{ Storage::url($site_settings['logo']) }}" alt="Konut.Update" class="h-12 w-auto object-contain">
                     @else
                         <span class="text-xl font-extrabold"><span class="text-primary">KONUT</span><span class="text-accent">UPDATE</span></span>
                     @endif
-                    <button class="absolute right-4 flex items-center justify-center w-10 h-10 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer bg-transparent border-none" x-on:click="mobileOpen = false" aria-label="Tutup">
+                    <button class="absolute right-3 flex items-center justify-center w-10 h-10 rounded-xl text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer bg-transparent border-none" x-on:click="mobileOpen = false" aria-label="Tutup">
                         <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
-                <div class="p-4 space-y-1">
+
+                <div class="p-3">
+                    <button type="button" x-on:click="mobileOpen = false; searchOpen = true; $nextTick(() => $refs.searchInput?.focus())" class="w-full flex items-center gap-2.5 bg-surface-container-low rounded-xl px-4 py-3 text-sm text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer border-none">
+                        <i data-lucide="search" class="w-4 h-4"></i>
+                        <span class="flex-1 text-left">Cari berita...</span>
+                    </button>
+                </div>
+
+                <div class="px-3 pb-4 space-y-1">
                     <div>
                         <p class="text-xs font-semibold text-on-surface-variant px-3 mb-2 uppercase tracking-wider">Kategori</p>
                         @foreach($categories as $cat)
                             <a href="{{ route('categories.show', $cat->slug) }}"
-                               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
+                               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm {{ request()->routeIs('categories.show') && request()->slug == $cat->slug ? 'drawer-active text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
                                 <i data-lucide="chevron-right" class="w-4 h-4 text-on-surface-variant"></i>
                                 <span>{{ $cat->name }}</span>
                                 @if(isset($cat->all_posts_count) ? $cat->all_posts_count > 0 : $cat->posts_count > 0)
@@ -330,43 +333,48 @@
                         @endforeach
                     </div>
 
-                    @if(isset($kecamatans) && $kecamatans->count() > 0)
                     <div class="pt-4 mt-4 border-t border-outline">
                         <p class="text-xs font-semibold text-on-surface-variant px-3 mb-2 uppercase tracking-wider">Kecamatan</p>
-                        <div class="grid grid-cols-2 gap-1 px-3">
-                            @foreach($kecamatans as $k)
-                                <a href="{{ route('kecamatan.show', $k->slug) }}"
-                                   class="flex items-center gap-2 px-2.5 py-2.5 rounded-xl text-[13px] {{ request()->routeIs('kecamatan.show') ? 'text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
-                                    <i data-lucide="map-pin" class="w-3 h-3 text-on-surface-variant"></i>
-                                    <span class="truncate">{{ $k->name }}</span>
-                                    @if(isset($k->posts_count) && $k->posts_count > 0)
-                                        <span class="ml-auto text-[10px] text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full shrink-0">{{ $k->posts_count }}</span>
+                        @if(isset($kecamatans) && $kecamatans->count() > 0)
+                            @foreach($kecamatans as $kec)
+                                <a href="{{ route('kecamatan.show', $kec->slug) }}"
+                                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm {{ request()->routeIs('kecamatan.show') && request()->slug == $kec->slug ? 'drawer-active text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-on-surface-variant"></i>
+                                    <span>{{ $kec->name }}</span>
+                                    @if(isset($kec->posts_count) && $kec->posts_count > 0)
+                                        <span class="ml-auto text-xs text-on-surface-variant bg-surface-container-low px-2 py-0.5 rounded-full">{{ $kec->posts_count }}</span>
                                     @endif
                                 </a>
                             @endforeach
-                        </div>
-                    </div>
-                    @endif
-
-                    <div class="pt-4 mt-4 border-t border-outline">
-                        <p class="text-xs font-semibold text-on-surface-variant px-3 mb-2 uppercase tracking-wider">Halaman</p>
-                        <a href="{{ route('pages.about') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
-                            <i data-lucide="info" class="w-4 h-4 text-on-surface-variant"></i>
-                            Tentang Kami
-                        </a>
-                        <a href="{{ route('pages.pedoman') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
-                            <i data-lucide="scroll-text" class="w-4 h-4 text-on-surface-variant"></i>
-                            Pedoman Siber
-                        </a>
-                        <a href="{{ route('pages.privacy') }}" class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
-                            <i data-lucide="shield" class="w-4 h-4 text-on-surface-variant"></i>
-                            Kebijakan Privasi
-                        </a>
+                        @endif
                     </div>
 
                     <div class="pt-4 mt-4 border-t border-outline">
-                        <p class="text-xs font-semibold text-on-surface-variant px-3 mb-2 uppercase tracking-wider">Ikuti Kami</p>
-                        <div class="flex gap-2 px-3">
+                        <p class="text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Halaman</p>
+                        @forelse($footerPages as $page)
+                            @php
+                                $pageIcons = [
+                                    'tentang-kami' => 'info',
+                                    'kontak' => 'mail',
+                                    'pedoman-media-siber' => 'scroll-text',
+                                    'privacy-policy' => 'shield',
+                                    'pasang-iklan' => 'megaphone',
+                                ];
+                                $pageIcon = $pageIcons[$page->slug] ?? 'file-text';
+                            @endphp
+                            <a href="{{ route('pages.show', $page->slug) }}"
+                               class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
+                                <i data-lucide="{{ $pageIcon }}" class="w-4 h-4 text-on-surface-variant"></i>
+                                {{ $page->title }}
+                            </a>
+                        @empty
+                            <p class="text-sm text-on-surface-variant px-3 py-2">Belum ada halaman.</p>
+                        @endforelse
+                    </div>
+
+                    <div class="pt-4 mt-4 border-t border-outline">
+                        <p class="text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Ikuti Kami</p>
+                        <div class="flex gap-2">
                             @if(!empty($site_settings['facebook']))
                                 <a href="{{ $site_settings['facebook'] }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1877f2] text-white no-underline"><i class="fab fa-facebook text-sm"></i></a>
                             @endif
@@ -519,14 +527,29 @@
             .catch(() => {});
         }
 
-        // Share
+        // Share — popup ala KendariInfo
         function sharePost(url, title) {
-            if (navigator.share) {
-                navigator.share({ title: title, url: url });
-            } else {
-                window.open('https://wa.me/?text=' + encodeURIComponent(title + ' ' + url), '_blank');
-            }
+            if (!url) return;
+            var encTitle = encodeURIComponent(title || 'Konut.Update');
+            var encUrl = encodeURIComponent(url);
+            document.getElementById('shareWa').href = 'https://wa.me/?text=' + encTitle + '%20' + encUrl;
+            document.getElementById('shareFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl;
+            document.getElementById('shareTg').href = 'https://t.me/share/url?url=' + encUrl + '&text=' + encTitle;
+            document.getElementById('shareTw').href = 'https://twitter.com/intent/tweet?text=' + encTitle + '&url=' + encUrl;
+            document.getElementById('sharePopup').classList.add('open');
         }
+        document.getElementById('shareCopy').addEventListener('click', function() {
+            var url = new URL(location.href);
+            var href = document.getElementById('shareWa').getAttribute('href');
+            var m = href && href.match(/url=([^&]+)/);
+            var link = m ? decodeURIComponent(m[1]) : url.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(link).then(function() {
+                    document.getElementById('shareCopy').textContent = 'Tersalin!';
+                    setTimeout(function() { document.getElementById('shareCopy').textContent = 'Salin Link'; }, 1500);
+                });
+            }
+        });
 
         // Viewed Posts
         (function() {

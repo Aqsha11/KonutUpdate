@@ -56,13 +56,16 @@
                                         @if(! $loop->last) <span>/</span> @endif
                                     @endforeach
                                 @endif
+                                @if($post->type === 'opini')
+                                <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-accent/10 text-accent text-[9px] md:text-[10px] font-bold uppercase tracking-wide">Opini</span>
+                                @endif
                                 <span class="news-item-time">{{ formatDate($post->published_at) }}</span>
                             </div>
                             <h3 class="news-item-title">
                                 <a href="{{ route('posts.show', $post->slug) }}">{{ $post->title }}</a>
                             </h3>
                             <div class="news-item-stats">
-                                <span class="stat-btn"><i data-lucide="user" class="w-3 h-3"></i> {{ $post->author->name ?? 'Redaksi' }}</span>
+                                <span class="stat-btn"><i data-lucide="user" class="w-3 h-3"></i> {{ $post->author_name }}</span>
                                 <span class="stat-btn"><i data-lucide="heart" class="w-3 h-3"></i> {{ $post->likes_count ?? 0 }}</span>
                                 <span class="stat-btn"><i data-lucide="message-circle" class="w-3 h-3"></i> {{ $post->comments_count ?? 0 }}</span>
                             </div>

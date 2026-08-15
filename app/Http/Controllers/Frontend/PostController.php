@@ -15,7 +15,7 @@ class PostController extends Controller
         $post = Post::published()
             ->with(['author', 'categories', 'kecamatan', 'tags'])
             ->withCount('likes', 'comments')
-            ->with(['likes' => fn($q) => $q->where('ip_address', $ip)])
+            ->with(['likes' => fn ($q) => $q->where('ip_address', $ip)])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -56,13 +56,13 @@ class PostController extends Controller
 
         $nextPost = Post::published()
             ->where('published_at', '>', $post->published_at)
-            ->latest()
+            ->orderBy('published_at')
             ->with('categories')
             ->first();
 
         $prevPost = Post::published()
             ->where('published_at', '<', $post->published_at)
-            ->oldest()
+            ->orderByDesc('published_at')
             ->with('categories')
             ->first();
 

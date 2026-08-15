@@ -3,6 +3,10 @@
     "file": "assets/brands-KCN6L7z4.css",
     "src": "_brands-KCN6L7z4.css"
   },
+  "_ckeditor-BzMyAy9E.js": {
+    "file": "assets/ckeditor-BzMyAy9E.js",
+    "name": "ckeditor"
+  },
   "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2": {
     "file": "assets/fa-brands-400-BK5CuonO.woff2",
     "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2"
@@ -16,7 +20,7 @@
     "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
   },
   "resources/css/admin.css": {
-    "file": "assets/admin-CUK_Ooyu.css",
+    "file": "assets/admin-ClgagScA.css",
     "src": "resources/css/admin.css",
     "isEntry": true,
     "name": "admin",
@@ -25,7 +29,7 @@
     ]
   },
   "resources/css/app.css": {
-    "file": "assets/app-kTmknZW7.css",
+    "file": "assets/app-0430OOUS.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -34,10 +38,13 @@
     ]
   },
   "resources/js/admin.js": {
-    "file": "assets/admin-BflTPEmL.js",
+    "file": "assets/admin-f7uSjzh8.js",
     "name": "admin",
     "src": "resources/js/admin.js",
     "isEntry": true,
+    "imports": [
+      "_ckeditor-BzMyAy9E.js"
+    ],
     "css": [
       "assets/brands-KCN6L7z4.css"
     ],
@@ -46,7 +53,7 @@
     ]
   },
   "resources/js/app.js": {
-    "file": "assets/app-Kqj7ih6_.js",
+    "file": "assets/app-Cl4KB7e2.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
@@ -55,6 +62,15 @@
     ],
     "assets": [
       "assets/fa-brands-400-BK5CuonO.woff2"
+    ]
+  },
+  "resources/js/opini-editor.js": {
+    "file": "assets/opini-editor-DVkPh0x8.js",
+    "name": "opini-editor",
+    "src": "resources/js/opini-editor.js",
+    "isEntry": true,
+    "imports": [
+      "_ckeditor-BzMyAy9E.js"
     ]
   }
 }

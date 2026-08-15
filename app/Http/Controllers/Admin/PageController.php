@@ -9,11 +9,19 @@ use Illuminate\Support\Facades\Cache;
 
 class PageController extends Controller
 {
+    private const PROTECTED_SLUGS = [
+        'tentang-kami',
+        'pedoman-media-siber',
+        'privacy-policy',
+        'pasang-iklan',
+    ];
+
     public function index()
     {
         $pages = Page::latest()->paginate(10);
+        $protectedSlugs = self::PROTECTED_SLUGS;
 
-        return view('admin.pages.index', compact('pages'));
+        return view('admin.pages.index', compact('pages', 'protectedSlugs'));
     }
 
     public function create()
@@ -65,8 +73,33 @@ class PageController extends Controller
             ->with('success', 'Halaman berhasil diperbarui.');
     }
 
+    public function publish(Page $page)
+    {
+        $page->update(['is_published' => true]);
+
+        Cache::forget('frontend_pages');
+
+        return redirect()->route('admin.pages.index')
+            ->with('success', 'Halaman berhasil dipublikasikan.');
+    }
+
+    public function draft(Page $page)
+    {
+        $page->update(['is_published' => false]);
+
+        Cache::forget('frontend_pages');
+
+        return redirect()->route('admin.pages.index')
+            ->with('success', 'Halaman dikembalikan ke draft.');
+    }
+
     public function destroy(Page $page)
     {
+        if (in_array($page->slug, self::PROTECTED_SLUGS, true)) {
+            return redirect()->route('admin.pages.index')
+                ->with('error', 'Halaman bawaan tidak dapat dihapus, hanya dapat diubah statusnya.');
+        }
+
         $page->delete();
 
         Cache::forget('frontend_pages');

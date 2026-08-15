@@ -4,6 +4,8 @@ namespace App\Services;
 
 class HtmlSanitizer
 {
+    private const ALLOWED_HREF_SCHEMES = ['http', 'https', 'mailto', 'tel'];
+
     private array $allowedTags = [
         'p', 'br', 'strong', 'em', 'u', 's', 'h2', 'h3', 'h4', 'h5', 'h6',
         'blockquote', 'ul', 'ol', 'li', 'a', 'img', 'figure', 'figcaption',
@@ -55,11 +57,10 @@ class HtmlSanitizer
 
     private function stripDangerousAttributes(string $html): string
     {
-        $html = preg_replace('/\bon\w+\s*=\s*["\'][^"\']*["\']/i', '', $html);
-        $html = preg_replace('/\bon\w+\s*=\s*\S+/i', '', $html);
-        $html = preg_replace('/href\s*=\s*["\']javascript:[^"\']*["\']/i', 'href="#"', $html);
-        $html = preg_replace('/src\s*=\s*["\']javascript:[^"\']*["\']/i', 'src=""', $html);
-        $html = preg_replace_callback('/<([a-zA-Z]+)([^>]*)>/', function ($matches) {
+        $html = preg_replace('/\son\w+\s*=\s*["\'][^"\']*["\']/i', '', $html);
+        $html = preg_replace('/\son\w+\s*=\s*[^\s>]+/i', '', $html);
+
+        return preg_replace_callback('/<([a-zA-Z]+)([^>]*)>/', function ($matches) {
             $tagName = strtolower($matches[1]);
             $attributes = $matches[2];
 
@@ -73,15 +74,55 @@ class HtmlSanitizer
             $cleanAttributes = '';
             foreach ($attrMatches as $attr) {
                 $attrName = strtolower($attr[1]);
-                if (in_array($attrName, $allowed)) {
-                    $cleanAttributes .= ' '.$attr[1].'="'.htmlspecialchars($attr[2], ENT_QUOTES, 'UTF-8').'"';
+                if (! in_array($attrName, $allowed)) {
+                    continue;
+                }
+
+                $value = htmlspecialchars($attr[2], ENT_QUOTES, 'UTF-8');
+
+                if (in_array($attrName, ['href', 'src'])) {
+                    if (! $this->isSafeUrl($attr[2])) {
+                        $value = $attrName === 'href' ? '#' : '';
+                    }
+                }
+
+                if ($tagName === 'a' && $attrName === 'rel') {
+                    $relTokens = array_filter(explode(' ', $attr[2]));
+                    $relTokens[] = 'noopener';
+                    $relTokens[] = 'noreferrer';
+                    $value = implode(' ', array_values(array_unique($relTokens)));
+                }
+
+                $cleanAttributes .= ' '.$attrName.'="'.$value.'"';
+            }
+
+            if ($tagName === 'a') {
+                $hasTargetBlank = (bool) preg_match('/target\s*=\s*["\']_blank["\']/i', $attributes);
+                $hasRel = (bool) preg_match('/\brel\s*=\s*["\']/i', $attributes);
+
+                if ($hasTargetBlank && ! $hasRel) {
+                    $cleanAttributes .= ' rel="noopener noreferrer"';
                 }
             }
 
             return '<'.$tagName.$cleanAttributes.'>';
         }, $html);
+    }
 
-        return $html;
+    private function isSafeUrl(string $url): bool
+    {
+        $decoded = html_entity_decode($url, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $compact = preg_replace('/[\x00-\x20\x7F]+/', '', $decoded);
+
+        if ($compact === '' || $compact[0] === '/' || $compact[0] === '#' || $compact[0] === '.') {
+            return true;
+        }
+
+        if (! preg_match('/^([a-z][a-z0-9+.-]*):/i', $compact, $matches)) {
+            return true;
+        }
+
+        return in_array(strtolower($matches[1]), self::ALLOWED_HREF_SCHEMES);
     }
 
     private function removeEmptyTags(string $html): string

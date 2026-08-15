@@ -1,8 +1,25 @@
 <?php
 
+use App\Models\Post;
 use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+
+if (! function_exists('postThumbnail')) {
+    function postThumbnail(Post $post): string
+    {
+        if ($post->thumbnail) {
+            return Storage::url($post->thumbnail);
+        }
+
+        if ($post->video_poster) {
+            return $post->video_poster;
+        }
+
+        return asset('images/no-image.svg');
+    }
+}
 
 if (! function_exists('setting')) {
     function setting(string $key, mixed $default = null): mixed

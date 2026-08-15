@@ -1,10 +1,10 @@
 @extends('admin.layouts.app')
-@section('title', 'Daftar Berita')
+@section('title', request('status') == 'pending' && request('type') == 'opini' ? 'Verifikasi Opini' : 'Daftar Berita')
 @section('content')
 <div class="page-header">
     <div>
-        <h1>Daftar Berita</h1>
-        <p class="page-subtitle">Kelola semua berita portal</p>
+        <h1>{{ request('status') == 'pending' && request('type') == 'opini' ? 'Verifikasi Opini' : 'Daftar Berita' }}</h1>
+        <p class="page-subtitle">{{ request('status') == 'pending' && request('type') == 'opini' ? 'Tinjau kiriman opini dari publik lalu setujui atau tolak' : 'Kelola semua berita portal' }}</p>
     </div>
     <div class="page-header-actions">
         <a href="{{ route('admin.posts.create') }}" class="btn-admin btn-admin-primary">
@@ -33,13 +33,16 @@
             </select>
             <select class="form-select" name="status" onchange="this.form.submit()">
                 <option value="">Semua Status</option>
+                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu Verifikasi</option>
                 <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
                 <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+                <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
             </select>
             <select class="form-select" name="type" onchange="this.form.submit()">
                 <option value="">Semua Jenis</option>
                 <option value="article" {{ request('type') == 'article' ? 'selected' : '' }}>Artikel</option>
                 <option value="video" {{ request('type') == 'video' ? 'selected' : '' }}>Video</option>
+                <option value="opini" {{ request('type') == 'opini' ? 'selected' : '' }}>Opini</option>
             </select>
             <input type="text" class="form-control" name="search" placeholder="Cari berita..." value="{{ request('search') }}">
         </form>
@@ -48,7 +51,7 @@
 
 <div class="table-container">
     <div class="table-header">
-        <h5><i class="bi bi-newspaper"></i> Semua Berita</h5>
+        <h5><i class="bi bi-newspaper"></i> {{ request('status') == 'pending' && request('type') == 'opini' ? 'Kiriman Opini Menunggu Verifikasi' : 'Semua Berita' }}</h5>
         <span>{{ $posts->total() }} berita</span>
     </div>
     <div class="table-inner">
@@ -89,6 +92,9 @@
                         @if($post->is_breaking)
                         <span class="badge-admin badge-admin-danger ms-1">Breaking</span>
                         @endif
+                        @if($post->is_featured)
+                        <span class="badge-admin badge-admin-success ms-1">Konten Pilihan</span>
+                        @endif
                         @if($post->is_headline)
                         <span class="badge-admin badge-admin-info ms-1">Headline</span>
                         @endif
@@ -96,10 +102,18 @@
                         <span class="badge-admin badge-admin-secondary ms-1 text-nowrap" title="Headline berakhir otomatis setelah 7 hari">Headline s.d. {{ $post->headline_expires_at->format('d M Y') }}</span>
                         @endif
                         @if($post->breaking_expires_at)
-                        <span class="badge-admin badge-admin-secondary ms-1 text-nowrap" title="Breaking berakhir otomatis setelah 7 hari">Breaking s.d. {{ $post->breaking_expires_at->format('d M Y') }}</span>
+                        <span class="badge-admin badge-admin-secondary ms-1 text-nowrap" title="Breaking berakhir otomatis setelah 3 hari">Breaking s.d. {{ $post->breaking_expires_at->format('d M Y') }}</span>
                         @endif
                         @if($post->isVideo())
                         <span class="badge-admin badge-admin-orange ms-1"><i class="bi bi-play-circle"></i> Video</span>
+                        @endif
+                        @if($post->type === 'opini')
+                        <span class="badge-admin badge-admin-warning ms-1"><i class="bi bi-chat-quote"></i> Opini</span>
+                        @endif
+                        @if($post->rejection_reason)
+                        <div class="mt-1 text-danger" style="font-size:0.78rem;" title="{{ $post->rejection_reason }}">
+                            <i class="bi bi-exclamation-circle"></i> Alasan: {{ Str::limit($post->rejection_reason, 60) }}
+                        </div>
                         @endif
                     </td>
                     <td>
@@ -114,12 +128,16 @@
                         @endif
                     </td>
                     <td>{{ $post->kecamatan ? $post->kecamatan->name : '-' }}</td>
-                    <td>{{ $post->author->name ?? '-' }}</td>
+                    <td>{{ $post->author_name }}</td>
                     <td>
                         @if($post->status === 'published')
                         <span class="badge-admin badge-admin-success">Published</span>
+                        @elseif($post->status === 'pending')
+                        <span class="badge-admin badge-admin-warning">Menunggu Verifikasi</span>
+                        @elseif($post->status === 'rejected')
+                        <span class="badge-admin badge-admin-danger">Ditolak</span>
                         @else
-                        <span class="badge-admin badge-admin-warning">Draft</span>
+                        <span class="badge-admin badge-admin-secondary">Draft</span>
                         @endif
                     </td>
                     <td>{{ number_format($post->views_count) }}</td>
@@ -135,6 +153,17 @@
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
+                            @if($post->status === 'pending')
+                            <form action="{{ route('admin.posts.approve', $post->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn-action btn-action-publish" title="Setujui & Tayangkan">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            <button type="button" class="btn-action btn-action-danger" title="Tolak" data-reject-url="{{ route('admin.posts.reject', $post->id) }}" data-reject-title="{{ $post->title }}">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                            @endif
                             @if($post->status === 'draft')
                             <form action="{{ route('admin.posts.publish', $post->id) }}" method="POST">
                                 @csrf
@@ -168,4 +197,51 @@
     </div>
     @endif
 </div>
+
+{{-- Modal Tolak Kiriman --}}
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form action="#" method="POST" id="rejectForm">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-x-circle text-danger me-1"></i> Tolak Kiriman</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted" style="font-size:0.85rem;">Alasan penolakan akan ditampilkan kepada penulis agar dapat memperbaiki kirimannya.</p>
+                    <label for="rejection_reason" class="form-label">Alasan Penolakan <span class="required">*</span></label>
+                    <textarea name="rejection_reason" id="rejection_reason" rows="4" class="form-control" required maxlength="1000" placeholder="Contoh: Judul tidak sesuai kaidah jurnalistik, sumber tidak jelas, dsb."></textarea>
+                    @if ($errors->has('rejection_reason'))
+                    <div class="invalid-feedback d-block">{{ $errors->first('rejection_reason') }}</div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-admin btn-admin-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn-admin btn-admin-danger"><i class="bi bi-x-lg"></i> Tolak Kiriman</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var modalEl = document.getElementById('rejectModal');
+        if (!modalEl) return;
+        var modal = new bootstrap.Modal(modalEl);
+        var form = document.getElementById('rejectForm');
+
+        document.querySelectorAll('[data-reject-url]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                form.action = btn.dataset.rejectUrl;
+                document.getElementById('rejection_reason').value = '';
+                document.getElementById('rejection_reason').classList.remove('is-invalid');
+                modal.show();
+            });
+        });
+    });
+</script>
+@endpush
 @endsection

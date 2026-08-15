@@ -24,7 +24,7 @@
         @endif
         <h2 class="fw-bold mb-3" style="font-size:1.5rem;">{{ $post->title }}</h2>
         <div class="d-flex flex-wrap gap-3 mb-4">
-            <span><i class="bi bi-person me-1"></i>{{ $post->author->name ?? '-' }}</span>
+            <span><i class="bi bi-person me-1"></i>{{ $post->author_name }}</span>
             <span><i class="bi bi-tag me-1"></i>{{ $post->categories->pluck('name')->implode(', ') ?: ($post->category->name ?? '-') }}</span>
             @if($post->kecamatan)
             <span><i class="bi bi-geo-alt me-1"></i>{{ $post->kecamatan->name }}</span>

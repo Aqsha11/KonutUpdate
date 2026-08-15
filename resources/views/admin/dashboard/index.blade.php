@@ -14,7 +14,7 @@
 </div>
 
 <div class="row g-4 stat-row">
-    <div class="col-md-6 col-xl-3">
+    <div class="col-6 col-md-6 col-xl-3">
         <div class="stat-card orange animate-fade-in animate-fade-in-d1">
             <div class="stat-icon">
                 <i class="bi bi-newspaper"></i>
@@ -25,11 +25,14 @@
                 <div class="stat-desc">
                     <span class="stat-badge neutral"><i class="bi bi-check-circle me-1"></i>{{ number_format($publishedPosts) }} Publikasi</span>
                     <span class="stat-badge info"><i class="bi bi-pencil me-1"></i>{{ number_format($draftPosts) }} Draft</span>
+                    @if($pendingPosts > 0)
+                    <span class="stat-badge up" style="background:#FFFBEB;color:#B45309;"><i class="bi bi-hourglass-split me-1"></i><a href="{{ route('admin.posts.index', ['status' => 'pending']) }}" class="text-decoration-none" style="color:inherit;">{{ number_format($pendingPosts) }} Menunggu Verifikasi</a></span>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-3">
+    <div class="col-6 col-md-6 col-xl-3">
         <div class="stat-card green animate-fade-in animate-fade-in-d2">
             <div class="stat-icon">
                 <i class="bi bi-tags"></i>
@@ -43,7 +46,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-3">
+    <div class="col-6 col-md-6 col-xl-3">
         <div class="stat-card blue animate-fade-in animate-fade-in-d3">
             <div class="stat-icon">
                 <i class="bi bi-heart-fill"></i>
@@ -57,7 +60,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-3">
+    <div class="col-6 col-md-6 col-xl-3">
         <div class="stat-card red animate-fade-in animate-fade-in-d4">
             <div class="stat-icon">
                 <i class="bi bi-calendar-check"></i>
@@ -73,9 +76,19 @@
     </div>
 </div>
 
+@if($pendingPosts > 0)
+<div class="mobile-pending-card d-md-none">
+    <a href="{{ route('admin.posts.index', ['status' => 'pending']) }}">
+        <i class="bi bi-hourglass-split"></i>
+        <span><strong>{{ number_format($pendingPosts) }}</strong> berita menunggu verifikasi</span>
+        <i class="bi bi-chevron-right"></i>
+    </a>
+</div>
+@endif
+
 <div class="row g-4 dashboard-bottom">
     <div class="col-md-7">
-        <div class="table-container">
+        <div class="table-container d-none d-md-block">
             <div class="table-header">
                 <h5><i class="bi bi-clock-history"></i> Berita Terbaru</h5>
                 <div class="table-actions">
@@ -133,9 +146,44 @@
                 </table>
             </div>
         </div>
+
+        <div class="table-container d-md-none">
+            <div class="table-header">
+                <h5><i class="bi bi-clock-history"></i> Berita Terbaru</h5>
+                <div class="table-actions">
+                    <a href="{{ route('admin.posts.index') }}" class="btn-admin btn-admin-sm btn-admin-ghost">
+                        Lihat Semua <i class="bi bi-chevron-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="mobile-post-list">
+                @forelse($recentPosts as $post)
+                <a href="{{ route('admin.posts.edit', $post->id) }}" class="mobile-post-item">
+                    <div class="mobile-post-title">{{ $post->title }}</div>
+                    <div class="mobile-post-meta">
+                        @if($post->categories->count() > 0)
+                            <span class="badge-admin badge-admin-orange">{{ $post->categories->first()->name }}</span>
+                        @elseif($post->category)
+                            <span class="badge-admin badge-admin-orange">{{ $post->category->name }}</span>
+                        @else
+                            <span class="badge-admin badge-admin-secondary">-</span>
+                        @endif
+                        @if($post->published_at)
+                            <span class="badge-admin badge-admin-success">Published</span>
+                        @else
+                            <span class="badge-admin badge-admin-warning">Draft</span>
+                        @endif
+                        <span class="mobile-post-time"><i class="bi bi-clock"></i> {{ $post->created_at->diffForHumans() }}</span>
+                    </div>
+                </a>
+                @empty
+                <div class="mobile-post-empty">Belum ada berita.</div>
+                @endforelse
+            </div>
+        </div>
     </div>
     <div class="col-md-5">
-        <div class="table-container">
+        <div class="table-container d-none d-md-block">
             <div class="table-header">
                 <h5><i class="bi bi-fire"></i> Berita Terpopuler</h5>
             </div>
@@ -166,6 +214,24 @@
                 </table>
             </div>
         </div>
+
+        <div class="table-container d-md-none">
+            <div class="table-header">
+                <h5><i class="bi bi-fire"></i> Berita Terpopuler</h5>
+            </div>
+            <div class="mobile-popular-list">
+                @forelse($popularPosts as $index => $post)
+                <a href="{{ route('admin.posts.edit', $post->id) }}" class="mobile-popular-item">
+                    <span class="mobile-popular-rank">{{ $index + 1 }}</span>
+                    <span class="mobile-popular-title">{{ $post->title }}</span>
+                    <span class="mobile-popular-views"><i class="bi bi-eye"></i> {{ number_format($post->views_count) }}</span>
+                </a>
+                @empty
+                <div class="mobile-post-empty">Belum ada data.</div>
+                @endforelse
+            </div>
+        </div>
+
         <div class="card-admin animate-fade-in">
             <div class="card-admin-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">

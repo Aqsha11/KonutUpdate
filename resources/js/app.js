@@ -8,6 +8,9 @@ import Alpine from 'alpinejs';
 import scrollToTop from './components/scrollToTop';
 scrollToTop(Alpine);
 
+import navMenuArrows from './components/navMenuArrows';
+navMenuArrows(Alpine);
+
 import '@fortawesome/fontawesome-free/css/fontawesome.css';
 import '@fortawesome/fontawesome-free/css/brands.css';
 
@@ -96,6 +99,61 @@ document.addEventListener('DOMContentLoaded', () => {
         const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
         progressBar.style.width = progress + '%';
     }, { passive: true });
+});
+
+// ===== Horizontal scroll row: drag to scroll (kumparan-style) =====
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.ku-video-row, .ku-cat-row, .ku-feat-row').forEach((row) => {
+        let isDown = false;
+        let startX = 0;
+        let scrollLeft = 0;
+        let moved = false;
+
+        row.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            isDown = true;
+            moved = false;
+            startX = e.pageX - row.offsetLeft;
+            scrollLeft = row.scrollLeft;
+            row.classList.add('dragging');
+        });
+
+        row.addEventListener('mouseleave', () => {
+            isDown = false;
+            row.classList.remove('dragging');
+        });
+
+        row.addEventListener('mouseup', () => {
+            isDown = false;
+            row.classList.remove('dragging');
+        });
+
+        row.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - row.offsetLeft;
+            const walk = (x - startX) * 1.2;
+            if (Math.abs(x - startX) > 8) moved = true;
+            row.scrollLeft = scrollLeft - walk;
+        });
+
+        row.addEventListener('click', (e) => {
+            if (moved) {
+                e.preventDefault();
+                e.stopPropagation();
+                moved = false;
+            }
+        }, true);
+    });
+
+    // Konten Pilihan: klik di area kartu mana pun (selain tombol/link) menuju detail
+    document.querySelectorAll('.ku-feat-card').forEach((card) => {
+        card.addEventListener('click', (e) => {
+            if (e.target.closest('a, button')) return;
+            const link = card.querySelector('a.ku-feat-thumb');
+            if (link && link.href) window.location.href = link.href;
+        });
+    });
 });
 
 // ===== Infinite Scroll (improved) =====

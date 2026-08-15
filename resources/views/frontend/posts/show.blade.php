@@ -17,7 +17,7 @@
     <meta property="og:url" content="{{ url()->current() }}" />
     @if($shareImage)<meta property="og:image" content="{{ $shareImage }}" />@endif
     <meta property="article:published_time" content="{{ $post->published_at }}" />
-    <meta property="article:author" content="{{ $post->author->name ?? 'Redaksi' }}" />
+    <meta property="article:author" content="{{ $post->author_name }}" />
     <meta name="twitter:card" content="{{ $shareImage ? 'summary_large_image' : 'summary' }}" />
     <meta name="twitter:title" content="{{ $post->title }}" />
     <meta name="twitter:description" content="{{ $excerpt }}" />
@@ -30,7 +30,7 @@
         "description": @json($excerpt),
         @if($thumb)"image": "{{ $thumb }}",@endif
         "datePublished": "{{ $post->published_at }}",
-        "author": { "@@type": "Person", "name": @json($post->author->name ?? 'Redaksi') },
+        "author": { "@@type": "Person", "name": @json($post->author_name) },
         "publisher": { "@@type": "Organization", "name": @json($site_settings['site_name'] ?? 'Konut.Update') }
     }
     </script>
@@ -92,6 +92,8 @@
                 <h1 class="article-title">
                     @if($post->isVideo())
                         <span class="inline-flex items-center gap-1 text-accent mr-1.5"><i data-lucide="play-circle" class="w-5 h-5 md:w-6 md:h-6"></i></span>
+                    @elseif($post->type === 'opini')
+                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-accent/10 text-accent text-[10px] md:text-xs font-bold uppercase tracking-wide mr-2 align-middle">Opini</span>
                     @endif
                     {{ $post->title }}
                 </h1>
@@ -100,10 +102,10 @@
                 <div class="article-meta-bar">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span class="text-primary font-bold text-sm">{{ strtoupper(substr($post->author->name ?? 'R', 0, 1)) }}</span>
+                            <span class="text-primary font-bold text-sm">{{ strtoupper(substr($post->author_name, 0, 1)) }}</span>
                         </div>
                         <div>
-                            <span class="article-author">{{ $post->author->name ?? 'Redaksi' }}</span>
+                            <span class="article-author">{{ $post->author_name }}</span>
                             <span class="article-date">{{ formatDate($post->published_at) }}</span>
                         </div>
                     </div>
@@ -268,6 +270,9 @@
                                             <span class="news-item-cat">{{ $related->categories->first()->name }}</span>
                                         @elseif($related->category)
                                             <span class="news-item-cat">{{ $related->category->name }}</span>
+                                        @endif
+                                        @if($related->type === 'opini')
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-accent/10 text-accent text-[9px] md:text-[10px] font-bold uppercase tracking-wide">Opini</span>
                                         @endif
                                         <span class="news-item-time">{{ formatDate($related->published_at) }}</span>
                                     </div>
