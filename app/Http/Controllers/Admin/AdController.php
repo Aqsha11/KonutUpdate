@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAdRequest;
 use App\Http\Requests\UpdateAdRequest;
 use App\Models\Ad;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
@@ -28,16 +27,11 @@ class AdController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
+            $data['title'] = pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME);
             $data['image'] = $request->file('image')->store('ads', 'public');
         }
 
-        $data['is_active'] = $request->boolean('is_active');
-
         Ad::create($data);
-
-        Cache::forget('sidebar_ads_top');
-        Cache::forget('sidebar_ads_bottom');
-        Cache::forget('in_article_ads');
 
         return redirect()->route('admin.ads.index')->with('success', 'Iklan berhasil ditambahkan.');
     }
@@ -55,16 +49,11 @@ class AdController extends Controller
             if ($ad->image) {
                 Storage::disk('public')->delete($ad->image);
             }
+            $data['title'] = pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME);
             $data['image'] = $request->file('image')->store('ads', 'public');
         }
 
-        $data['is_active'] = $request->boolean('is_active');
-
         $ad->update($data);
-
-        Cache::forget('sidebar_ads_top');
-        Cache::forget('sidebar_ads_bottom');
-        Cache::forget('in_article_ads');
 
         return redirect()->route('admin.ads.index')->with('success', 'Iklan berhasil diperbarui.');
     }
@@ -76,10 +65,6 @@ class AdController extends Controller
         }
 
         $ad->delete();
-
-        Cache::forget('sidebar_ads_top');
-        Cache::forget('sidebar_ads_bottom');
-        Cache::forget('in_article_ads');
 
         return redirect()->route('admin.ads.index')->with('success', 'Iklan berhasil dihapus.');
     }

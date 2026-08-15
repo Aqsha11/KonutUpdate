@@ -84,13 +84,13 @@
         </div>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-8 lg:gap-10">
-        <div class="lg:w-[68%]">
+    <div class="flex flex-col md:flex-row gap-8 md:gap-10">
+        <div class="md:w-[68%]">
             <div class="bg-surface rounded-xl lg:rounded-2xl shadow-sm border border-outline p-5 md:p-8 lg:p-10 page-content">
                 {!! $page->content !!}
             </div>
         </div>
-        <div class="lg:w-[32%]">
+        <div class="md:w-[32%]">
             <div class="lg:sticky lg:top-24 space-y-6">
                 @include('frontend.partials.sidebar')
             </div>

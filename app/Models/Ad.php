@@ -10,7 +10,6 @@ class Ad extends Model
         'title',
         'image',
         'link',
-        'position',
         'is_active',
         'starts_at',
         'ends_at',
@@ -36,11 +35,6 @@ class Ad extends Model
             ->where(function ($q) {
                 $q->whereNull('ends_at')->orWhere('ends_at', '>=', now());
             });
-    }
-
-    public function scopePosition($query, string $position)
-    {
-        return $query->where('position', $position);
     }
 
     public function scopeSorted($query)

@@ -83,13 +83,7 @@ class AppServiceProvider extends ServiceProvider
                     ->get();
             });
 
-            $sidebarAdsTop = Ad::active()->position('sidebar_top')->sorted()->take(2)->get();
-
-            $sidebarAdsBottom = Ad::active()->position('sidebar_bottom')->sorted()->take(2)->get();
-
-            $articleAds = Ad::active()->position('in_article')->sorted()->take(2)->get();
-
-            $posterAds = Ad::active()->position('poster_right')->sorted()->take(1)->get();
+            $sidebarAds = Ad::active()->sorted()->get();
 
             $kecamatans = Kecamatan::whereHas('posts', function ($q) {
                 $q->published();
@@ -97,7 +91,7 @@ class AppServiceProvider extends ServiceProvider
                 $q->published();
             }])->ordered()->get();
 
-            $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAdsTop', 'sidebarAdsBottom', 'articleAds', 'posterAds', 'kecamatans'));
+            $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAds', 'kecamatans'));
         });
     }
 }

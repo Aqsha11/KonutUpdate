@@ -41,6 +41,9 @@
 
 @section('content')
 
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+        <div class="min-w-0 md:w-[68%]">
+
     {{-- ════════════════════════════════════════════
          HERO CAROUSEL
          ════════════════════════════════════════════ --}}
@@ -508,5 +511,15 @@
             'kecamatanName' => $kecamatanNames[$kecamatanSlug] ?? ucfirst($kecamatanSlug),
         ])
     @endforeach
+
+        </div>
+
+        {{-- Kolom Kanan: Sidebar + Iklan (tablet, desktop, laptop) --}}
+        <div class="hidden md:block md:w-[32%]">
+            <div class="md:sticky md:top-20 space-y-4">
+                @include('frontend.partials.sidebar', ['adCompact' => true, 'hideHomeWidgets' => true])
+            </div>
+        </div>
+    </div>
 
 @endsection

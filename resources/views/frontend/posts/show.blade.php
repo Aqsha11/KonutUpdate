@@ -76,9 +76,9 @@
             <span class="truncate max-w-[140px] md:max-w-[300px]">{{ $post->title }}</span>
         </nav>
 
-        <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
+        <div class="flex flex-col md:flex-row gap-4 md:gap-6">
             {{-- Main Content --}}
-            <div class="lg:w-[68%] min-w-0">
+            <div class="md:w-[68%] lg:w-[56%] min-w-0">
                 {{-- Category Badges --}}
                 @if($post->categories->count() > 0)
                     @foreach($post->categories as $cat)
@@ -190,38 +190,6 @@
                     {!! $post->body !!}
                 </div>
 
-                {{-- Iklan Mobile --}}
-                @if(isset($sidebarAdsTop) && $sidebarAdsTop->count() > 0)
-                <div class="lg:hidden mt-3 mb-3 space-y-2">
-                    @foreach($sidebarAdsTop as $ad)
-                    <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline group">
-                        <div class="aspect-[2/1] overflow-hidden bg-surface-container-low">
-                            <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-full object-cover" loading="lazy">
-                        </div>
-                        <div class="p-1.5">
-                            <p class="text-[10px] font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{{ $ad->title }}</p>
-                            <p class="text-[8px] text-on-surface-variant mt-0.5">Iklan</p>
-                        </div>
-                    </a>
-                    @endforeach
-                </div>
-                @endif
-
-                {{-- In-Article Ads --}}
-                @if(isset($articleAds) && $articleAds->count() > 0)
-                    <div class="article-ad-wrap">
-                        @foreach($articleAds as $ad)
-                        <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="article-ad-banner group">
-                            <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" loading="lazy">
-                            <div class="article-ad-overlay">
-                                <span class="article-ad-title">{{ $ad->title }}</span>
-                                <span class="article-ad-label">Iklan</span>
-                            </div>
-                        </a>
-                        @endforeach
-                    </div>
-                @endif
-
                 {{-- Tags --}}
                 @if($post->tags->count() > 0)
                     <div class="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-outline">
@@ -232,25 +200,36 @@
                     </div>
                 @endif
 
-                {{-- Iklan Mobile Bawah --}}
-                @if(isset($sidebarAdsBottom) && $sidebarAdsBottom->count() > 0)
-                <div class="lg:hidden mt-3 mb-3 space-y-2">
-                    @foreach($sidebarAdsBottom as $ad)
-                    <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline group">
-                        <div class="aspect-[2/1] overflow-hidden bg-surface-container-low">
-                            <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-full object-cover" loading="lazy">
-                        </div>
-                        <div class="p-1.5">
-                            <p class="text-[10px] font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{{ $ad->title }}</p>
-                            <p class="text-[8px] text-on-surface-variant mt-0.5">Iklan</p>
-                        </div>
-                    </a>
-                    @endforeach
-                </div>
-                @endif
-
                 {{-- Comments --}}
                 @include('frontend.posts._comments')
+
+                {{-- Iklan Mobile (ala card konten pilihan) --}}
+                @php
+                    $mobileAds = isset($sidebarAds) ? $sidebarAds : collect([]);
+                @endphp
+                @if($mobileAds->count() > 0)
+                <div class="md:hidden mt-4" x-data="adAutoScroll">
+                    <div class="ku-feat-row hide-scrollbar ku-ad-row" x-ref="scroller" data-axis="x">
+                        @foreach($mobileAds as $ad)
+                        @if($ad->link)
+                        <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="ku-feat-card">
+                        @else
+                        <div class="ku-feat-card ku-feat-card-static">
+                        @endif
+                            <div class="ku-feat-media">
+                                <span class="ku-feat-thumb">
+                                    <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" loading="lazy">
+                                </span>
+                            </div>
+                        @if($ad->link)
+                        </a>
+                        @else
+                        </div>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
+                @endif
 
                 {{-- Related Posts --}}
                 @if(isset($relatedPosts) && $relatedPosts->count() > 0)
@@ -309,17 +288,39 @@
                 @endif
             </div>
 
-            {{-- Sidebar Desktop --}}
-            <div class="hidden lg:block lg:w-[32%]">
+            {{-- Kolom Tengah: Trending & lainnya (tanpa iklan) --}}
+            <div class="hidden lg:block lg:w-[25%]">
                 <div class="lg:sticky lg:top-20 space-y-4">
-                    @include('frontend.partials.sidebar')
+                    @include('frontend.partials.sidebar', ['hideAds' => true])
+                </div>
+            </div>
+
+            {{-- Kolom Kanan: Iklan (kecil, thumbnail full, auto-scroll jika banyak) --}}
+            <div class="hidden md:block md:w-[32%] lg:w-[19%]" x-data="adAutoScroll">
+                <div class="md:sticky md:top-20 md:max-h-[calc(100vh-10rem)] md:overflow-y-auto md:pr-1 space-y-3 ad-scroll-column" x-ref="scroller" data-axis="y">
+                    @php
+                        $rightAds = isset($sidebarAds) ? $sidebarAds : collect([]);
+                    @endphp
+                    @foreach($rightAds as $ad)
+                    @if($ad->link)
+                    <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline group">
+                    @else
+                    <div class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline">
+                    @endif
+                        <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-auto object-contain bg-surface-container-low" loading="lazy">
+                    @if($ad->link)
+                    </a>
+                    @else
+                    </div>
+                    @endif
+                    @endforeach
                 </div>
             </div>
         </div>
 
         {{-- Sidebar Mobile (inline setelah konten) --}}
-        <div class="lg:hidden mt-5 space-y-4">
-            @include('frontend.partials.sidebar')
+        <div class="md:hidden mt-5 space-y-4">
+            @include('frontend.partials.sidebar', ['hideAds' => true])
         </div>
     </article>
 

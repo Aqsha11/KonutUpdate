@@ -23,12 +23,9 @@
             <thead>
                 <tr>
                     <th style="width:5%;">No</th>
-                    <th style="width:8%;">Gambar</th>
-                    <th>Judul</th>
-                    <th>Posisi</th>
-                    <th>Status</th>
+                    <th style="width:15%;">Gambar</th>
+                    <th>Tautan</th>
                     <th>Klik</th>
-                    <th>Periode</th>
                     <th style="width:15%;">Aksi</th>
                 </tr>
             </thead>
@@ -37,37 +34,16 @@
                 <tr>
                     <td>{{ $ads->firstItem() + $index }}</td>
                     <td>
-                        <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="thumb-table">
-                    </td>
-                    <td>{{ $ad->title }}</td>
-                    <td>
-                        <span class="badge-admin badge-admin-info">
-                            @switch($ad->position)
-                                @case('sidebar_top') Sidebar Atas @break
-                                @case('sidebar_bottom') Sidebar Bawah @break
-                                @case('in_article') Dalam Artikel @break
-                                @case('poster_right') Poster Kanan (Potrait) @break
-                                @default {{ $ad->position }}
-                            @endswitch
-                        </span>
+                        <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title ?: 'Iklan' }}" class="thumb-table">
                     </td>
                     <td>
-                        @if($ad->is_active)
-                            <span class="badge-admin badge-admin-success">Aktif</span>
+                        @if($ad->link)
+                            <a href="{{ $ad->link }}" target="_blank" rel="nofollow" class="text-decoration-none">{{ $ad->link }}</a>
                         @else
-                            <span class="badge-admin badge-admin-danger">Nonaktif</span>
+                            <span class="text-muted">Tanpa tautan</span>
                         @endif
                     </td>
                     <td>{{ number_format($ad->clicks) }}</td>
-                    <td>
-                        @if($ad->starts_at || $ad->ends_at)
-                            {{ $ad->starts_at ? $ad->starts_at->format('d M Y') : '-' }}
-                            &mdash;
-                            {{ $ad->ends_at ? $ad->ends_at->format('d M Y') : '-' }}
-                        @else
-                            <span class="text-muted">Tanpa batas</span>
-                        @endif
-                    </td>
                     <td>
                         <div class="action-btns">
                             <a href="{{ route('admin.ads.edit', $ad->id) }}" class="btn-action btn-action-edit" title="Edit">
@@ -84,7 +60,7 @@
                 </tr>
                 @empty
                 <tr class="empty-row">
-                    <td colspan="8">Belum ada iklan.</td>
+                    <td colspan="5">Belum ada iklan.</td>
                 </tr>
                 @endforelse
             </tbody>

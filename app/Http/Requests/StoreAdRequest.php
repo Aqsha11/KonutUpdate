@@ -14,28 +14,16 @@ class StoreAdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|max:255',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'link' => 'nullable|url|max:500',
-            'position' => 'required|in:sidebar_top,sidebar_bottom,in_article,poster_right',
-            'is_active' => 'boolean',
-            'starts_at' => 'nullable|date',
-            'ends_at' => 'nullable|date|after_or_equal:starts_at',
-            'sort_order' => 'integer|min:0',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'title' => 'Judul Iklan',
-            'image' => 'Gambar Iklan',
-            'link' => 'Tautan',
-            'position' => 'Posisi',
-            'is_active' => 'Aktif',
-            'starts_at' => 'Tanggal Mulai',
-            'ends_at' => 'Tanggal Berakhir',
-            'sort_order' => 'Urutan',
+            'image' => 'Thumbnail',
+            'link' => 'URL',
         ];
     }
 }

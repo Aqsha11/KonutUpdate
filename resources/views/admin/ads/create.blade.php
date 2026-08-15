@@ -19,22 +19,15 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="form-group">
-                    <label for="title" class="form-label">Judul Iklan <span class="required">*</span></label>
-                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" placeholder="Judul Iklan" value="{{ old('title') }}" required>
-                    @error('title')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="form-group">
-                    <label for="link" class="form-label">Tautan</label>
+                    <label for="link" class="form-label">URL (Opsional)</label>
                     <input type="url" name="link" id="link" class="form-control @error('link') is-invalid @enderror" value="{{ old('link') }}" placeholder="https://example.com">
                     @error('link')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <div class="form-text">URL tujuan saat iklan diklik</div>
+                    <div class="form-text">URL tujuan saat iklan diklik. Kosongkan jika tanpa tautan.</div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Gambar Iklan <span class="required">*</span></label>
+                    <label class="form-label">Thumbnail <span class="required">*</span></label>
                     <div class="dropzone-admin" id="dropzone">
                         <div class="dropzone-icon">
                             <i class="bi bi-cloud-arrow-up"></i>
@@ -48,42 +41,7 @@
                     <div class="invalid-feedback" style="display:block;">{{ $message }}</div>
                     @enderror
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label for="position" class="form-label">Posisi <span class="required">*</span></label>
-                    <select name="position" id="position" class="form-select @error('position') is-invalid @enderror">
-                        <option value="sidebar_top" {{ old('position') === 'sidebar_top' ? 'selected' : '' }}>Sidebar Atas</option>
-                        <option value="sidebar_bottom" {{ old('position') === 'sidebar_bottom' ? 'selected' : '' }}>Sidebar Bawah</option>
-                        <option value="in_article" {{ old('position') === 'in_article' ? 'selected' : '' }}>Dalam Artikel</option>
-                        <option value="poster_right" {{ old('position') === 'poster_right' ? 'selected' : '' }}>Poster Kanan (Potrait)</option>
-                    </select>
-                    @error('position')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="form-group">
-                    <label for="sort_order" class="form-label">Urutan</label>
-                    <input type="number" name="sort_order" id="sort_order" class="form-control" placeholder="Urutan" value="{{ old('sort_order', 0) }}" min="0">
-                    <div class="form-text">Semakin kecil semakin atas</div>
-                </div>
-                <div class="form-group">
-                    <div class="form-check">
-                        <input type="checkbox" name="is_active" id="is_active" class="form-check-input" value="1" {{ old('is_active', '1') === '1' ? 'checked' : '' }}>
-                        <label for="is_active" class="form-check-label">Aktif</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="starts_at" class="form-label">Tanggal Mulai</label>
-                    <input type="date" name="starts_at" id="starts_at" class="form-control" placeholder="Tanggal Mulai" value="{{ old('starts_at') }}">
-                    <div class="form-text">Kosongkan jika tidak ada batas</div>
-                </div>
-                <div class="form-group">
-                    <label for="ends_at" class="form-label">Tanggal Berakhir</label>
-                    <input type="date" name="ends_at" id="ends_at" class="form-control" placeholder="Tanggal Berakhir" value="{{ old('ends_at') }}">
-                    <div class="form-text">Kosongkan jika tidak ada batas</div>
-                </div>
-                <button type="submit" class="btn-admin btn-admin-primary btn-admin-block">
+                <button type="submit" class="btn-admin btn-admin-primary">
                     <i class="bi bi-save"></i> Simpan Iklan
                 </button>
             </div>

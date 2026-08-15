@@ -27,8 +27,8 @@
         </h1>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-4 lg:gap-6">
-        <div class="lg:w-[68%]">
+    <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+        <div class="md:w-[68%]">
             @if($posts->count() > 0)
 
                 {{-- Hero Section — only on page 1 (top 3), manual scroll (no autoplay) --}}
@@ -207,14 +207,14 @@
                 </div>
             @endif
         </div>
-        <div class="hidden lg:block lg:w-[32%]">
-            <div class="lg:sticky lg:top-20 space-y-4">
-                @include('frontend.partials.sidebar')
+        <div class="hidden md:block md:w-[32%]">
+            <div class="md:sticky md:top-20 space-y-4">
+                @include('frontend.partials.sidebar', ['hideTrendingWidget' => true])
             </div>
         </div>
     </div>
 
-    <div class="lg:hidden mt-5 space-y-4">
-        @include('frontend.partials.sidebar')
+    <div class="md:hidden mt-5 space-y-4">
+        @include('frontend.partials.sidebar', ['hideTrendingWidget' => true])
     </div>
 @endsection

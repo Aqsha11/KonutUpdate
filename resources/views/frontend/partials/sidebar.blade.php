@@ -1,4 +1,5 @@
 <aside class="sidebar-section space-y-4">
+    @if(empty($hideHomeWidgets) && empty($hideTrendingWidget))
     {{-- Trending --}}
     <div class="bg-surface rounded-xl shadow-sm border border-outline overflow-hidden reveal" x-data="{ open: true }">
         <button type="button" @click="open = !open" :aria-expanded="open" class="sidebar-widget-header w-full flex items-center gap-2 px-4 pt-3 pb-2 border-b border-outline hover:bg-surface-container-low transition-colors">
@@ -28,7 +29,9 @@
             @endforelse
         </div>
     </div>
+    @endif
 
+    @if(empty($hideHomeWidgets) && empty($hideKategoriWidget))
     {{-- Kategori --}}
     <div class="bg-surface rounded-xl shadow-sm border border-outline overflow-hidden" x-data="{ open: false }">
         <button type="button" @click="open = !open" :aria-expanded="open" class="sidebar-widget-header w-full flex items-center gap-2 px-4 pt-3 pb-2 border-b border-outline hover:bg-surface-container-low transition-colors">
@@ -50,6 +53,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Kecamatan --}}
     @if(isset($kecamatans) && $kecamatans->count() > 0)
@@ -112,33 +116,48 @@
         </div>
     </div>
 
-    {{-- Iklan Sidebar Atas --}}
-    @if(isset($sidebarAdsTop) && $sidebarAdsTop->count() > 0)
-        @foreach($sidebarAdsTop as $ad)
-        <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline group">
-            <div class="aspect-[2/1] overflow-hidden bg-surface-container-low">
-                <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-full object-cover" loading="lazy">
-            </div>
-            <div class="p-1.5">
-                <p class="text-[10px] font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{{ $ad->title }}</p>
-                <p class="text-[8px] text-on-surface-variant mt-0.5">Iklan</p>
-            </div>
-        </a>
-        @endforeach
-    @endif
+    @if(empty($hideAds) && !empty($sidebarAds) && $sidebarAds->count() > 0)
 
-    {{-- Iklan Sidebar Bawah --}}
-    @if(isset($sidebarAdsBottom) && $sidebarAdsBottom->count() > 0)
-        @foreach($sidebarAdsBottom as $ad)
-        <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline group">
-            <div class="aspect-[2/1] overflow-hidden bg-surface-container-low">
-                <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-full object-cover" loading="lazy">
+    {{-- Iklan Mobile: baris kartu horizontal auto-scroll --}}
+    <div class="md:hidden" x-data="adAutoScroll">
+        <div class="ku-feat-row hide-scrollbar ku-ad-row{{ !empty($adCompact) ? ' ku-ad-row-sm' : '' }}" x-ref="scroller" data-axis="x">
+            @foreach($sidebarAds as $ad)
+            @if($ad->link)
+            <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="ku-feat-card">
+            @else
+            <div class="ku-feat-card ku-feat-card-static">
+            @endif
+                <div class="ku-feat-media">
+                    <span class="ku-feat-thumb">
+                        <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" loading="lazy">
+                    </span>
+                </div>
+            @if($ad->link)
+            </a>
+            @else
             </div>
-            <div class="p-1.5">
-                <p class="text-[10px] font-semibold text-on-surface group-hover:text-primary transition-colors leading-snug">{{ $ad->title }}</p>
-                <p class="text-[8px] text-on-surface-variant mt-0.5">Iklan</p>
+            @endif
+            @endforeach
+        </div>
+    </div>
+
+    {{-- Iklan Sidebar Atas/Bawah: kolom vertikal auto-scroll (tablet, desktop, laptop) --}}
+    <div class="hidden md:block" x-data="adAutoScroll">
+        <div class="md:max-h-[calc(100vh-10rem)] md:overflow-y-auto md:pr-1 space-y-3 ad-scroll-column" x-ref="scroller" data-axis="y">
+            @foreach($sidebarAds as $ad)
+            @if($ad->link)
+            <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline group{{ !empty($adCompact) ? ' mx-auto max-w-[300px]' : '' }}">
+            @else
+            <div class="block bg-surface rounded-lg overflow-hidden border border-outline no-underline{{ !empty($adCompact) ? ' mx-auto max-w-[300px]' : '' }}">
+            @endif
+                <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" class="w-full h-auto object-contain bg-surface-container-low" loading="lazy">
+            @if($ad->link)
+            </a>
+            @else
             </div>
-        </a>
-        @endforeach
+            @endif
+            @endforeach
+        </div>
+    </div>
     @endif
 </aside>

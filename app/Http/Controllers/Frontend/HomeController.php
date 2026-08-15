@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Ad;
 use App\Models\Category;
 use App\Models\Kecamatan;
 use App\Models\Post;
@@ -76,9 +75,6 @@ class HomeController extends Controller
             ->take(12)
             ->values();
 
-        $homeAdsTop = Ad::active()->position('sidebar_top')->sorted()->take(2)->get();
-        $homeAdsBottom = Ad::active()->position('sidebar_bottom')->sorted()->take(2)->get();
-
         $categories = Category::whereHas('allPosts', fn ($q) => $q->published())
             ->orderBy('name')
             ->get();
@@ -133,8 +129,6 @@ class HomeController extends Controller
             'videoPosts',
             'featuredPosts',
             'popularTags',
-            'homeAdsTop',
-            'homeAdsBottom',
             'categoryPosts',
             'categorySlugs',
             'categoryNames',

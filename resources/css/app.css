@@ -273,6 +273,27 @@ body {
 .ku-feat-row { display: flex; gap: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x; margin: 0 -2px; padding: 2px 2px 6px; scroll-snap-type: x mandatory; }
 .ku-feat-row.dragging { cursor: grabbing; user-select: none; }
 .ku-feat-row.dragging a { pointer-events: none; }
+.ku-feat-row.ku-ad-row { align-items: flex-start; }
+.ku-feat-row.ku-ad-row .ku-feat-card { flex: 0 0 62%; }
+.ku-feat-row.ku-ad-row.ku-ad-row-sm .ku-feat-card { flex: 0 0 46%; }
+@media (min-width: 640px) { .ku-feat-row.ku-ad-row .ku-feat-card { flex: 0 0 40%; } }
+@media (min-width: 1024px) { .ku-feat-row.ku-ad-row .ku-feat-card { flex: 0 0 23.5%; } }
+.ku-feat-row.ku-ad-row .ku-feat-media { aspect-ratio: auto; background: transparent; }
+.ku-feat-row.ku-ad-row .ku-feat-thumb { position: static; }
+.ku-feat-row.ku-ad-row .ku-feat-thumb img { width: 100%; height: auto; object-fit: contain; display: block; }
+.ku-feat-row.ku-ad-row .ku-feat-card.ku-feat-card-static { cursor: default; }
+.ku-feat-row.ku-ad-row .ku-feat-card.ku-feat-card-static:hover { box-shadow: none; transform: none; }
+.ku-feat-row.ku-ad-row .ku-feat-card.ku-feat-card-static:hover .ku-feat-thumb img { transform: none; }
+@media (min-width: 640px) {
+    .ku-feat-row.ku-ad-row { scrollbar-width: thin; scrollbar-color: var(--color-outline) transparent; }
+    .ku-feat-row.ku-ad-row::-webkit-scrollbar { height: 4px; display: block; }
+    .ku-feat-row.ku-ad-row::-webkit-scrollbar-thumb { background: var(--color-outline); border-radius: 999px; }
+    .ku-feat-row.ku-ad-row::-webkit-scrollbar-track { background: transparent; }
+}
+.ad-scroll-column { scrollbar-width: thin; scrollbar-color: var(--color-outline) transparent; }
+.ad-scroll-column::-webkit-scrollbar { width: 4px; }
+.ad-scroll-column::-webkit-scrollbar-thumb { background: var(--color-outline); border-radius: 999px; }
+.ad-scroll-column::-webkit-scrollbar-track { background: transparent; }
 .ku-feat-card { flex: 0 0 82%; min-width: 0; scroll-snap-align: start; }
 @media (min-width: 640px) { .ku-feat-card { flex: 0 0 46%; } }
 @media (min-width: 1024px) { .ku-feat-card { flex: 0 0 23.5%; } }
