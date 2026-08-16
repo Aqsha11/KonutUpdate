@@ -230,14 +230,22 @@
     {{-- Bubble Widget Akun --}}
     @auth
         @php
-            $accountUrl = auth()->user()->role?->slug === 'kontributor'
-                ? route('kontributor.dashboard')
-                : route('admin.dashboard');
+            $accountRole = auth()->user()->role?->slug;
+            $accountUrl = match ($accountRole) {
+                'kontributor' => route('kontributor.dashboard'),
+                'super_admin', 'editor', 'reporter' => route('admin.dashboard'),
+                default => route('home'),
+            };
         @endphp
         <a href="{{ $accountUrl }}" class="ku-bubble-widget" aria-label="Akun Saya">
             <i data-lucide="user-round" class="w-5 h-5"></i>
             <span class="ku-bubble-label">{{ auth()->user()->name }}</span>
         </a>
+        <form id="frontend-logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
+        <button type="button" class="ku-bubble-widget ku-bubble-logout" aria-label="Keluar" onclick="event.preventDefault(); document.getElementById('frontend-logout-form').submit();">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+            <span class="ku-bubble-label">Keluar</span>
+        </button>
     @else
         <a href="{{ route('login') }}" class="ku-bubble-widget" aria-label="Masuk atau Daftar">
             <i data-lucide="user-round" class="w-5 h-5"></i>

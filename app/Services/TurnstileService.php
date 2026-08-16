@@ -25,15 +25,30 @@ class TurnstileService
                     'remoteip' => $remoteIp,
                 ]));
         } catch (Throwable $e) {
-            Log::warning('Turnstile siteverify gagal terhubung: '.$e->getMessage());
+            Log::error('Turnstile siteverify gagal terhubung: '.$e->getMessage());
 
             return false;
         }
 
         if (! $response->successful()) {
+            Log::error('Turnstile siteverify non-2xx', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             return false;
         }
 
-        return (bool) data_get($response->json(), 'success');
+        $data = $response->json();
+
+        if (! data_get($data, 'success')) {
+            Log::error('Turnstile verifikasi gagal', [
+                'error-codes' => data_get($data, 'error-codes'),
+            ]);
+
+            return false;
+        }
+
+        return true;
     }
 }

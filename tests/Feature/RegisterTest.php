@@ -162,6 +162,22 @@ class RegisterTest extends TestCase
         $this->assertNotNull($user->fresh()->email_verified_at);
     }
 
+    public function test_verified_kontributor_is_sent_to_contributor_dashboard(): void
+    {
+        $role = Role::where('slug', 'kontributor')->firstOrFail();
+        $user = User::factory()->unverified()->create(['role_id' => $role->id]);
+
+        $url = URL::temporarySignedRoute('verification.verify', now()->addMinute(), [
+            'id' => $user->id,
+            'hash' => sha1($user->getEmailForVerification()),
+        ]);
+
+        $this->actingAs($user)->get($url)->assertRedirect(route('kontributor.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertNotNull($user->fresh()->email_verified_at);
+    }
+
     public function test_invalid_verification_signature_is_rejected(): void
     {
         $user = User::factory()->unverified()->create();

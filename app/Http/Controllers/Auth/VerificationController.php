@@ -29,7 +29,20 @@ class VerificationController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('home')->with('success', 'Email Anda berhasil diverifikasi. Akun Anda sudah aktif dan masuk otomatis.');
+        $role = $user->role?->slug;
+
+        if ($role === 'kontributor') {
+            return redirect()->route('kontributor.dashboard')
+                ->with('success', 'Email Anda berhasil diverifikasi. Akun Anda sudah aktif dan masuk otomatis.');
+        }
+
+        if (in_array($role, ['super_admin', 'editor', 'reporter'], true)) {
+            return redirect()->route('admin.dashboard')
+                ->with('success', 'Email Anda berhasil diverifikasi. Akun Anda sudah aktif dan masuk otomatis.');
+        }
+
+        return redirect()->route('home')
+            ->with('success', 'Email Anda berhasil diverifikasi. Akun Anda sudah aktif dan masuk otomatis.');
     }
 
     public function resend(Request $request)

@@ -267,7 +267,7 @@
                 @if ($errors->any())
                     <div class="login-error">
                         <span>✕</span>
-                        {{ $errors->first('email') }}
+                        {{ $errors->first() }}
                     </div>
                 @endif
 

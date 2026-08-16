@@ -974,6 +974,9 @@ body {
 .ku-bubble-label { position: absolute; right: 64px; background: var(--color-surface); border: 1px solid var(--color-outline); color: var(--color-on-surface); padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(6px); transition: all 0.2s; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
 .ku-bubble-widget:hover .ku-bubble-label { opacity: 1; transform: translateX(0); }
 
+.ku-bubble-logout { bottom: 140px; background: linear-gradient(135deg, #DC2626, #EF4444); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); cursor: pointer; border: none; }
+.ku-bubble-logout:hover { box-shadow: 0 8px 26px rgba(220, 38, 38, 0.55); }
+
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 
