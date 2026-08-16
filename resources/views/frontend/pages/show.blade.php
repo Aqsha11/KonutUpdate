@@ -67,7 +67,7 @@
     </div>
 
     @php
-        $heroIcons = ['tentang-kami' => 'users', 'privacy-policy' => 'shield', 'pedoman-media-siber' => 'book-open', 'kontak' => 'send'];
+        $heroIcons = ['tentang-kami' => 'users', 'privacy-policy' => 'shield', 'pedoman-media-siber' => 'book-open', 'kontak' => 'send', 'pasang-iklan' => 'megaphone', 'info-iklan' => 'megaphone'];
         $heroIcon = $heroIcons[$page->slug] ?? 'file-text';
         $heroDesc = strip_tags(Str::limit($page->content, 120));
     @endphp

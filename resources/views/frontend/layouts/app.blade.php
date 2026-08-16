@@ -379,6 +379,7 @@
                                     'pedoman-media-siber' => 'scroll-text',
                                     'privacy-policy' => 'shield',
                                     'pasang-iklan' => 'megaphone',
+                                    'info-iklan' => 'megaphone',
                                 ];
                                 $pageIcon = $pageIcons[$page->slug] ?? 'file-text';
                             @endphp
