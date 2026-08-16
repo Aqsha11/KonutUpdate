@@ -2,7 +2,9 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\AdminSessionTimeout;
+use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,8 +19,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
             'admin.session-timeout' => AdminSessionTimeout::class,
         ]);
+
+        $middleware->web(append: [SecurityHeaders::class]);
+
+        if (filter_var(env('TRUST_PROXIES'), FILTER_VALIDATE_BOOLEAN)) {
+            $middleware->trustProxies(at: '*');
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->report(function (Throwable $e) {

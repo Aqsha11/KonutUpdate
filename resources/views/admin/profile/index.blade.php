@@ -60,7 +60,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="new_password" class="form-label">Password Baru</label>
-                            <input type="password" name="new_password" id="new_password" class="form-control @error('new_password') is-invalid @enderror" placeholder="Password baru">
+                            <input type="password" name="new_password" id="new_password" class="form-control @error('new_password') is-invalid @enderror" placeholder="Minimal 8 karakter, kombinasi huruf kapital & angka">
                             @error('new_password')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

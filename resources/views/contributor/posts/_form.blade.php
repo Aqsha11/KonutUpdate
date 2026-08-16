@@ -18,14 +18,8 @@
                     <label class="form-label">Jenis Konten <span class="required">*</span></label>
                     <div class="d-flex gap-4">
                         <div class="form-check">
-                            <input type="radio" name="type" id="typeArticle" value="article" class="form-check-input"
-                                {{ old('type', isset($post) ? $post->type : 'article') === 'article' ? 'checked' : '' }}>
+                            <input type="radio" name="type" id="typeArticle" value="article" class="form-check-input" checked>
                             <label for="typeArticle" class="form-check-label">Berita</label>
-                        </div>
-                        <div class="form-check">
-                            <input type="radio" name="type" id="typeOpini" value="opini" class="form-check-input"
-                                {{ old('type', isset($post) ? $post->type : '') === 'opini' ? 'checked' : '' }}>
-                            <label for="typeOpini" class="form-check-label">Opini</label>
                         </div>
                     </div>
                     @error('type')

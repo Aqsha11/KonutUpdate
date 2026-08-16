@@ -5,13 +5,19 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\CommentController as AdminCommentController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\KecamatanController;
+use App\Http\Controllers\Admin\OpiniController as AdminOpiniController;
 use App\Http\Controllers\Admin\PermissionController as AdminPermissionController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ProfileController as AuthProfileController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Contributor\DashboardController as ContributorDashboardController;
 use App\Http\Controllers\Contributor\PostController as ContributorPostController;
 use App\Http\Controllers\Frontend\CategoryController;
@@ -46,12 +52,9 @@ Route::get('/kecamatan/{slug}', [FrontendKecamatanController::class, 'show'])->n
 Route::get('/trending', [TrendingController::class, 'index'])->name('trending');
 Route::get('/terkini', [LatestController::class, 'index'])->name('terkini');
 Route::get('/opini', [OpiniController::class, 'index'])->name('opini');
-Route::get('/opini/tulis', [OpiniController::class, 'create'])->name('opini.create');
-Route::post('/opini', [OpiniController::class, 'store'])->middleware('throttle:3,10')->name('opini.store');
-Route::post('/opini/upload-image', [OpiniController::class, 'uploadImage'])->middleware('throttle:10,10')->name('opini.upload-image');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::post('/berita/{post}/komentar', [CommentController::class, 'store'])->middleware('throttle:5,1')->name('comments.store');
-Route::post('/berita/{post}/like', [LikeController::class, 'toggle'])->name('posts.like');
+Route::post('/berita/{post}/like', [LikeController::class, 'toggle'])->middleware('throttle:30,1')->name('posts.like');
 Route::get('/tentang-kami', [PageController::class, 'about'])->name('pages.about');
 Route::get('/pedoman-media-siber', [PageController::class, 'pedoman'])->name('pages.pedoman');
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
@@ -61,10 +64,36 @@ Route::get('/p/{slug}', [PageController::class, 'show'])->name('pages.show');
 // Auth Routes (Laravel built-in)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
+    Route::get('/daftar', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/daftar', [RegisterController::class, 'register'])->middleware('throttle:register');
+    Route::get('/daftar/sukses', [RegisterController::class, 'success'])->name('register.success');
+    Route::get('/lupa-password', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('/lupa-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+        ->middleware('throttle:5,1')
+        ->name('password.email');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/reset-password', [ResetPasswordController::class, 'reset'])
+        ->middleware('throttle:5,1')
+        ->name('password.update');
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Verifikasi Email
+Route::get('/email/verifikasi/{id}/{hash}', [VerificationController::class, 'verify'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+
+Route::post('/email/verifikasi/ulang', [VerificationController::class, 'resend'])
+    ->middleware('throttle:6,1')
+    ->name('verification.send');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verifikasi', [VerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/profil', [AuthProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profil', [AuthProfileController::class, 'update'])->name('profile.update');
+});
 
 // Panel Kontributor — masyarakat menulis berita/opini, menunggu verifikasi admin
 Route::prefix('panel-kontributor')->name('kontributor.')->middleware(['auth', 'role:kontributor'])->group(function () {
@@ -117,6 +146,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.sess
     Route::post('/posts/{post}/reject', [AdminPostController::class, 'reject'])->name('posts.reject');
     Route::post('/posts/upload-image', [AdminPostController::class, 'uploadImage'])->name('posts.upload-image');
 
+    Route::get('/opini', [AdminOpiniController::class, 'index'])->middleware('permission:manage_opini')->name('opini.index');
+    Route::get('/opini/buat', [AdminOpiniController::class, 'create'])->middleware('permission:manage_opini')->name('opini.create');
+    Route::post('/opini', [AdminOpiniController::class, 'store'])->middleware('permission:manage_opini')->name('opini.store');
+    Route::get('/opini/{post}/edit', [AdminOpiniController::class, 'edit'])->middleware('permission:manage_opini')->name('opini.edit');
+    Route::put('/opini/{post}', [AdminOpiniController::class, 'update'])->middleware('permission:manage_opini')->name('opini.update');
+    Route::delete('/opini/{post}', [AdminOpiniController::class, 'destroy'])->middleware('permission:manage_opini')->name('opini.destroy');
+    Route::post('/opini/{post}/publish', [AdminOpiniController::class, 'publish'])->middleware('permission:manage_opini')->name('opini.publish');
+    Route::post('/opini/{post}/draft', [AdminOpiniController::class, 'draft'])->middleware('permission:manage_opini')->name('opini.draft');
+    Route::post('/opini/{post}/approve', [AdminOpiniController::class, 'approve'])->middleware('permission:manage_opini')->name('opini.approve');
+    Route::post('/opini/{post}/reject', [AdminOpiniController::class, 'reject'])->middleware('permission:manage_opini')->name('opini.reject');
+    Route::post('/opini/upload-image', [AdminOpiniController::class, 'uploadImage'])->middleware('permission:manage_opini')->name('opini.upload-image');
+
     Route::resource('categories', AdminCategoryController::class);
     Route::resource('kecamatans', KecamatanController::class);
 
@@ -130,6 +171,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.sess
     Route::resource('roles', AdminRoleController::class);
     Route::resource('permissions', AdminPermissionController::class);
     Route::resource('users', AdminUserController::class)->middleware('role:super_admin');
+    Route::post('users/{user}/verifikasi', [AdminUserController::class, 'verify'])
+        ->middleware('role:super_admin')
+        ->name('users.verify');
 
     Route::get('/comments', [AdminCommentController::class, 'index'])->name('comments.index');
     Route::post('/comments/{comment}/approve', [AdminCommentController::class, 'approve'])->name('comments.approve');

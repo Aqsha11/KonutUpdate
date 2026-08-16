@@ -19,6 +19,7 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'Kelola Kategori', 'slug' => 'manage_categories', 'description' => 'CRUD kategori'],
             ['name' => 'Kelola Tag', 'slug' => 'manage_tags', 'description' => 'CRUD tag'],
             ['name' => 'Kelola Halaman', 'slug' => 'manage_pages', 'description' => 'CRUD halaman statis'],
+            ['name' => 'Kelola Opini', 'slug' => 'manage_opini', 'description' => 'CRUD opini di panel admin'],
             ['name' => 'Kelola User', 'slug' => 'manage_users', 'description' => 'CRUD pengguna'],
             ['name' => 'Kelola Role', 'slug' => 'manage_roles', 'description' => 'CRUD role'],
             ['name' => 'Kelola Permission', 'slug' => 'manage_permissions', 'description' => 'CRUD permission'],
@@ -44,6 +45,7 @@ class RolePermissionSeeder extends Seeder
                     'view_dashboard',
                     'create_posts', 'edit_posts', 'delete_posts', 'publish_posts',
                     'manage_categories', 'manage_tags', 'manage_pages',
+                    'manage_opini',
                 ])->pluck('id')
             );
         }

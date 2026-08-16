@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -23,7 +24,7 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'current_password' => 'nullable|required_with:new_password|current_password',
-            'new_password' => 'nullable|min:8|confirmed',
+            'new_password' => ['nullable', 'confirmed', new StrongPassword],
         ]);
 
         $user->update([

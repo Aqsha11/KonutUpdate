@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Rules\Turnstile;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +22,9 @@ class LoginController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'cf-turnstile-response' => ['required', 'string', new Turnstile],
+        ], [
+            'cf-turnstile-response.required' => 'Verifikasi bukan robot wajib diselesaikan.',
         ]);
 
         if ($this->hasTooManyLoginAttempts($request)) {
@@ -30,11 +35,20 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
+        $user = User::where('email', $request->input('email'))->first();
+
+        if ($user && $user->role?->slug !== 'super_admin' && ! $user->hasVerifiedEmail()) {
+            return back()->withErrors([
+                'email' => 'Email Anda belum diverifikasi. Silakan verifikasi terlebih dahulu melalui link yang dikirim ke email Anda.',
+            ])->onlyInput('email');
+        }
+
         if (Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             $request->session()->regenerate();
             app(RateLimiter::class)->clear($this->throttleKey($request));
 
-            $role = Auth::user()->role?->slug;
+            $user = Auth::user();
+            $role = $user->role?->slug;
 
             if ($role === 'kontributor') {
                 if ($redirect = $this->safeRedirect($request->input('redirect'))) {

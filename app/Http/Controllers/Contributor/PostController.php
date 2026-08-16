@@ -29,6 +29,7 @@ class PostController extends Controller
     {
         $data = $request->validated();
 
+        $data['type'] = 'article';
         $data['slug'] = $this->uniqueSlug(Str::slug($data['title']));
         $data['user_id'] = auth()->id();
         $data['status'] = $request->input('action') === 'submit' ? 'pending' : 'draft';
@@ -69,6 +70,7 @@ class PostController extends Controller
 
         $data = $request->validated();
 
+        $data['type'] = 'article';
         $data['slug'] = $this->uniqueSlug(Str::slug($data['title']), $post->id);
         $data['status'] = $request->input('action') === 'submit' ? 'pending' : 'draft';
 

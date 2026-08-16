@@ -40,7 +40,7 @@
                 <div class="form-group">
                     <label for="password" class="form-label">Password</label>
                     <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password baru (kosongkan jika tidak diubah)">
-                    <div class="form-text">Kosongkan jika tidak ingin mengubah password.</div>
+                    <div class="form-text">Kosongkan jika tidak ingin mengubah password. Minimal 8 karakter, kombinasi huruf kapital & angka.</div>
                     @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

@@ -62,18 +62,17 @@
                 </div>
                 <div class="nav-label">Konten</div>
                 <div class="nav-item">
-                    <a href="{{ route('admin.posts.index') }}" class="nav-link {{ request()->routeIs('admin.posts.*') && !(request('status') == 'pending' && request('type') == 'opini') ? 'active' : '' }}">
+                    <a href="{{ route('admin.posts.index') }}" class="nav-link {{ request()->routeIs('admin.posts.*') ? 'active' : '' }}">
                         <i class="bi bi-newspaper"></i> Berita
                     </a>
                 </div>
+                @if(auth()->user()->hasPermission('manage_opini'))
                 <div class="nav-item">
-                    <a href="{{ route('admin.posts.index', ['status' => 'pending', 'type' => 'opini']) }}" class="nav-link {{ request()->routeIs('admin.posts.*') && request('status') == 'pending' && request('type') == 'opini' ? 'active' : '' }}">
-                        <i class="bi bi-clipboard-check"></i> Verifikasi Opini
-                        @if(!empty($pendingOpiniCount) && $pendingOpiniCount > 0)
-                        <span class="nav-badge">{{ $pendingOpiniCount }}</span>
-                        @endif
+                    <a href="{{ route('admin.opini.index') }}" class="nav-link {{ request()->routeIs('admin.opini.*') ? 'active' : '' }}">
+                        <i class="bi bi-chat-quote"></i> Opini
                     </a>
                 </div>
+                @endif
                 <div class="nav-item">
                     <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                         <i class="bi bi-tags"></i> Kategori

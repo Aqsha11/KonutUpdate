@@ -38,7 +38,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="password" class="form-label">Password <span class="required">*</span></label>
-                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password" required>
+                    <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Minimal 8 karakter, kombinasi huruf kapital & angka" required>
                     @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror

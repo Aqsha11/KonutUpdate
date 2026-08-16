@@ -14,6 +14,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Konut.Update',
             'email' => 'admin@konutupdate.com',
             'password' => Hash::make('password'),
+            'email_verified_at' => now(),
             'role_id' => 1,
         ]);
 
@@ -21,6 +22,7 @@ class UserSeeder extends Seeder
             'name' => 'Editor Konut.Update',
             'email' => 'editor@konutupdate.com',
             'password' => Hash::make('password'),
+            'email_verified_at' => now(),
             'role_id' => 2,
         ]);
 
@@ -28,6 +30,7 @@ class UserSeeder extends Seeder
             'name' => 'Reporter Konut.Update',
             'email' => 'reporter@konutupdate.com',
             'password' => Hash::make('password'),
+            'email_verified_at' => now(),
             'role_id' => 3,
         ]);
     }

@@ -17,7 +17,7 @@ class StoreContributorPostRequest extends FormRequest
             'title' => 'required|string|max:255',
             'excerpt' => 'nullable|string|max:500',
             'body' => 'required|string',
-            'type' => 'required|in:article,opini',
+            'type' => 'required|in:article',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'category_ids' => 'nullable|array|max:3',
             'category_ids.*' => 'exists:categories,id',

@@ -28,34 +28,67 @@
     @stack('styles')
 </head>
 <body>
-    <div class="contributor-wrapper">
-        <header class="contributor-topbar">
-            <div class="contributor-topbar-inner">
-                <a href="{{ route('kontributor.dashboard') }}" class="contributor-brand">
-                    @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}">
-                    @else
-                        <span class="brand-text"><span>K</span>onut.Update</span>
-                    @endif
-                    <span class="contributor-brand-badge">Kontributor</span>
-                </a>
-                <nav class="contributor-nav">
-                    <a href="{{ route('kontributor.dashboard') }}" class="{{ request()->routeIs('kontributor.dashboard') ? 'active' : '' }}"><i class="bi bi-grid"></i> Dashboard</a>
-                    <a href="{{ route('kontributor.posts.create') }}" class="{{ request()->routeIs('kontributor.posts.create') ? 'active' : '' }}"><i class="bi bi-pencil-square"></i> Tulis Kiriman</a>
-                    <a href="{{ url('/') }}" target="_blank"><i class="bi bi-globe"></i> Lihat Website</a>
-                </nav>
-                <div class="contributor-user">
-                    <span class="contributor-user-name">{{ auth()->user()->name }}</span>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="contributor-logout" title="Logout"><i class="bi bi-box-arrow-right"></i> Keluar</button>
-                    </form>
+    <div class="wrapper">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                @if(!empty($site_settings['logo']))
+                    <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+                @else
+                    <div class="brand-text"><span>K</span>onut.Update</div>
+                @endif
+                <button type="button" class="sidebar-close" id="sidebarClose" aria-label="Tutup sidebar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="sidebar-nav">
+                <div class="nav-label">Menu Kontributor</div>
+                <div class="nav-item">
+                    <a href="{{ route('kontributor.dashboard') }}" class="nav-link {{ request()->routeIs('kontributor.dashboard') ? 'active' : '' }}">
+                        <i class="bi bi-grid"></i> Dashboard
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('kontributor.posts.create') }}" class="nav-link {{ request()->routeIs('kontributor.posts.create') ? 'active' : '' }}">
+                        <i class="bi bi-pencil-square"></i> Tulis Kiriman
+                    </a>
                 </div>
             </div>
-        </header>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    <div class="user-details">
+                        <a href="{{ route('profile.index') }}" class="user-name">{{ auth()->user()->name }}</a>
+                        <div class="user-role">Kontributor</div>
+                    </div>
+                </div>
+                <a href="{{ route('logout') }}" class="logout-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="bi bi-box-arrow-left"></i> Keluar
+                </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">@csrf</form>
+            </div>
+        </nav>
 
-        <main class="contributor-main">
-            <div class="contributor-container">
+        <div class="main-content">
+            <div class="topbar">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Buka menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <span class="contributor-topbar-title">Panel Kontributor</span>
+                </div>
+                <div class="topbar-right">
+                    <a href="{{ url('/') }}" target="_blank" class="btn-admin btn-admin-sm btn-admin-ghost d-none d-sm-inline-flex">
+                        <i class="bi bi-globe"></i> Lihat Website
+                    </a>
+                    <a href="{{ route('logout') }}" class="contributor-logout" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="bi bi-box-arrow-right"></i> <span class="d-none d-sm-inline">Keluar</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="content">
                 @if(session('success'))
                     <div class="alert-admin alert-admin-success">
                         <i class="bi bi-check-circle-fill"></i>
@@ -84,16 +117,41 @@
                 @endif
                 @yield('content')
             </div>
-        </main>
 
-        <footer class="contributor-footer">
-            &copy; {{ date('Y') }} {{ $site_settings['site_name'] ?? 'Konut.Update' }} &mdash; Panel Kontributor
-        </footer>
+            <footer class="contributor-footer">
+                &copy; {{ date('Y') }} {{ $site_settings['site_name'] ?? 'Konut.Update' }} &mdash; Panel Kontributor
+            </footer>
+        </div>
     </div>
 
     {{-- Toast Container --}}
     <div id="toastAdminContainer" class="toast-admin-container"></div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('sidebarOverlay');
+            var toggle = document.getElementById('sidebarToggle');
+            var close = document.getElementById('sidebarClose');
+            function openSidebar() { sidebar.classList.add('show'); overlay.classList.add('show'); }
+            function closeSidebar() { sidebar.classList.remove('show'); overlay.classList.remove('show'); }
+            if (toggle) {
+                toggle.addEventListener('click', function() {
+                    if (sidebar.classList.contains('show')) closeSidebar(); else openSidebar();
+                });
+            }
+            if (overlay) overlay.addEventListener('click', closeSidebar);
+            if (close) close.addEventListener('click', closeSidebar);
+
+            setTimeout(function() {
+                document.querySelectorAll('.alert-admin').forEach(function(el) {
+                    el.style.transition = 'opacity 0.4s';
+                    el.style.opacity = '0';
+                    setTimeout(function() { el.style.display = 'none'; }, 400);
+                });
+            }, 5000);
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>

@@ -11,12 +11,12 @@ export default defineConfig({
                 'resources/css/admin.css',
                 'resources/js/app.js',
                 'resources/js/admin.js',
-                'resources/js/opini-editor.js',
             ],
             refresh: true,
         }),
     ],
     server: {
+        host: '127.0.0.1',
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\StrongPassword;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateUserRequest extends FormRequest
@@ -18,7 +19,7 @@ class UpdateUserRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'password' => ['nullable', 'string', 'confirmed', new StrongPassword],
             'role_id' => 'required|exists:roles,id',
         ];
     }
@@ -30,6 +31,13 @@ class UpdateUserRequest extends FormRequest
             'email' => 'Email',
             'password' => 'Password',
             'role_id' => 'Role',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ];
     }
 }

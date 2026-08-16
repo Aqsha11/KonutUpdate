@@ -8,8 +8,11 @@ use App\Models\Kecamatan;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Setting;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -24,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useTailwind();
+
+        RateLimiter::for('login', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('register', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 
         View::composer('*', function ($view) {
             if (Schema::hasTable('settings')) {
@@ -46,12 +52,6 @@ class AppServiceProvider extends ServiceProvider
                 });
 
                 $view->with('footerPages', $footerPages);
-            }
-        });
-
-        View::composer('admin.layouts.app', function ($view) {
-            if (Schema::hasTable('posts')) {
-                $view->with('pendingOpiniCount', Post::pending()->where('type', 'opini')->count());
             }
         });
 

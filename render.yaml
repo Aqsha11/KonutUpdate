@@ -2,7 +2,7 @@ services:
   - type: web
     name: konut-update
     runtime: php
-    buildCommand: composer install --no-dev --optimize-autoloader && npm ci && npm run build && php artisan migrate --force && php artisan db:seed --class=CategorySeeder --force && php artisan db:seed --class=PageSeeder --force && php artisan storage:link --force
+    buildCommand: composer install --no-dev --optimize-autoloader && npm ci && npm run build && php artisan migrate --force && php artisan db:seed --class=CategorySeeder --force && php artisan db:seed --class=PageSeeder --force && php artisan storage:link --force && php artisan optimize
     startCommand: php artisan serve --host 0.0.0.0 --port $PORT
     envVars:
       - key: APP_ENV
@@ -39,6 +39,14 @@ services:
           propertyUrl: password
       - key: SESSION_DRIVER
         value: database
+      - key: SESSION_ENCRYPT
+        value: "true"
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: SESSION_LIFETIME
+        value: "120"
+      - key: TRUST_PROXIES
+        value: "true"
       - key: QUEUE_CONNECTION
         value: database
       - key: CACHE_STORE

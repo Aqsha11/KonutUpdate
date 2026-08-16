@@ -227,11 +227,23 @@
         <i data-lucide="arrow-up" class="w-5 h-5"></i>
     </button>
 
-    {{-- Bubble Widget Tulis Opini --}}
-    <a href="{{ route('opini.create') }}" class="ku-bubble-widget" aria-label="Tulis Opini">
-        <i data-lucide="pencil-line" class="w-5 h-5"></i>
-        <span class="ku-bubble-label">Tulis Opini</span>
-    </a>
+    {{-- Bubble Widget Akun --}}
+    @auth
+        @php
+            $accountUrl = auth()->user()->role?->slug === 'kontributor'
+                ? route('kontributor.dashboard')
+                : route('admin.dashboard');
+        @endphp
+        <a href="{{ $accountUrl }}" class="ku-bubble-widget" aria-label="Akun Saya">
+            <i data-lucide="user-round" class="w-5 h-5"></i>
+            <span class="ku-bubble-label">{{ auth()->user()->name }}</span>
+        </a>
+    @else
+        <a href="{{ route('login') }}" class="ku-bubble-widget" aria-label="Masuk atau Daftar">
+            <i data-lucide="user-round" class="w-5 h-5"></i>
+            <span class="ku-bubble-label">Masuk / Daftar</span>
+        </a>
+    @endauth
 
     {{-- Mobile Bottom Navigation --}}
     <nav class="mobile-bottom-nav md:hidden safe-bottom">

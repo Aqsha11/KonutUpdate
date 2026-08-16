@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\PageView;
 use App\Models\Post;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 
 class RecordViewJob
 {
@@ -18,6 +19,14 @@ class RecordViewJob
 
     public function handle(): void
     {
+        $dedupKey = 'viewed:'.$this->postId.':'.md5($this->ipAddress);
+
+        if (Cache::has($dedupKey)) {
+            return;
+        }
+
+        Cache::put($dedupKey, true, now()->addMinutes(10));
+
         $post = Post::find($this->postId);
         if (! $post) {
             return;

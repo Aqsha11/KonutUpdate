@@ -7,13 +7,14 @@ use App\Models\Category;
 use App\Models\Post;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SearchController extends Controller
 {
     public function index(Request $request)
     {
-        $query = $request->input('q');
-        $categorySlug = $request->input('category');
+        $query = Str::limit(trim((string) $request->input('q')), 100, '');
+        $categorySlug = Str::limit(trim((string) $request->input('category')), 100, '');
         $categories = Category::withCount(['allPosts' => fn ($q) => $q->published()])
             ->orderBy('name')
             ->get();

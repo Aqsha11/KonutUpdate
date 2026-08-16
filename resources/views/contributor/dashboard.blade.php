@@ -52,7 +52,7 @@
     </div>
 </div>
 
-<div class="table-container">
+<div class="table-container d-none d-md-block">
     <div class="table-header">
         <h5><i class="bi bi-newspaper"></i> Kiriman Saya</h5>
         <span>{{ $posts->total() }} kiriman</span>
@@ -127,6 +127,67 @@
                 @endforelse
             </tbody>
         </table>
+    </div>
+    @if($posts->hasPages())
+    <div class="table-footer">
+        <span>Menampilkan {{ $posts->firstItem() }}-{{ $posts->lastItem() }} dari {{ $posts->total() }}</span>
+        {{ $posts->links() }}
+    </div>
+    @endif
+</div>
+
+<div class="table-container d-md-none">
+    <div class="table-header">
+        <h5><i class="bi bi-newspaper"></i> Kiriman Saya</h5>
+        <span>{{ $posts->total() }} kiriman</span>
+    </div>
+    <div class="mobile-post-list">
+        @forelse($posts as $post)
+        <div class="mobile-post-item">
+            <a href="{{ route('kontributor.posts.edit', $post->id) }}" class="mobile-post-title">
+                {{ $post->title }}
+            </a>
+            @if($post->rejection_reason)
+            <div class="contributor-reject-reason mb-2">
+                <i class="bi bi-exclamation-circle"></i> {{ $post->rejection_reason }}
+            </div>
+            @endif
+            <div class="mobile-post-meta mb-2">
+                <span class="badge-admin {{ $post->type === 'opini' ? 'badge-admin-warning' : 'badge-admin-info' }}">
+                    {{ $post->type === 'opini' ? 'Opini' : 'Berita' }}
+                </span>
+                @if($post->status === 'published')
+                <span class="badge-admin badge-admin-success">Published</span>
+                @elseif($post->status === 'pending')
+                <span class="badge-admin badge-admin-warning">Menunggu Verifikasi</span>
+                @elseif($post->status === 'rejected')
+                <span class="badge-admin badge-admin-danger">Ditolak</span>
+                @else
+                <span class="badge-admin badge-admin-secondary">Draft</span>
+                @endif
+                <span class="mobile-post-time"><i class="bi bi-clock"></i> {{ $post->created_at->format('d M Y') }}</span>
+            </div>
+            <div class="action-btns">
+                @if($post->status !== 'published')
+                <a href="{{ route('kontributor.posts.edit', $post->id) }}" class="btn-action btn-action-edit" title="Edit">
+                    <i class="bi bi-pencil"></i>
+                </a>
+                <form action="{{ route('kontributor.posts.destroy', $post->id) }}" method="POST" class="d-inline">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn-action btn-action-delete" title="Hapus">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </form>
+                @else
+                <a href="{{ route('posts.show', $post->slug) }}" class="btn-action btn-action-view" title="Lihat" target="_blank">
+                    <i class="bi bi-eye"></i>
+                </a>
+                @endif
+            </div>
+        </div>
+        @empty
+        <div class="mobile-post-empty">Belum ada kiriman. Mulai tulis kiriman pertama Anda!</div>
+        @endforelse
     </div>
     @if($posts->hasPages())
     <div class="table-footer">

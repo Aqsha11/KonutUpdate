@@ -12,9 +12,10 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('role')->latest()->paginate(15);
+        $roles = Role::with(['users' => fn ($q) => $q->latest()])->orderBy('name')->get();
+        $noRole = User::whereNull('role_id')->latest()->get();
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('roles', 'noRole'));
     }
 
     public function create()
@@ -51,6 +52,17 @@ class UserController extends Controller
         $user->update($data);
 
         return redirect()->route('admin.users.index')->with('success', 'Pengguna berhasil diperbarui.');
+    }
+
+    public function verify(User $user)
+    {
+        if ($user->hasVerifiedEmail()) {
+            return redirect()->route('admin.users.index')->with('success', 'Email '.$user->email.' sudah terverifikasi.');
+        }
+
+        $user->markEmailAsVerified();
+
+        return redirect()->route('admin.users.index')->with('success', 'Email '.$user->email.' berhasil diverifikasi.');
     }
 
     public function destroy(User $user)

@@ -31,10 +31,7 @@
             <span class="page-title-icon bg-primary-light text-primary"><i data-lucide="pencil-line" class="w-4 h-4"></i></span>
             Opini
         </h1>
-        <p class="text-on-surface-variant text-xs mt-1">Pandangan dan analisis dari pembaca serta kontributor</p>
-        <a href="{{ route('opini.create') }}" class="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold no-underline hover:opacity-90 transition-opacity">
-            <i data-lucide="pencil-line" class="w-4 h-4"></i> Tulis Opini Anda
-        </a>
+        <p class="text-on-surface-variant text-xs mt-1">Opini dan analisis dari redaksi {{ $site_settings['site_name'] ?? 'Konut.Update' }}</p>
     </div>
 
     @if(session('success'))

@@ -68,8 +68,7 @@
             font-size: 1rem;
             line-height: 1.7;
             margin-bottom: 40px;
-        }
-        .login-brand-features {
+        }        .login-brand-features {
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -176,6 +175,13 @@
             font-size: 0.82rem;
             color: #6B7280;
         }
+        .login-forgot {
+            font-size: 0.82rem;
+            color: var(--primary, #189B39);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .login-forgot:hover { text-decoration: underline; }
         .btn-login {
             width: 100%;
             padding: 13px;
@@ -233,8 +239,8 @@
                         <div class="brand-text"><span>K</span>onut.Update</div>
                     @endif
                 </div>
-                <h1>Portal Admin<br><span>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</span></h1>
-                <p>Kelola berita, kategori, tag, halaman statis, dan pengaturan website dari satu panel kontrol terpadu.</p>
+                <h1>Selamat Datang di<br><span>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</span></h1>
+                <p>Baca berita terkini, bagikan opini, dan kelola konten portal dari satu akun.</p>
                 <div class="login-brand-features">
                     <div class="login-brand-feature">
                         <div class="feature-icon">📰</div>
@@ -255,7 +261,7 @@
             <div class="login-form-inner">
                 <div class="login-form-header">
                     <h2>Selamat Datang</h2>
-                    <p>Masuk untuk mengakses panel admin</p>
+                    <p>Masuk untuk melanjutkan</p>
                 </div>
 
                 @if ($errors->any())
@@ -287,18 +293,28 @@
                             </button>
                         </div>
                     </div>
+                    <div class="form-group">
+                        @include('partials.turnstile')
+                    </div>
                     <div class="form-options">
                         <label class="form-check-custom">
                             <input type="checkbox" name="remember">
                             <span>Ingat saya</span>
                         </label>
+                        <a href="{{ route('password.request') }}" class="login-forgot">Lupa Password?</a>
                     </div>
                     <button type="submit" class="btn-login" id="submitBtn">
-                        Masuk ke Admin
+                        Masuk
                     </button>
                 </form>
 
                 <div class="login-footer">
+                    <div style="margin-bottom:10px;">
+                        Belum punya akun? <a href="{{ route('register') }}" style="color:var(--primary, #189B39);font-weight:700;text-decoration:none;">Daftar di sini</a>
+                    </div>
+                    <div style="margin-bottom:10px;font-size:0.78rem;">
+                        Belum menerima email verifikasi? <a href="{{ route('register.success') }}" style="color:var(--primary, #189B39);font-weight:600;text-decoration:none;">Kirim ulang di sini</a>
+                    </div>
                     &copy; {{ date('Y') }} <strong>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</strong>. All rights reserved.
                 </div>
             </div>
