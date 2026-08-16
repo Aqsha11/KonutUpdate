@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('excerpt')->nullable();
             $table->longText('body');
             $table->string('thumbnail')->nullable();
-            $table->enum('status', ['draft', 'published'])->default('draft');
+            $table->enum('status', ['draft', 'pending', 'published', 'rejected'])->default('draft');
             $table->boolean('is_breaking')->default(false);
             $table->boolean('is_featured')->default(false);
             $table->timestamp('published_at')->nullable();
