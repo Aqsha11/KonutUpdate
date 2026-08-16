@@ -28,7 +28,7 @@ class RegisterController extends Controller
     {
         $validated = $request->validate([
             'name' => ['bail', 'required', 'string', 'min:3', 'max:100', 'regex:/^[\p{L}\p{M}\s\'\-\.\,]+$/u'],
-            'email' => ['bail', 'required', 'email:rfc,spoof', 'max:191', Rule::unique('users', 'email')],
+            'email' => ['bail', 'required', 'email:rfc'.(extension_loaded('intl') ? ',spoof' : ''), 'max:191', Rule::unique('users', 'email')],
             'password' => ['bail', 'required', 'string', 'confirmed', new StrongPassword],
             'cf-turnstile-response' => ['bail', 'required', 'string', new Turnstile],
         ], [

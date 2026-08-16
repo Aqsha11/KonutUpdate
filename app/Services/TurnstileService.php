@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class TurnstileService
 {
@@ -14,13 +16,19 @@ class TurnstileService
             return false;
         }
 
-        $response = Http::asForm()
-            ->timeout(10)
-            ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', array_filter([
-                'secret' => $secret,
-                'response' => $token,
-                'remoteip' => $remoteIp,
-            ]));
+        try {
+            $response = Http::asForm()
+                ->timeout(10)
+                ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', array_filter([
+                    'secret' => $secret,
+                    'response' => $token,
+                    'remoteip' => $remoteIp,
+                ]));
+        } catch (Throwable $e) {
+            Log::warning('Turnstile siteverify gagal terhubung: '.$e->getMessage());
+
+            return false;
+        }
 
         if (! $response->successful()) {
             return false;
