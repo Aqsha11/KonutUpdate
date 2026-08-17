@@ -20,6 +20,16 @@ class HomeController extends Controller
         $headlinePosts = $this->postRepository->getHeadlinePosts();
         $usedIds = $headlinePosts->pluck('id')->toArray();
 
+        $heroSmallPosts = Post::published()
+            ->excludeHeadline()
+            ->whereNotIn('id', $usedIds)
+            ->with(['author', 'categories'])
+            ->withCount('likes', 'comments')
+            ->latest()
+            ->take(6)
+            ->get();
+        $usedIds = array_merge($usedIds, $heroSmallPosts->pluck('id')->toArray());
+
         $videoPosts = Post::published()
             ->where('type', 'video')
             ->whereNotIn('id', $usedIds)
@@ -123,6 +133,7 @@ class HomeController extends Controller
 
         return view('frontend.home.index', compact(
             'headlinePosts',
+            'heroSmallPosts',
             'trendingPosts',
             'latestPosts',
             'opiniPosts',

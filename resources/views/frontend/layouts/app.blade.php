@@ -10,7 +10,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Konut.Update">
     <link rel="manifest" href="{{ url('/manifest.json') }}">
-    <link rel="apple-touch-icon" href="{{ url('/icons/icon.svg') }}">
+    @if(!empty($site_settings['favicon']))
+        <link rel="icon" type="image/png" href="{{ Storage::url($site_settings['favicon']) }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ Storage::url($site_settings['favicon']) }}">
+    @else
+        <link rel="icon" type="image/x-icon" href="{{ url('/favicon.ico') }}">
+        <link rel="icon" type="image/svg+xml" href="{{ url('/icons/icon.svg') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/icons/icon-180.png') }}">
+    @endif
     <link rel="alternate" type="application/rss+xml" title="{{ $site_settings['site_name'] ?? 'Konut.Update' }} RSS Feed" href="{{ url('/feed') }}">
     <title>@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))</title>
     @hasSection('meta')
@@ -38,11 +45,6 @@
         @endif
     @endif
     <link rel="canonical" href="{{ url()->current() }}" />
-    @if(!empty($site_settings['favicon']))
-        <link rel="icon" type="image/png" href="{{ Storage::url($site_settings['favicon']) }}">
-    @else
-        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23189B39'/%3E%3Ctext x='16' y='23' text-anchor='middle' font-family='Arial' font-weight='bold' font-size='20' fill='white'%3EK%3C/text%3E%3C/svg%3E">
-    @endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">

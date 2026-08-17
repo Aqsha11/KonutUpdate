@@ -35,8 +35,6 @@
     ];
 
     $categoryData = $categoryPosts;
-
-    $heroSlides = $headlinePosts;
 @endphp
 
 @section('content')
@@ -49,12 +47,12 @@
          ════════════════════════════════════════════ --}}
     @if($headlinePosts->count() > 0)
     <section class="mb-3 lg:mb-4">
-        <div class="hero-carousel" x-data="{ active: 0, total: {{ $heroSlides->count() }} }" x-init="setInterval(() => { if(total > 1) active = (active + 1) % total }, 5000)">
+        <div class="hero-carousel" x-data="{ active: 0, total: {{ $headlinePosts->count() }} }" x-init="setInterval(() => { if(total > 1) active = (active + 1) % total }, 5000)">
             <div class="hero-carousel-track" :style="'transform: translateX(-' + (active * 100) + '%)'">
-                @foreach($heroSlides as $slideIndex => $big)
+                @foreach($headlinePosts as $slideIndex => $big)
                 <div class="hero-carousel-slide">
                     @php
-                        $smalls = $heroSlides->skip($slideIndex + 1)->take(2);
+                        $smalls = $heroSmallPosts->slice($slideIndex * 2, 2);
                     @endphp
                     <div class="hero-slide-grid">
                         {{-- Big Post --}}
@@ -156,9 +154,9 @@
                 @endforeach
             </div>
 
-            @if($heroSlides->count() > 1)
+            @if($headlinePosts->count() > 1)
             <div class="hero-carousel-indicators">
-                @foreach($heroSlides as $i => $_)
+                @foreach($headlinePosts as $i => $_)
                 <button type="button" class="hero-carousel-dot" :class="active === {{ $i }} ? 'active' : ''" @click="active = {{ $i }}"></button>
                 @endforeach
             </div>

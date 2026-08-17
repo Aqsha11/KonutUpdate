@@ -10,6 +10,7 @@ class TrendingController extends Controller
     public function index()
     {
         $posts = Post::published()
+            ->excludeHeadline()
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
             ->with(['likes' => fn ($q) => $q->where('ip_address', request()->ip())])

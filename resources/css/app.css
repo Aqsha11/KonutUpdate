@@ -380,8 +380,7 @@ body {
 }
 .hero-carousel-track { display: flex; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
 .hero-carousel-slide { min-width: 100%; }
-.hero-slide-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 5px; }
-@media (max-width: 767px) { .hero-slide-grid { grid-template-columns: 1fr; } }
+.hero-slide-grid { display: grid; grid-template-columns: 1fr; gap: 5px; }
 
 .hero-slide-big { position: relative; overflow: hidden; min-height: 260px; display: flex; flex-direction: column; justify-content: flex-end; }
 @media (min-width: 768px) { .hero-slide-big { min-height: 380px; } }
@@ -464,8 +463,7 @@ body {
 .hero-slide-btn.liked { color: #f87171; }
 .hero-slide-time { color: rgba(255, 255, 255, 0.55); font-size: 11px; margin-left: auto; }
 
-.hero-slide-smalls { display: grid; grid-template-rows: 1fr 1fr; gap: 5px; }
-@media (max-width: 767px) { .hero-slide-smalls { display: none; } }
+.hero-slide-smalls { display: none; }
 .hero-slide-small { position: relative; overflow: hidden; min-height: 120px; display: flex; flex-direction: column; justify-content: flex-end; }
 @media (max-width: 767px) { .hero-slide-small { min-height: 110px; } }
 .hero-slide-small > a { position: absolute; inset: 0; }

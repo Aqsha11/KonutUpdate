@@ -68,6 +68,7 @@ class AppServiceProvider extends ServiceProvider
 
             $trendingPosts = Cache::remember('trending_posts', 3600, function () {
                 return Post::published()
+                    ->excludeHeadline()
                     ->with(['categories', 'author'])
                     ->orderBy('views_count', 'desc')
                     ->take(5)
