@@ -287,7 +287,7 @@
     <section class="mb-3 lg:mb-4">
         <div class="section-bar">
             <h2 class="section-bar-title"><span class="section-bar-dot bg-primary"></span>Terkini</h2>
-            <a href="{{ route('terkini') }}" class="section-bar-link">Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
+            <a href="{{ route('terkini') }}" class="section-bar-link">Lihat Semua <i data-lucide="arrow-right" class="w-3 h-3"></i></a>
         </div>
 
         {{-- Mobile: flat list --}}
@@ -482,6 +482,10 @@
                                 <i data-lucide="message-circle" class="w-3 h-3"></i>
                                 <span>{{ $post->commentsCount() }}</span>
                             </a>
+                            <span class="ku-cat-act">
+                                <i data-lucide="eye" class="w-3 h-3"></i>
+                                <span>{{ number_format($post->views_count) }}</span>
+                            </span>
                             <button type="button" onclick="sharePost('{{ route('posts.show', $post->slug) }}', '{{ addslashes($post->title) }}')" class="ku-cat-act">
                                 <i data-lucide="share-2" class="w-3 h-3"></i>
                             </button>

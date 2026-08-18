@@ -64,7 +64,7 @@ class HomeController extends Controller
             ->whereNotIn('id', $usedIds)
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
-            ->latest()
+            ->latest('published_at')
             ->take(18)
             ->get();
         $usedIds = array_merge($usedIds, $latestPosts->pluck('id')->toArray());
