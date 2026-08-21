@@ -223,6 +223,14 @@
                 <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
+            <div class="form-group">
+                <label for="google_site_verification" class="form-label">Google Search Console Verification</label>
+                <input type="text" name="google_site_verification" id="google_site_verification" class="form-control @error('google_site_verification') is-invalid @enderror" placeholder="kode verifikasi, mis: AbC123..._-xyz" value="{{ old('google_site_verification', $settings->google_site_verification ?? '') }}">
+                <small class="text-muted">Tempel hanya KODE-nya (bukan tag lengkap) dari Google Search Console — metode "HTML tag". Meta verifikasi akan otomatis ditambahkan ke semua halaman.</small>
+                @error('google_site_verification')
+                <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <div class="d-flex justify-content-end gap-3 pt-3 border-top">

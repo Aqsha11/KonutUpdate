@@ -86,6 +86,10 @@ class OpiniController extends Controller
 
         $post = Post::create($data);
 
+        if (! empty($data['is_headline'])) {
+            Post::enforceHeadlineLimit($post->id);
+        }
+
         $this->forgetFrontendCaches();
 
         $categoryIds = $request->input('category_ids', []);
@@ -152,6 +156,10 @@ class OpiniController extends Controller
         $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body'] ?? null);
 
         $post->update($data);
+
+        if (! empty($data['is_headline'])) {
+            Post::enforceHeadlineLimit($post->id);
+        }
 
         $this->forgetFrontendCaches();
 

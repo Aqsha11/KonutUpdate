@@ -72,23 +72,22 @@ class PostRepository
             return ['hero' => null, 'trending' => collect(), 'latest' => collect()];
         }
 
-        $baseQuery = $category->allPosts()
+        // Acak: hero dipilih random, sisanya juga random, maksimal 15 kartu.
+        $posts = $category->allPosts()
             ->published()
             ->when($excludeIds, fn ($q) => $q->whereNotIn('posts.id', $excludeIds))
-            ->with(['author', 'categories']);
-
-        $hero = (clone $baseQuery)
+            ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
-            ->latest('posts.published_at')
-            ->first();
+            ->inRandomOrder()
+            ->limit(15)
+            ->get()
+            ->values();
 
-        $trending = (clone $baseQuery)
-            ->when($hero, fn ($q) => $q->where('posts.id', '!=', $hero->id))
-            ->withCount('likes', 'comments')
-            ->orderByDesc('posts.views_count')
-            ->get();
-
-        return ['hero' => $hero, 'trending' => $trending, 'latest' => collect()];
+        return [
+            'hero' => $posts->first(),
+            'trending' => $posts->slice(1)->values(),
+            'latest' => collect(),
+        ];
     }
 
     public function getKecamatanWithStructure(string $kecamatanSlug, array $excludeIds = []): array

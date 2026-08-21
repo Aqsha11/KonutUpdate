@@ -4,7 +4,19 @@
 
 @section('meta')
     <meta name="description" content="Kumpulan berita dengan tag {{ $tag->name }} terbaru dari Konut.Update">
-    <link rel="canonical" href="{{ route('tags.show', $tag->slug) }}" />
+    @if(($tag->posts_count ?? $posts->total()) < 2)
+        <meta name="robots" content="noindex, follow">
+    @endif
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@@type": "ListItem", "position": 1, "name": "Beranda", "item": "{{ url('/') }}" },
+            { "@@type": "ListItem", "position": 2, "name": @json($tag->name), "item": "{{ route('tags.show', $tag->slug) }}" }
+        ]
+    }
+    </script>
 @endsection
 
 @section('content')
@@ -32,6 +44,7 @@
                         </a>
                         <div class="news-item-body">
                             <div class="news-item-meta">
+                            @include('frontend.partials.breaking-badge', ['post' => $post])
                                 @if($post->categories->count() > 0)
                                     @foreach($post->categories as $cat)
                                         <a href="{{ route('categories.show', $cat->slug) }}" class="news-item-cat">{{ $cat->name }}</a>

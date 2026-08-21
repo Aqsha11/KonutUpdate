@@ -10,7 +10,6 @@
         $shareImage = $thumb ?: $fallbackImage;
     @endphp
     <meta name="description" content="{{ $excerpt }}" />
-    <link rel="canonical" href="{{ url()->current() }}" />
     <meta property="og:title" content="{{ $post->title }}" />
     <meta property="og:description" content="{{ $excerpt }}" />
     <meta property="og:type" content="{{ $post->isVideo() ? 'video.other' : 'article' }}" />
@@ -22,18 +21,51 @@
     <meta name="twitter:title" content="{{ $post->title }}" />
     <meta name="twitter:description" content="{{ $excerpt }}" />
     @if($shareImage)<meta name="twitter:image" content="{{ $shareImage }}" />@endif
+    @php
+        $publishedAt = $post->published_at ? \Carbon\Carbon::parse($post->published_at) : null;
+        $modifiedAt = $post->updated_at ? \Carbon\Carbon::parse($post->updated_at) : $publishedAt;
+        $firstCategory = $post->categories->first() ?: $post->category;
+    @endphp
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "{{ $post->isVideo() ? 'VideoObject' : 'NewsArticle' }}",
+        "mainEntityOfPage": {
+            "@@type": "WebPage",
+            "@@id": "{{ url()->current() }}"
+        },
         "headline": @json($post->title),
         "description": @json($excerpt),
-        @if($thumb)"image": "{{ $thumb }}",@endif
-        "datePublished": "{{ $post->published_at }}",
+        @if($thumb)
+            "image": ["{{ $thumb }}"],
+        @elseif($fallbackImage)
+            "image": ["{{ $fallbackImage }}"],
+        @endif
+        @if($publishedAt)"datePublished": "{{ $publishedAt->toIso8601String() }}",@endif
+        @if($modifiedAt)"dateModified": "{{ $modifiedAt->toIso8601String() }}",@endif
         "author": { "@@type": "Person", "name": @json($post->author_name) },
-        "publisher": { "@@type": "Organization", "name": @json($site_settings['site_name'] ?? 'Konut.Update') }
+        "publisher": {
+            "@@type": "Organization",
+            "name": @json($site_settings['site_name'] ?? 'Konut.Update'),
+            @if(!empty($site_settings['logo']))"logo": { "@@type": "ImageObject", "url": "{{ url(Storage::url($site_settings['logo'])) }}" },@endif
+            "url": "{{ url('/') }}"
+        },
+        "isAccessibleForFree": true
     }
     </script>
+    @if($firstCategory)
+    <script type="application/ld+json">
+    {
+        "@@context": "https://schema.org",
+        "@@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@@type": "ListItem", "position": 1, "name": "Beranda", "item": "{{ url('/') }}" },
+            { "@@type": "ListItem", "position": 2, "name": @json($firstCategory->name), "item": "{{ route('categories.show', $firstCategory->slug) }}" },
+            { "@@type": "ListItem", "position": 3, "name": @json($post->title) }
+        ]
+    }
+    </script>
+    @endif
 @endsection
 
 @section('content')
@@ -89,6 +121,7 @@
                 @endif
 
                 {{-- Title --}}
+                @include('frontend.partials.breaking-badge', ['post' => $post, 'breakingVariant' => 'page-title'])
                 <h1 class="article-title">
                     @if($post->isVideo())
                         <span class="inline-flex items-center gap-1 text-accent mr-1.5"><i data-lucide="play-circle" class="w-5 h-5 md:w-6 md:h-6"></i></span>
@@ -119,7 +152,25 @@
 
                 {{-- Video Player --}}
                 @if($post->isVideo() && $post->video_url)
-                    @if($post->video_poster)
+                    @if($post->is_tiktok && $post->video_embed_url && $post->video_embed_url !== $post->video_url)
+                        <div class="article-hero-media mx-auto" style="max-width: 340px;">
+                            <div class="relative w-full rounded-xl overflow-hidden bg-black mx-auto" style="aspect-ratio: 9/16; max-width: 340px;">
+                                <iframe src="{{ $post->video_embed_url }}" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen allow="encrypted-media;"></iframe>
+                            </div>
+                            <p class="text-center text-sm text-gray-500 mt-2">
+                                <i class="bi bi-tiktok"></i> Sumber: TikTok —
+                                <a href="{{ $post->video_url }}" target="_blank" rel="noopener" class="text-primary hover:underline">Tonton di TikTok ↗</a>
+                            </p>
+                        </div>
+                    @elseif($post->is_tiktok)
+                        {{-- Link TikTok tanpa ID video (mis. short link) atau video tak tersedia --}}
+                        <div class="article-hero-media rounded-xl border border-outline bg-surface-container p-8 text-center">
+                            <i class="bi bi-tiktok fs-1 text-gray-400"></i>
+                            <p class="mt-3 font-semibold">Pemutar video tidak dapat dimuat</p>
+                            <p class="text-sm text-gray-500 mb-4">Gunakan link lengkap berformat tiktok.com/@user/video/ID agar video bisa diputar di sini.</p>
+                            <a href="{{ $post->video_url }}" target="_blank" rel="noopener" class="btn-admin btn-admin-primary"><i class="bi bi-box-arrow-up-right"></i> Buka di TikTok</a>
+                        </div>
+                    @elseif($post->video_poster)
                         <div class="article-hero-media" x-data="{ playing: false }">
                             <div x-show="!playing" @click="playing = true" class="relative cursor-pointer group" style="padding-top: 56.25%;">
                                 <img src="{{ $post->video_poster }}" alt="{{ $post->title }}" class="absolute inset-0 w-full h-full object-cover">
@@ -190,6 +241,21 @@
                     {!! $post->body !!}
                 </div>
 
+                {{-- Internal link: hub kecamatan asal berita --}}
+                @if($post->kecamatan)
+                    <a href="{{ route('kecamatan.show', $post->kecamatan->slug) }}"
+                       class="mt-4 flex items-center gap-2.5 p-3 rounded-xl bg-primary-light border border-outline no-underline group hover:bg-primary/10 transition-colors">
+                        <span class="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
+                        </span>
+                        <span class="min-w-0">
+                            <span class="block text-[9px] font-semibold text-on-surface-variant uppercase tracking-wider">Lokasi Berita Ini</span>
+                            <span class="block text-xs font-bold text-primary group-hover:underline">Semua Berita Kecamatan {{ $post->kecamatan->name }} &rarr;</span>
+                        </span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-primary ml-auto shrink-0"></i>
+                    </a>
+                @endif
+
                 {{-- Tags --}}
                 @if($post->tags->count() > 0)
                     <div class="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-outline">
@@ -245,6 +311,7 @@
                                 </div>
                                 <div class="news-item-body">
                                     <div class="news-item-meta">
+                                    @include('frontend.partials.breaking-badge', ['post' => $related])
                                         @if($related->categories->count() > 0)
                                             <span class="news-item-cat">{{ $related->categories->first()->name }}</span>
                                         @elseif($related->category)

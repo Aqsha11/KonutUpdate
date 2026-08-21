@@ -7,7 +7,6 @@
         $catDesc = $category->description ?: 'Kumpulan berita ' . $category->name . ' terbaru dari Konut.Update';
     @endphp
     <meta name="description" content="{{ $catDesc }}">
-    <link rel="canonical" href="{{ route('categories.show', $category->slug) }}" />
     <meta property="og:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
     <meta property="og:description" content="{{ $catDesc }}" />
     <meta property="og:type" content="website" />
@@ -50,6 +49,7 @@
                         </a>
                         <div class="news-item-body">
                             <div class="news-item-meta">
+                            @include('frontend.partials.breaking-badge', ['post' => $post])
                                 @if($post->categories->count() > 0)
                                     @foreach($post->categories as $cat)
                                         <a href="{{ route('categories.show', $cat->slug) }}" class="news-item-cat">{{ $cat->name }}</a>

@@ -2,46 +2,16 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
+use App\Models\Kecamatan;
 use App\Models\Post;
+use App\Models\User;
 use Faker\Factory as Faker;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class PostSeeder extends Seeder
 {
-    private array $titles = [
-        'Bupati Konawe Utara Resmikan Gedung Serbaguna di Lasolo',
-        'Polres Konut Tangkap Pelaku Pencurian di Kecamatan Asera',
-        'PT VDN Resmi Beroperasi Penuh di Kawasan Industri Konawe Utara',
-        'DPRD Konut Sahkan APBD Perubahan Tahun 2026',
-        'Kecelakaan Lalu Lintas di Jalur Trans Sulawesi Libatkan Dua Truk',
-        'Pemerintah Konut Canangkan Program Desa Digital 2026',
-        'Ribuan Warga Konut Hadiri Festival Budaya Konawe',
-        'Pelaku Tambang Ilegal di Konut Diamankan Tim Gabungan',
-        'SMA Negeri 1 Lasolo Raih Juara Umum Olimpiade Sains Tingkat Sultra',
-        'Harga Komoditas Kakao di Konut Alami Kenaikan Signifikan',
-        'Pemkab Konut Salurkan Bantuan Sosial untuk Korban Banjir',
-        'Turnamen Sepak Bola Bupati Cup 2026 Resmi Digelar',
-        'Polda Sultra Bongkar Jaringan Narkoba di Konawe Utara',
-        'Universitas Halu Oleo Buka Kampus Cabang di Konut',
-        'Danramil Lasolo Beri Penyuluhan Bela Negara ke Pelajar',
-        'Kadis Pendidikan Konut Tinjau Pembangunan Sekolah di Wawolesea',
-        'Pelaku Pembakaran Lahan di Konut Terancam Hukum 10 Tahun',
-        'Pertumbuhan Ekonomi Konut Triwulan I Capai 5,8 Persen',
-        'Jembatan Penghubung Dua Kecamatan di Konut Rampung Dibangun',
-        'Satpol PP Konut Tertibkan Pedagang Kaki Lima di Pasar Lasolo',
-        'BPBD Konut Kirim Bantuan Logistik ke Desa Terisolir',
-        'Pj Bupati Konut Hadiri Peringatan HUT RI di Kendari',
-        'Konut Raih Penghargaan Kabupaten Layak Anak dari KemenPPPA',
-        'Pelajar Konut Ikuti Program Pertukaran Budaya ke Jepang',
-        'Produksi Nikel Konut Capai Rekor Tertinggi pada Semester I',
-        'Peringatan Maulid Nabi di Konut Berlangsung Khidmat',
-        'Konut Jadi Tuan Rumah Pekan Olahraga Provinsi 2027',
-        'Rehabilitasi Mangrove di Pesisir Konut Libatkan Masyarakat',
-        'Baznas Konut Salurkan Zakat untuk Ribuan Mustahik',
-        'DKPP Konut Intensifkan Pengawasan Hewan Ternak Jelang Idul Adha',
-    ];
-
     private array $templates = [
         [
             'Kecamatan {kecamatan}, Konawe Utara — {pembukaan} Kegiatan ini dihadiri oleh {pejabat} dan sejumlah {tamu}. Dalam sambutannya, {subjek} menyampaikan bahwa {pernyataan}.',
@@ -63,16 +33,11 @@ class PostSeeder extends Seeder
         ],
     ];
 
-    private array $kecamatan = ['Lasolo', 'Asera', 'Langgikima', 'Oheo', 'Andowia', 'Wawolesea', 'Molawe', 'Landawe', 'Kulisusu', 'Tongauna'];
+    private array $kecamatanNames = ['Lasolo', 'Asera', 'Langgikima', 'Oheo', 'Andowia', 'Wawolesea', 'Molawe', 'Landawe', 'Lasolo Kepulauan', 'Lembo', 'Motui', 'Sawa', 'Wiwirano'];
 
     private array $pejabat = ['Bupati Konawe Utara', 'Wakil Bupati Konut', 'Sekretaris Daerah Konut', 'Ketua DPRD Konut', 'Kapolres Konut', 'Dandim 1417 Konut', 'Kajari Konut'];
 
     private array $narasumber = ['Kadis Kominfo Konut', 'Kadis Pendidikan Konut', 'Kabag Humas Pemkab Konut', 'Kasi Humas Polres Konut', 'Camat setempat', 'Kepala Desa setempat'];
-
-    private function kec(): string
-    {
-        return $this->kecamatan[array_rand($this->kecamatan)];
-    }
 
     private function randomTemplate(): array
     {
@@ -86,12 +51,12 @@ class PostSeeder extends Seeder
 
         foreach ($paragraphs as $para) {
             $replacements = [
-                '{kecamatan}' => $this->kec(),
+                '{kecamatan}' => $this->kecamatanNames[array_rand($this->kecamatanNames)],
                 '{pembukaan}' => fake()->randomElement([
                     'Pemerintah Kabupaten Konawe Utara menggelar kegiatan pembangunan infrastruktur di wilayah ini.',
                     'Warga masyarakat antusias mengikuti acara yang diselenggarakan oleh pemerintah daerah.',
                     'Suasana penuh kehangatan terasa dalam kegiatan yang berlangsung pagi tadi.',
-                    'Sejumlah agenda penting dibahas dalam pertemuan yang digelar di Apertemuan Kantor Bupati.',
+                    'Sejumlah agenda penting dibahas dalam pertemuan di Aula Kantor Bupati.',
                 ]),
                 '{pejabat}' => $this->pejabat[array_rand($this->pejabat)],
                 '{tamu}' => fake()->randomElement(['tokoh masyarakat', 'perangkat desa', 'perwakilan kecamatan', 'stakeholder terkait', 'unsur Forkopimda']),
@@ -165,7 +130,7 @@ class PostSeeder extends Seeder
                 '{rincian}' => fake()->randomElement([
                     'kronologi kejadian masih dalam penyelidikan pihak berwajib.',
                     'barang bukti telah diamankan oleh petugas kepolisian.',
-                    'beberapa saksi telah dimintai keteranganoleh penyidik.',
+                    'beberapa saksi telah dimintai keterangan oleh penyidik.',
                 ]),
                 '{nominal}' => fake()->randomElement(['puluhan juta rupiah', 'ratusan juta rupiah', 'sekitar Rp 50 juta', 'kurang lebih Rp 100 juta']),
                 '{imbauan}' => fake()->randomElement([
@@ -192,13 +157,10 @@ class PostSeeder extends Seeder
                     'memberikan pelayanan publik yang lebih baik',
                     'mengembangkan potensi lokal yang ada di daerah',
                 ]),
-                '{lokasi}' => fake()->randomElement([
-                    'Kecamatan Lasolo', 'Kecamatan Asera', 'Kecamatan Langgikima',
-                    'Kecamatan Oheo', 'Kecamatan Andowia', 'Kecamatan Wawolesea',
-                ]),
+                '{lokasi}' => fake()->randomElement(array_map(fn ($k) => 'Kecamatan '.$k, array_slice($this->kecamatanNames, 0, 6))),
                 '{peserta}' => fake()->randomElement([
                     'ratusan warga yang antusias',
-                    'perwakilan dari 10 kecamatan se-Konut',
+                    'perwakilan dari 13 kecamatan se-Konut',
                     'para tokoh agama dan tokoh masyarakat',
                 ]),
                 '{apresiasi}' => fake()->randomElement([
@@ -234,54 +196,209 @@ class PostSeeder extends Seeder
         return $excerpt;
     }
 
+    /**
+     * Spesifikasi post, urut dari yang PALING BARU.
+     * Flag: H = headline, B = breaking, F = featured, D = draft.
+     */
+    private function specs(): array
+    {
+        return [
+            // ── HEADLINE + BREAKING (jam-jam terakhir) ──
+            ['Dua Truk Tabrakan di Jalur Trans Sulawesi, Arus Lasolo-Oheo Lumpuh Total', 'kecelakaan', 'HB'],
+            ['Banjir Bandang Rendam Ratusan Rumah di Andowia, Warga Mengungsi ke Kantor Camat', 'pemerintahan', 'H'],
+            ['Bupati Konut Resmikan Jembatan Penghubung Asera-Lasolo Senilai Rp87 Miliar', 'pemerintahan', 'HB'],
+            ['PT VDN Umumkan Ekspansi Pabrik Pengolahan Nikel, Siap Serap 2.000 Tenaga Kerja', 'tambang', 'H'],
+            ['Polres Konut Bongkar Gudang Pengepul BBM Ilegal di Langgikima', 'kriminal', 'HB'],
+            ['Konut Siap Gelar Porprov Sultra 2027, Renovasi Stadion Andi Jemma Dimulai', 'olahraga', 'H'],
+
+            // ── BREAKING non-headline ──
+            ['Gempa M5,1 Guncang Perairan Utara Konawe Utara, Tidak Berpotensi Tsunami', 'nasional', 'B'],
+
+            // ── KABAR TERKINI (feed jam & hari ini) ──
+            ['Truk Muat Sawit Terguling di Km 32 Jalur Trans, Satu Sopir Terluka', 'kecelakaan', ''],
+            ['Satgas Gabungan Amankan Tambang Ilegal di Wilayah Oheo', 'kriminal', ''],
+            ['Pemkab Konut Canangkan Program Desa Digital 2026 untuk 13 Kecamatan', 'pemerintahan', ''],
+            ['Harga Kakao di Konut Naik 12 Persen, Petani Antusias Musim Panen Raya', 'ekonomi', ''],
+            ['SMAN 1 Lasolo Raih Juara Umum Olimpiade Sains Tingkat Sultra', 'pendidikan', ''],
+            ['Timnas Sepak Bola Bupati Cup 2026 Lolos Babak Semifinal Hari Ini', 'olahraga', ''],
+            ['BPBD Konut Kirim Bantuan Logistik ke Desa Terisolir Pasca Banjir', 'pemerintahan', ''],
+            ['Polisi Tetapkan Tersangka Baru Kasus Pembakaran Lahan di Wiwirano', 'kriminal', ''],
+            ['DPRD Konut Sahkan APBD Perubahan 2026, Fokus pada Infrastruktur Dasar', 'politik', ''],
+            ['Ribuan Warga Padati Festival Budaya Konawe 2026 di Andowia', 'event', ''],
+            ['Universitas Halu Oleo Resmi Buka Kampus Cabang di Konawe Utara', 'pendidikan', ''],
+            ['Produksi Nikel Konut Capai Rekor Tertinggi pada Semester I 2026', 'tambang', ''],
+            ['Jalan Poros Wawolesea-Molawe Tahap Akhir, Ditargetkan Rampung Bulan Depan', 'pemerintahan', ''],
+            ['Pertumbuhan Ekonomi Konut Triwulan II Tembus 5,8 Persen', 'ekonomi', ''],
+            ['Polda Sultra Bongkar Jaringan Narkoba Lintas Kabupaten di Konut', 'kriminal', ''],
+            ['Pelajar Konut Ikuti Program Pertukaran Budaya Pelajar ke Jepang', 'pendidikan', ''],
+            ['Konut Raih Penghargaan Kabupaten Layak Anak Tingkat Provinsi', 'pemerintahan', ''],
+            ['Danramil Lasolo Beri Penyuluhan Bela Negara kepada Pelajar', 'pemerintahan', ''],
+
+            // ── VIDEO ──
+            ['Video: Suasana Meriah Festival Budaya Konawe 2026', 'event', ''],
+            ['Video: Progres Pembangunan Jalan Poros Wawolesea-Molawe', 'pemerintahan', ''],
+            ['Video: Keseruan Turnamen Sepak Bola Bupati Cup 2026', 'olahraga', ''],
+            ['Video: Panen Raya Kakao Petani Kecamatan Lasolo', 'ekonomi', ''],
+            ['Video: Latihan Bersama Polres Konut dan Masyarakat', 'kriminal', ''],
+
+            // ── KONTEN PILIHAN / FEATURED ──
+            ['Pasar Modern Andowia Mulai Beroperasi, Ratusan Pedagang Pindah Hari Ini', 'ekonomi', 'F'],
+            ['Sekolah Adat Wawolesea Lestarikan Bahasa Tolaki Lewat Kurikulum Lokal', 'pendidikan', 'F'],
+            ['UMKM Konut Go Digital Setelah Ikut Pelatihan Marketplace Pemkab', 'ekonomi', 'F'],
+            ['Wisata Pantai Molawe Ditargetkan Sedot 50 Ribu Wisatawan Tahun Ini', 'event', 'F'],
+            ['Peternak Konut Terima Bantuan Bibit Sapi dari Pemda Tahap Ketiga', 'pemerintahan', 'F'],
+            ['Rehabilitasi Mangrove di Pesisir Lasolo Kepulauan Libatkan Nelayan', 'nasional', 'F'],
+
+            // ── OPINI ──
+            ['Opini: Membangun Konawe Utara Harus Dimulai dari Desa', 'pemerintahan', 'O'],
+            ['Opini: Tantangan Industri Nikel yang Ramah Lingkungan di Konut', 'tambang', 'O'],
+            ['Opini: Pendidikan Berkualitas adalah Hak Setiap Anak Konut', 'pendidikan', 'O'],
+            ['Opini: Generasi Muda Konut dan Peluang Ekonomi Digital', 'ekonomi', 'O'],
+            ['Opini: Jaga Hutan Konawe Utara demi Masa Depan Bersama', 'nasional', 'O'],
+
+            // ── REGULER (hari-hari sebelumnya) ──
+            ['Baznas Konut Salurkan Zakat untuk Ribuan Mustahik di 13 Kecamatan', 'pemerintahan', ''],
+            ['DKPP Konut Intensifkan Vaksinasi Hewan Ternak Jelang Idul Adha', 'pemerintahan', ''],
+            ['Peringatan Maulid Nabi di Konut Berlangsung Khidmat dan Meriah', 'event', ''],
+            ['Konut Jadi Tuan Rumah Pekan Olahraga Provinsi Sultra 2027', 'olahraga', ''],
+            ['Pj Bupati Konut Hadiri Upacara Peringatan HUT RI ke-81', 'pemerintahan', ''],
+            ['Satpol PP Konut Tertibkan Pedagang Kaki Lima di Pasar Lasolo', 'pemerintahan', ''],
+            ['Kadis Pendidikan Konut Tinjau Pembangunan Ruang Kelas di Sawa', 'pendidikan', ''],
+            ['Kecelakaan Motor vs Mobil di Langgikima, Dua Orang Alami Luka Ringan', 'kecelakaan', ''],
+            ['Polres Konut Ringkus Penadah Kendaraan Bermotor di Asera', 'kriminal', ''],
+            ['Program KB Lingkar Desa Diperluas ke Wilayah Motui dan Lembo', 'pemerintahan', ''],
+            ['Harga Beras Lokal Stabil Menjelang Panen Raya di Konut', 'ekonomi', ''],
+            ['Turnamen Voli Antar-Kecamatan Resmi Dibuka di Lapangan Wiwirano', 'olahraga', ''],
+            ['Puskesmas Oheo Tambah Tenaga Medis untuk Wilayah Perbatasan', 'pemerintahan', ''],
+            ['Belanja Online Warga Konut Naik, Dinas Kopirdagin Dorong Koperasi Digital', 'ekonomi', ''],
+            ['Kebakaran Warung di Pasar Langgikima Padam dalam 30 Menit', 'kriminal', ''],
+            ['Beasiswa Anak Petani Konut Dibuka untuk 200 Kuota Mahasiswa', 'pendidikan', ''],
+            ['Jembatan Gantungan Penghubung Dusun di Landawe Mulai Direnovasi', 'pemerintahan', ''],
+            ['Kasus Pencurian Ternak di Motui Terungkap Berkat CCTV Warga', 'kriminal', ''],
+            ['Festival Kuliner Sagu Lasolo Kepulauan Siap Digelar Akhir Bulan', 'event', ''],
+            ['Tim Bulu Tangkis Konut Persiapkan Kejurnas di Kendari', 'olahraga', ''],
+            ['Air Bersih Mengalir ke 500 KK di Wiwirano Lewat Program Pamsimas', 'pemerintahan', ''],
+            ['Investor Cina Tinjau Kawasan Industri Nikel di Konut Timur', 'tambang', ''],
+            ['Guru Honorer Konut Ikuti Uji Kompetensi Nasional Tahap II', 'pendidikan', ''],
+            ['Operasi Zebra Hari Santri, Belasan Pengendali Motor Tanpa Helm Ditilang', 'kriminal', ''],
+
+            // ── REGULER TAMBAHAN (biar tiap kategori & kecamatan berisi) ──
+            ['Pemkab Konut Realokasi Dana Desa untuk Pembangunan Jalan Antar-Dusun', 'pemerintahan', ''],
+            ['Dua Pemuda Ditangkap Gara-Gara Video Aksi Balapan Liar di Andowia', 'kriminal', ''],
+            ['Angkot Rute Konut-Kendari Mulai Terapkan Tarif Elektronik', 'ekonomi', ''],
+            ['Lomba Desa Tingkat Kabupaten Dimenangkan Desa Wiwirano', 'pemerintahan', ''],
+            ['Siswa Sawa Raih Medali Emas Kompetisi Matematika Sulawesi', 'pendidikan', ''],
+            ['Kecelakaan Tandem di Sirkuit Molawe, Satu Pebalap Cedera', 'kecelakaan', ''],
+            ['Rapat Koordinasi Pilpres Damai Digelar Pemkab Konut', 'politik', ''],
+            ['Ekspor Kakao Konut Tembus 4 Ribu Ton pada Semester Pertama', 'ekonomi', ''],
+            ['Polsek Asera Gelar Sosialisasi Antipickpocket di Pasar Tradisional', 'kriminal', ''],
+            ['Pantai Oheo Jadi Venue Kejuaraan Surfing Junior Nasional', 'olahraga', ''],
+            ['Banjir Rob Genangi Pesisir Lasolo Kepulauan Selama Dua Hari', 'nasional', ''],
+            ['Penerimaan CPNS Formasi Konut Naik Jadi 150 Orang', 'politik', ''],
+            ['Galeri Seni Pertama di Andowia Resmi Dibuka untuk Umum', 'event', ''],
+            ['Beasiswa Prestasi Pemkab Konut Untuk 80 Pelajar SMA', 'pendidikan', ''],
+            ['Truk Tangki Solar Tercecer di Jalur Trans, Lalu Lintas Diatur Satu Arah', 'kecelakaan', ''],
+            ['Harga Gabah Petani Motui Naik Seiring Musim Panen Padi', 'ekonomi', ''],
+            ['Kasus Penyelundupan Kayu Ilegal di Perbatasan Lembo Terungkap', 'kriminal', ''],
+            ['Turnamen Bola Voli Pantai Sawa Sumbang Dua Medali bagi Konut', 'olahraga', ''],
+            ['BMCG Peringatkan Cuaca Ekstrem Potensi Hujan Lebat di Konut', 'nasional', ''],
+            ['Festival Tari Tolaki Kembali Digelar di Lapangan Andowia', 'event', ''],
+            ['Perpustakaan Keliling Jangkau Sekolah-Sekolah Terpencil Landawe', 'pendidikan', ''],
+            ['Tabrakan Kereta Tambang dan Truk di Kawasan Industri, Tiga Korban', 'kecelakaan', ''],
+            ['Sengketa Lahan Sawit di Asera Masuki Tahap Mediasi', 'politik', ''],
+            ['UMKM Tahu Tempe Langgikima Tembus Pasar Supermarket Kendari', 'ekonomi', ''],
+            ['Posyandu Desa Lembo Raih Predikat Terbaik Tingkat Kabupaten', 'pemerintahan', ''],
+            ['Klub Sepakbola Konut Utama Rekrut Tiga Pemain Muda Lokal', 'olahraga', ''],
+            ['Longsor Kecil Tutup Jalur Wiwirano-Tinukoren, Alat Berat Diterjunkan', 'kecelakaan', ''],
+            ['Anggota DPRD Konut Lakukan Kunjungan Kerja ke Kecamatan Sawa', 'politik', ''],
+            ['Pameran Kerajinan Kayu Ulin Tarik Pengunjung di Molawe', 'event', ''],
+            ['Program Literasi Digital Sasar 2.000 Ibu Rumah Tangga di Konut', 'pendidikan', ''],
+            ['Penambangan Ilegal Pasir Sungai di Oheo Digelar Operasi Gabungan', 'tambang', ''],
+            ['Konawe Utara Kirim 30 Ton Bantuan Logistik untuk Daerah Terdampak', 'nasional', ''],
+            ['Investasi Data Center Pertama Konut Ditargetkan Beroperasi 2027', 'ekonomi', ''],
+            ['Reklamasi Tambak Garam Sawa Perkuat Ketahanan Produksi Garam', 'ekonomi', ''],
+            ['Pemilihan Ketua TNI-Polri Cabang Konut Berlangsung Kondusif', 'politik', ''],
+            ['Wisata Mangrove Wawolesea Masuk 10 Besar Anugerah Wisata Sultra', 'event', ''],
+
+            // ── DRAFT (tidak tampil) ──
+            ['Naskah Berita: Rencana Pembangunan Bandara Konut Masih Dikaji', 'pemerintahan', 'D'],
+            ['Naskah Berita: BPS Sultra Rilis Data Kemiskinan Kabupaten', 'ekonomi', 'D'],
+        ];
+    }
+
     public function run(): void
     {
         $faker = Faker::create('id_ID');
 
-        foreach ($this->titles as $index => $title) {
-            if ($index < 4) {
-                $status = 'published';
-                $isBreaking = in_array($index, [2]);
-                $isFeatured = in_array($index, [0, 1]);
-            } elseif ($index < 10) {
-                $status = 'published';
-                $isBreaking = in_array($index, [5, 7]);
-                $isFeatured = in_array($index, [3, 5]);
-            } elseif ($index < 27) {
-                $status = 'published';
-                $isBreaking = false;
-                $isFeatured = in_array($index, [12, 15]);
-            } else {
-                $status = 'draft';
-                $isBreaking = false;
-                $isFeatured = false;
-            }
+        $catIds = Category::pluck('id', 'slug');
+        $kecIds = Kecamatan::orderBy('name')->pluck('id')->values()->all();
+        $userIds = User::pluck('id')->all() ?: [1];
 
-            $body = $this->generateBody();
-            $publishedAt = $faker->dateTimeBetween('-1 month', 'now');
-            $createdAt = $publishedAt;
-            $updatedAt = $publishedAt;
+        if ($catIds->isEmpty()) {
+            $this->command?->warn('CategorySeeder harus dijalankan lebih dulu.');
 
-            $postData = [
-                'user_id' => rand(1, 3),
-                'category_id' => rand(1, 10),
+            return;
+        }
+
+        // Umur eksplisit per blok (menit): headline menit-menit terakhir,
+        // feed terkini jam-jam ini, video/featured/opini beberapa hari,
+        // reguler mingguan. Draft tanpa tanggal.
+        $ageFor = fn (int $i): int => match (true) {
+            $i < 7 => 20 + $i * 22,                       // ±20 mnt - 2 jam
+            $i < 20 => 200 + ($i - 7) * 95,               // ±3 jam - 22 jam
+            $i < 36 => 2900 + ($i - 20) * 160,            // ±2 hari - 3,7 hari
+            default => min(9000 + ($i - 36) * 700, 42000) // ±6 hari - ±29 hari
+        };
+
+        foreach ($this->specs() as $index => [$title, $categorySlug, $flags]) {
+            $isHeadline = str_contains($flags, 'H');
+            $isBreaking = str_contains($flags, 'B');
+            $isFeatured = str_contains($flags, 'F');
+            $isDraft = str_contains($flags, 'D');
+
+            $type = str_starts_with($title, 'Video:') ? 'video' : (str_starts_with($title, 'Opini:') ? 'opini' : 'article');
+
+            $publishedAt = $isDraft ? null : now()->subMinutes($ageFor($index));
+
+            $viewsBoost = ($isFeatured || $isBreaking || $index < 10) ? rand(4000, 22000) : rand(150, 6000);
+
+            $primaryCatId = $catIds[$categorySlug] ?? $catIds->first();
+
+            $post = Post::create([
+                'user_id' => $userIds[array_rand($userIds)],
+                'category_id' => $primaryCatId,
+                'kecamatan_id' => $kecIds !== [] ? $kecIds[$index % count($kecIds)] : null,
                 'title' => $title,
                 'slug' => Str::slug($title),
-                'excerpt' => $this->generateExcerpt($body),
+                'excerpt' => $this->generateExcerpt($body = $this->generateBody()),
                 'body' => $body,
                 'thumbnail' => null,
-                'status' => $status,
+                'type' => $type,
+                'video_path' => $type === 'video'
+                    ? sprintf('https://www.tiktok.com/@konutupdate/video/%d', 7400000000000000000 + $index)
+                    : null,
+                'status' => $isDraft ? 'draft' : 'published',
                 'is_breaking' => $isBreaking,
-                'is_headline' => $isFeatured,
-                'breaking_expires_at' => $isBreaking ? (clone $publishedAt)->modify('+3 days') : null,
-                'headline_expires_at' => $isFeatured ? (clone $publishedAt)->modify('+7 days') : null,
+                'is_featured' => $isFeatured,
+                'is_headline' => $isHeadline,
+                'breaking_expires_at' => $isBreaking ? now()->addDays(3) : null,
+                'headline_expires_at' => $isHeadline ? now()->addDays(7) : null,
                 'published_at' => $publishedAt,
-                'views_count' => rand(50, 5000),
-                'created_at' => $createdAt,
-                'updated_at' => $updatedAt,
-            ];
+                'views_count' => $viewsBoost,
+                'created_at' => $publishedAt ?? now(),
+                'updated_at' => $publishedAt ?? now(),
+            ]);
 
-            Post::create($postData);
+            // Relasi many-to-many kategori (pivot post_categories) — inilah
+            // yang dipakai menu nav & section kategori via whereHas('allPosts').
+            $attach = [$primaryCatId];
+            if (! $isDraft && rand(1, 100) <= 25) {
+                $others = $catIds->reject(fn ($id, $slug) => $slug === $categorySlug);
+                if ($others->isNotEmpty()) {
+                    $attach[] = $others->random();
+                }
+            }
+            $post->categories()->sync($attach);
         }
     }
 }

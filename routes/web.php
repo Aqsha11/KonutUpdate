@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\VideoController as AdminVideoController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ProfileController as AuthProfileController;
@@ -26,14 +27,17 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\KecamatanController as FrontendKecamatanController;
 use App\Http\Controllers\Frontend\LatestController;
 use App\Http\Controllers\Frontend\LikeController;
+use App\Http\Controllers\Frontend\NewsArchiveController;
 use App\Http\Controllers\Frontend\OpiniController;
 use App\Http\Controllers\Frontend\PageController;
+use App\Http\Controllers\Frontend\VideoArchiveController;
 use App\Http\Controllers\Frontend\PostController;
 use App\Http\Controllers\Frontend\SearchController;
 use App\Http\Controllers\Frontend\TagController;
 use App\Http\Controllers\Frontend\TrendingController;
 use App\Models\Ad;
 use App\Models\Category;
+use App\Models\Kecamatan;
 use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Route;
@@ -45,12 +49,14 @@ Route::get('/iklan/{ad}', function (Ad $ad) {
     return redirect($ad->link ?: url('/'));
 })->name('ads.click');
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/semua-berita', [NewsArchiveController::class, 'index'])->name('news.index');
 Route::get('/berita/{slug}', [PostController::class, 'show'])->name('posts.show');
 Route::get('/kategori/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/tag/{slug}', [TagController::class, 'show'])->name('tags.show');
 Route::get('/kecamatan/{slug}', [FrontendKecamatanController::class, 'show'])->name('kecamatan.show');
 Route::get('/trending', [TrendingController::class, 'index'])->name('trending');
 Route::get('/terkini', [LatestController::class, 'index'])->name('terkini');
+Route::get('/video', [VideoArchiveController::class, 'index'])->name('videos');
 Route::get('/opini', [OpiniController::class, 'index'])->name('opini');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::post('/berita/{post}/komentar', [CommentController::class, 'store'])->middleware('throttle:5,1')->name('comments.store');
@@ -108,13 +114,20 @@ Route::prefix('panel-kontributor')->name('kontributor.')->middleware(['auth', 'r
 
 // SEO Routes
 Route::get('/robots.txt', function () {
-    $robots = "User-agent: *\n";
-    $robots .= "Allow: /\n";
-    $robots .= "Disallow: /admin\n";
-    $robots .= "Disallow: /login\n";
-    $robots .= 'Sitemap: '.url('sitemap.xml')."\n";
+    $lines = [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /admin',
+        'Disallow: /login',
+        'Disallow: /daftar',
+        'Disallow: /panel-kontributor',
+        'Disallow: /email/',
+        'Disallow: /search',
+        '',
+        'Sitemap: '.url('sitemap.xml'),
+    ];
 
-    return response($robots)->header('Content-Type', 'text/plain');
+    return response(implode("\n", $lines))->header('Content-Type', 'text/plain');
 });
 
 Route::get('/feed', function () {
@@ -128,11 +141,32 @@ Route::get('/feed', function () {
 })->name('rss.feed');
 
 Route::get('/sitemap.xml', function () {
-    $posts = Post::published()->latest()->get();
-    $categories = Category::all();
-    $tags = Tag::all();
+    $posts = Post::published()
+        ->orderByDesc('published_at')
+        ->get(['slug', 'updated_at', 'published_at']);
 
-    return response()->view('frontend.partials.sitemap', compact('posts', 'categories', 'tags'))->header('Content-Type', 'application/xml');
+    $categories = Category::query()
+        ->whereHas('posts', fn ($q) => $q->published())
+        ->withMax(['posts' => fn ($q) => $q->published()], 'published_at')
+        ->orderBy('name')
+        ->get();
+
+    $tags = Tag::query()
+        ->withCount(['posts' => fn ($q) => $q->published()])
+        ->orderByDesc('posts_count')
+        ->get()
+        ->filter(fn ($tag) => $tag->posts_count >= 2)
+        ->values();
+
+    $kecamatans = Kecamatan::query()
+        ->ordered()
+        ->withMax(['posts' => fn ($q) => $q->published()], 'published_at')
+        ->get();
+
+    $lastmod = $posts->first()?->published_at ?? now();
+
+    return response()->view('frontend.partials.sitemap', compact('posts', 'categories', 'tags', 'kecamatans', 'lastmod'))
+        ->header('Content-Type', 'application/xml');
 });
 
 // Admin Routes
@@ -157,6 +191,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.sess
     Route::post('/opini/{post}/approve', [AdminOpiniController::class, 'approve'])->middleware('permission:manage_opini')->name('opini.approve');
     Route::post('/opini/{post}/reject', [AdminOpiniController::class, 'reject'])->middleware('permission:manage_opini')->name('opini.reject');
     Route::post('/opini/upload-image', [AdminOpiniController::class, 'uploadImage'])->middleware('permission:manage_opini')->name('opini.upload-image');
+
+    Route::get('/videos', [AdminVideoController::class, 'index'])->name('videos.index');
+    Route::get('/videos/buat', [AdminVideoController::class, 'create'])->name('videos.create');
+    Route::post('/videos', [AdminVideoController::class, 'store'])->name('videos.store');
+    Route::get('/videos/{post}/edit', [AdminVideoController::class, 'edit'])->name('videos.edit');
+    Route::put('/videos/{post}', [AdminVideoController::class, 'update'])->name('videos.update');
+    Route::delete('/videos/{post}', [AdminVideoController::class, 'destroy'])->name('videos.destroy');
+    Route::post('/videos/{post}/publish', [AdminVideoController::class, 'publish'])->name('videos.publish');
+    Route::post('/videos/{post}/draft', [AdminVideoController::class, 'draft'])->name('videos.draft');
 
     Route::resource('categories', AdminCategoryController::class);
     Route::resource('kecamatans', KecamatanController::class);

@@ -31,6 +31,7 @@ class UpdateSettingRequest extends FormRequest
             'meta_keywords' => 'nullable|string|max:500',
             'primary_color' => 'nullable|string|max:7|regex:/^#[0-9A-Fa-f]{6}$/',
             'accent_color' => 'nullable|string|max:7|regex:/^#[0-9A-Fa-f]{6}$/',
+            'google_site_verification' => 'nullable|string|max:255',
         ];
     }
 

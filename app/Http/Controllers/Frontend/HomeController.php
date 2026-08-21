@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Kecamatan;
 use App\Models\Post;
 use App\Models\Tag;
@@ -18,17 +17,28 @@ class HomeController extends Controller
     public function index()
     {
         $headlinePosts = $this->postRepository->getHeadlinePosts();
+
+        // Hero ala CNN: 1 headline terbaru sebagai lead, sisanya kolom kanan.
+        // Jika headline kurang dari 5, lengkapi dengan berita terbaru non-headline.
         $usedIds = $headlinePosts->pluck('id')->toArray();
 
-        $heroSmallPosts = Post::published()
-            ->excludeHeadline()
-            ->whereNotIn('id', $usedIds)
-            ->with(['author', 'categories'])
-            ->withCount('likes', 'comments')
-            ->latest()
-            ->take(6)
-            ->get();
-        $usedIds = array_merge($usedIds, $heroSmallPosts->pluck('id')->toArray());
+        $heroMain = $headlinePosts->first();
+        $heroSidePosts = $headlinePosts->skip(1)->take(4)->values();
+
+        if ($heroSidePosts->count() < 4) {
+            $reserved = array_merge($usedIds, $heroSidePosts->pluck('id')->toArray());
+            $filler = Post::published()
+                ->excludeHeadline()
+                ->whereNotIn('id', $reserved)
+                ->with(['author', 'categories'])
+                ->withCount('likes', 'comments')
+                ->latest()
+                ->take(4 - $heroSidePosts->count())
+                ->get();
+            $heroSidePosts = $heroSidePosts->merge($filler)->values();
+        }
+
+        $usedIds = array_merge($usedIds, $heroSidePosts->pluck('id')->toArray());
 
         $videoPosts = Post::published()
             ->where('type', 'video')
@@ -59,6 +69,8 @@ class HomeController extends Controller
             ->get();
         $usedIds = array_merge($usedIds, $trendingPosts->pluck('id')->toArray());
 
+        // Kabar Terkini SELALU berita terbaru — hanya menghindari duplikasi
+        // dengan hero (headline + pengisi kolom kanan).
         $latestPosts = Post::published()
             ->where('type', '!=', 'opini')
             ->whereNotIn('id', $usedIds)
@@ -85,26 +97,15 @@ class HomeController extends Controller
             ->take(12)
             ->values();
 
-        $categories = Category::whereHas('allPosts', fn ($q) => $q->published())
-            ->orderBy('name')
+        // Rekomendasi: satu section berisi post acak dari semua kategori
+        $randomPosts = Post::published()
+            ->whereNotIn('id', $usedIds)
+            ->with(['author', 'categories'])
+            ->withCount('likes', 'comments')
+            ->inRandomOrder()
+            ->take(10)
             ->get();
-
-        $categorySlugs = $categories->pluck('slug')->toArray();
-        $categoryNames = $categories->pluck('name', 'slug')->toArray();
-
-        $categoryPosts = [];
-        foreach ($categorySlugs as $slug) {
-            $structure = $this->postRepository->getCategoryWithStructure($slug, $usedIds);
-
-            $categoryPosts[$slug] = $structure;
-
-            $usedIds = array_merge($usedIds, collect([$structure['hero']])
-                ->merge($structure['trending'])
-                ->merge($structure['latest'])
-                ->filter()
-                ->pluck('id')
-                ->toArray());
-        }
+        $usedIds = array_merge($usedIds, $randomPosts->pluck('id')->toArray());
 
         $kecamatans = Kecamatan::withCount(['posts' => fn ($q) => $q->published()])
             ->ordered()
@@ -117,33 +118,29 @@ class HomeController extends Controller
 
         $kecamatanNames = $kecamatans->pluck('name', 'slug')->toArray();
 
-        $kecamatanPosts = [];
-        foreach ($kecamatanSlugs as $slug) {
-            $structure = $this->postRepository->getKecamatanWithStructure($slug, $usedIds);
-
-            $kecamatanPosts[$slug] = $structure;
-
-            $usedIds = array_merge($usedIds, collect([$structure['hero']])
-                ->merge($structure['trending'])
-                ->merge($structure['latest'])
-                ->filter()
-                ->pluck('id')
-                ->toArray());
-        }
+        // Berita Kecamatan: satu section post acak dari semua kecamatan
+        $kecamatanRandomPosts = Post::published()
+            ->whereNotNull('kecamatan_id')
+            ->whereNotIn('id', $usedIds)
+            ->with(['author', 'categories', 'kecamatan'])
+            ->withCount('likes', 'comments')
+            ->inRandomOrder()
+            ->take(10)
+            ->get();
+        $usedIds = array_merge($usedIds, $kecamatanRandomPosts->pluck('id')->toArray());
 
         return view('frontend.home.index', compact(
             'headlinePosts',
-            'heroSmallPosts',
+            'heroMain',
+            'heroSidePosts',
             'trendingPosts',
             'latestPosts',
             'opiniPosts',
             'videoPosts',
             'featuredPosts',
             'popularTags',
-            'categoryPosts',
-            'categorySlugs',
-            'categoryNames',
-            'kecamatanPosts',
+            'randomPosts',
+            'kecamatanRandomPosts',
             'kecamatanSlugs',
             'kecamatanNames',
             'kecamatans',

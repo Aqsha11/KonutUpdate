@@ -56,7 +56,7 @@
     @endif
 
     {{-- Kecamatan --}}
-    @if(isset($kecamatans) && $kecamatans->count() > 0)
+    @if(empty($hideHomeWidgets) && isset($kecamatans) && $kecamatans->count() > 0)
     <div class="bg-surface rounded-xl shadow-sm border border-outline overflow-hidden" x-data="{ open: true }">
         <button type="button" @click="open = !open" :aria-expanded="open" class="sidebar-widget-header w-full flex items-center gap-2 px-4 pt-3 pb-2 border-b border-outline hover:bg-surface-container-low transition-colors">
             <i data-lucide="map-pin" class="w-3.5 h-3.5 text-accent"></i>

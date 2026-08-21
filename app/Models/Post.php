@@ -183,6 +183,12 @@ class Post extends Model
         return $this->type === 'video';
     }
 
+    public function isBreakingActive(): bool
+    {
+        return $this->is_breaking
+            && (is_null($this->breaking_expires_at) || $this->breaking_expires_at->isFuture());
+    }
+
     public function getAuthorNameAttribute(): string
     {
         return ($this->attributes['author_name'] ?? null) ?: ($this->author?->name ?: 'Redaksi');
@@ -217,7 +223,56 @@ class Post extends Model
             return 'https://player.vimeo.com/video/'.$m[1];
         }
 
+        if (preg_match('/tiktok\.com\/(?:@[\w.\-]+\/video\/|v\/|embed\/)(\d+)/', $url, $m)) {
+            return 'https://www.tiktok.com/embed/v2/'.$m[1];
+        }
+
         return $url;
+    }
+
+    public function getIsTikTokAttribute(): bool
+    {
+        $url = $this->video_url;
+
+        return $url !== null && str_contains($url, 'tiktok.com');
+    }
+
+    /**
+     * Batasi jumlah headline aktif. Headline terlama (kedaluwarsa paling dekat)
+     * otomatis dicabut flag-nya saat kuota penuh dan ada headline baru.
+     */
+    public static function enforceHeadlineLimit(int $keepId, int $max = 6): void
+    {
+        $activeIds = static::query()
+            ->where('is_headline', true)
+            ->where(fn (Builder $q) => $q->whereNull('headline_expires_at')->orWhere('headline_expires_at', '>', now()))
+            ->orderByRaw('COALESCE(headline_expires_at, created_at) DESC')
+            ->pluck('id');
+
+        if ($activeIds->count() <= $max) {
+            return;
+        }
+
+        $kept = $activeIds->take($max)->values();
+        if (! $kept->contains($keepId)) {
+            // Pastikan post yang baru ditandai tetap headline: buang yang terlama dari daftar simpan
+            $dropped = $kept->pop();
+            $kept->push($keepId);
+        } else {
+            $dropped = null;
+        }
+
+        $revoked = $activeIds->diff($kept)->values();
+        if ($dropped !== null) {
+            $revoked = $revoked->push($dropped)->unique()->values();
+        }
+
+        if ($revoked->isNotEmpty()) {
+            static::whereIn('id', $revoked)->update([
+                'is_headline' => false,
+                'headline_expires_at' => null,
+            ]);
+        }
     }
 
     public function getVideoPosterAttribute(): ?string

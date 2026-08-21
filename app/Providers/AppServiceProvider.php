@@ -55,7 +55,15 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        View::composer(['frontend.layouts.app', 'frontend.partials.*', 'frontend.posts.show'], function ($view) {
+        // Eksplisit per partial — pola wildcard frontend.partials.* menimpa
+        // variabel view non-sidebar (mis. data sitemap) dengan query default.
+        View::composer([
+            'frontend.layouts.app',
+            'frontend.partials.sidebar',
+            'frontend.partials.breaking-news',
+            'frontend.partials.footer',
+            'frontend.posts.show',
+        ], function ($view) {
             if (! Schema::hasTable('categories') || ! Schema::hasTable('posts')) {
                 return;
             }

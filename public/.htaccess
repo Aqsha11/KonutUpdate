@@ -5,6 +5,19 @@
 
     RewriteEngine On
 
+    # SEO: paksa HTTPS (hanya untuk domain produksi, agar dev lokal tidak terganggu)
+    RewriteCond %{HTTP_HOST} ^(www\.)?konutupdate\.com$ [NC]
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://konutupdate.com%{REQUEST_URI} [L,R=301]
+
+    # SEO: paksa non-www (kanonisasi ke satu host saja)
+    RewriteCond %{HTTP_HOST} ^www\.konutupdate\.com$ [NC]
+    RewriteRule ^ https://konutupdate.com%{REQUEST_URI} [L,R=301]
+
+    <IfModule mod_headers.c>
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+    </IfModule>
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

@@ -47,6 +47,7 @@
                         <div class="trending-item-body">
                             <h3 class="news-item-title">{{ $post->title }}</h3>
                             <div class="news-item-meta">
+                            @include('frontend.partials.breaking-badge', ['post' => $post])
                                 @if($post->categories->count() > 0)
                                     <span class="news-item-cat">{{ $post->categories->first()->name }}</span>
                                 @elseif($post->category)

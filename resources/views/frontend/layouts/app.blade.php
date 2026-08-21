@@ -44,7 +44,18 @@
             <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
         @endif
     @endif
-    <link rel="canonical" href="{{ url()->current() }}" />
+    @php
+        // Canonical self-referencing; arsip terpaginasi tetap mengarah ke URL halamannya sendiri (?page=N)
+        $__canonical = url()->current();
+        if (($page = (int) request()->query('page', 1)) > 1) {
+            $__canonical .= '?page=' . $page;
+        }
+    @endphp
+    <link rel="canonical" href="@yield('canonical', $__canonical)" />
+    <meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    @if(!empty($site_settings['google_site_verification']))
+        <meta name="google-site-verification" content="{{ $site_settings['google_site_verification'] }}">
+    @endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">

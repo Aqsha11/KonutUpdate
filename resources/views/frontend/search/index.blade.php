@@ -58,6 +58,7 @@
                         </a>
                         <div class="news-item-body">
                             <div class="news-item-meta">
+                            @include('frontend.partials.breaking-badge', ['post' => $post])
                                 @if($post->categories->count() > 0)
                                     @foreach($post->categories as $cat)
                                         <a href="{{ route('categories.show', $cat->slug) }}" class="news-item-cat">{{ $cat->name }}</a>

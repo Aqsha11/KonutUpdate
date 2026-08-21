@@ -96,3 +96,82 @@ if (! function_exists('shareLinks')) {
         return 'https://twitter.com/intent/tweet?text='.urlencode($text).'&url='.urlencode($url);
     }
 }
+
+if (! function_exists('seoInternalLinks')) {
+    /**
+     * Sisipkan internal link pada kemunculan PERTAMA setiap keyword di dalam
+     * body HTML artikel. Aman: tidak menyentuh teks di dalam <a>, <pre>,
+     * <code>, <script>, <style>, dan atribut tag manapun.
+     *
+     * @param  array<string, string>  $links  Map keyword => href (frasa terpanjang diproses duluan)
+     * @param  int  $maxLinks  Batas total link yang disisipkan per artikel
+     */
+    function seoInternalLinks(string $html, array $links, int $maxLinks = 6): string
+    {
+        if (trim($html) === '' || $links === []) {
+            return $html;
+        }
+
+        uksort($links, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
+
+        $done = [];
+        $inserted = 0;
+        $anchorDepth = 0;
+        $skipDepth = 0;
+
+        // Pecah menjadi token tag vs teks
+        $parts = preg_split('/(<[^>]+>)/u', $html, -1, PREG_SPLIT_DELIM_CAPTURE) ?: [$html];
+
+        foreach ($parts as $i => $part) {
+            if ($part === '' || $part === null) {
+                continue;
+            }
+
+            if ($part[0] === '<') {
+                $tag = strtolower($part);
+
+                if (preg_match('/^<a[\s>]/', $tag)) {
+                    $anchorDepth++;
+                } elseif (str_starts_with($tag, '</a')) {
+                    $anchorDepth = max(0, $anchorDepth - 1);
+                } elseif (preg_match('/^<(pre|code|script|style|textarea)\b/', $tag)) {
+                    $skipDepth++;
+                } elseif (preg_match('/^<\/(pre|code|script|style|textarea)\b/', $tag)) {
+                    $skipDepth = max(0, $skipDepth - 1);
+                }
+
+                continue;
+            }
+
+            if ($anchorDepth > 0 || $skipDepth > 0 || $inserted >= $maxLinks) {
+                continue;
+            }
+
+            foreach ($links as $keyword => $href) {
+                if (isset($done[$keyword])) {
+                    continue;
+                }
+
+                $pattern = '/(?<![\p{L}\p{N}])('.preg_quote($keyword, '/').')(?![\p{L}\p{N}])/ui';
+
+                $replaced = preg_replace(
+                    $pattern,
+                    '<a href="'.e($href).'" title="'.e($keyword).'">$1</a>',
+                    $part,
+                    1,
+                    $count
+                );
+
+                if ($count > 0) {
+                    $parts[$i] = $replaced;
+                    $done[$keyword] = true;
+                    $inserted++;
+
+                    break;
+                }
+            }
+        }
+
+        return implode('', $parts);
+    }
+}

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\RecordViewJob;
+use App\Models\Kecamatan;
 use App\Models\Post;
+use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
 {
@@ -66,6 +68,28 @@ class PostController extends Controller
             ->with('categories')
             ->first();
 
+        // Internal linking otomatis: keyword pertama di body -> hub kecamatan / tag wilayah
+        $post->body = seoInternalLinks($post->body, $this->internalLinkMap());
+
         return view('frontend.posts.show', compact('post', 'relatedPosts', 'nextPost', 'prevPost'));
+    }
+
+    private function internalLinkMap(): array
+    {
+        $links = [];
+
+        $kecamatans = Cache::remember('seo_kecamatan_links', now()->addDay(), function () {
+            return Kecamatan::query()->get(['name', 'slug'])
+                ->pluck('slug', 'name')
+                ->all();
+        });
+
+        foreach ($kecamatans as $name => $slug) {
+            $links[$name] = route('kecamatan.show', ['slug' => $slug]);
+        }
+
+        $links['Konawe Utara'] = route('tags.show', 'konawe-utara');
+
+        return $links;
     }
 }

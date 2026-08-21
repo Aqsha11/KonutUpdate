@@ -7,7 +7,6 @@
         $desc = $kecamatan->description ? 'Berita terkini Kecamatan ' . $kecamatan->name . ' - ' . $kecamatan->description : 'Kumpulan berita Kecamatan ' . $kecamatan->name . ' terbaru dari Konut.Update';
     @endphp
     <meta name="description" content="{{ $desc }}">
-    <link rel="canonical" href="{{ route('kecamatan.show', $kecamatan->slug) }}" />
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
@@ -50,6 +49,7 @@
                         </a>
                         <div class="news-item-body">
                             <div class="news-item-meta">
+                            @include('frontend.partials.breaking-badge', ['post' => $post])
                                 @if($post->categories->count() > 0)
                                     @foreach($post->categories as $cat)
                                         <a href="{{ route('categories.show', $cat->slug) }}" class="news-item-cat">{{ $cat->name }}</a>

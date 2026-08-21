@@ -9,7 +9,10 @@ class TagController extends Controller
 {
     public function show($slug)
     {
-        $tag = Tag::where('slug', $slug)->firstOrFail();
+        $tag = Tag::query()
+            ->withCount(['posts' => fn ($q) => $q->published()])
+            ->where('slug', $slug)
+            ->firstOrFail();
         $posts = $tag->posts()->published()->with(['author', 'categories'])->withCount('likes', 'comments')->paginate(12);
 
         return view('frontend.tags.show', compact('tag', 'posts'));
