@@ -60,6 +60,48 @@ services:
       mountPath: /opt/render/project/storage
       sizeGB: 1
 
+  - type: worker
+    name: konut-worker
+    runtime: php
+    plan: free
+    buildCommand: composer install --no-dev --optimize-autoloader
+    startCommand: sh -c 'php artisan queue:work --sleep=3 --tries=3 & php artisan schedule:work'
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: konut-db
+          propertyUrl: host
+      - key: DB_PORT
+        fromDatabase:
+          name: konut-db
+          propertyUrl: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: konut-db
+          propertyUrl: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: konut-db
+          propertyUrl: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: konut-db
+          propertyUrl: password
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: FILESYSTEM_DISK
+        value: local
+
 databases:
   - name: konut-db
     plan: free

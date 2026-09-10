@@ -57,7 +57,11 @@
             </div>
             <div class="sidebar-footer">
                 <div class="user-info">
+                    @if(auth()->user()->avatar_url)
+                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="user-avatar">
+                    @else
                     <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @endif
                     <div class="user-details">
                         <a href="{{ route('profile.index') }}" class="user-name">{{ auth()->user()->name }}</a>
                         <div class="user-role">Kontributor</div>

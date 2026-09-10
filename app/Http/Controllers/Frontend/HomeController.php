@@ -29,6 +29,7 @@ class HomeController extends Controller
             $reserved = array_merge($usedIds, $heroSidePosts->pluck('id')->toArray());
             $filler = Post::published()
                 ->excludeHeadline()
+                ->where('type', '!=', 'video')
                 ->whereNotIn('id', $reserved)
                 ->with(['author', 'categories'])
                 ->withCount('likes', 'comments')
@@ -46,7 +47,7 @@ class HomeController extends Controller
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
             ->latest()
-            ->take(4)
+            ->take(6)
             ->get();
         $usedIds = array_merge($usedIds, $videoPosts->pluck('id')->toArray());
 

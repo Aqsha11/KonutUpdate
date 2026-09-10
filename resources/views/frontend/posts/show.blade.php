@@ -134,8 +134,12 @@
                 {{-- Author + Date --}}
                 <div class="article-meta-bar">
                     <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                            @if($post->author && $post->author->avatar)
+                            <img src="{{ Storage::url($post->author->avatar) }}" alt="{{ $post->author->name }}" class="w-full h-full object-cover">
+                            @else
                             <span class="text-primary font-bold text-sm">{{ strtoupper(substr($post->author_name, 0, 1)) }}</span>
+                            @endif
                         </div>
                         <div>
                             <span class="article-author">{{ $post->author_name }}</span>
@@ -155,7 +159,7 @@
                     @if($post->is_tiktok && $post->video_embed_url && $post->video_embed_url !== $post->video_url)
                         <div class="article-hero-media mx-auto" style="max-width: 340px;">
                             <div class="relative w-full rounded-xl overflow-hidden bg-black mx-auto" style="aspect-ratio: 9/16; max-width: 340px;">
-                                <iframe src="{{ $post->video_embed_url }}" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen allow="encrypted-media;"></iframe>
+                                <iframe src="{{ $post->video_embed_url }}" class="absolute inset-0 w-full h-full" frameborder="0" allowfullscreen allow="encrypted-media;" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation"></iframe>
                             </div>
                             <p class="text-center text-sm text-gray-500 mt-2">
                                 <i class="bi bi-tiktok"></i> Sumber: TikTok —

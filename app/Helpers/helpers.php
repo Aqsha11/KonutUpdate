@@ -3,8 +3,34 @@
 use App\Models\Post;
 use App\Models\Setting;
 use Carbon\Carbon;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
+
+if (! function_exists('uploadAvatar')) {
+    /**
+     * Simpan foto profil user (crop persegi 400x400, webp).
+     * File lama otomatis dihapus bila diganti.
+     */
+    function uploadAvatar(UploadedFile $file, ?string $oldPath = null): string
+    {
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        $manager = new ImageManager(new Driver);
+        $image = $manager->read($file);
+        $image->cover(400, 400);
+        $path = 'avatars/'.Str::random(40).'.webp';
+        Storage::disk('public')->put($path, $image->toWebp(85));
+
+        return $path;
+    }
+}
 
 if (! function_exists('postThumbnail')) {
     function postThumbnail(Post $post): string
@@ -18,6 +44,83 @@ if (! function_exists('postThumbnail')) {
         }
 
         return asset('images/no-image.svg');
+    }
+}
+
+if (! function_exists('fetchVideoThumbnail')) {
+    /**
+     * Ambil thumbnail video dari URL video (YouTube / TikTok) lalu simpan
+     * sebagai file di storage public. Mengembalikan path relatif, atau null
+     * jika gagal / URL tidak dikenal.
+     */
+    function fetchVideoThumbnail(?string $videoUrl): ?string
+    {
+        if (! $videoUrl) {
+            return null;
+        }
+
+        $coverUrl = null;
+
+        if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/', $videoUrl, $m)) {
+            $coverUrl = 'https://img.youtube.com/vi/'.$m[1].'/maxresdefault.jpg';
+        } elseif (preg_match('/(?:www\.)?tiktok\.com\/(?:@\w+|@[^\/]+)\/video\/(\d+)/', $videoUrl)) {
+            try {
+                $oembed = Http::timeout(10)
+                    ->get('https://www.tiktok.com/oembed', ['url' => $videoUrl])
+                    ->throw()
+                    ->json();
+                $coverUrl = $oembed['thumbnail_url'] ?? null;
+            } catch (Throwable) {
+                return null;
+            }
+        }
+
+        if (! $coverUrl) {
+            return null;
+        }
+
+        try {
+            $bin = Http::timeout(15)->get($coverUrl)->throw()->body();
+            if (strlen($bin) < 100) {
+                return null;
+            }
+
+            $manager = new ImageManager(new Driver);
+            $image = $manager->read($bin);
+            $image->cover(1200, 675);
+            $path = 'thumbnails/'.Str::random(40).'.webp';
+            Storage::disk('public')->put($path, $image->toWebp(85));
+
+            return $path;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+}
+
+if (! function_exists('videoPlayerData')) {
+    /**
+     * Data JSON untuk membuka modal pemutar video langsung dari daftar,
+     * tanpa harus membuka halaman detail terlebih dahulu.
+     */
+    function videoPlayerData(Post $post): ?string
+    {
+        if (! $post->isVideo() || ! $post->video_url) {
+            return null;
+        }
+
+        $embed = $post->video_embed_url;
+        $embed = $embed && $embed !== $post->video_url ? $embed : null;
+
+        return json_encode([
+            'title' => $post->title,
+            'slug' => $post->slug,
+            'url' => $post->video_url,
+            'embed' => $post->is_tiktok ? $embed : ($embed ? $embed.'?autoplay=1' : null),
+            'tiktok' => $post->is_tiktok,
+            'ratio' => $post->is_tiktok ? '9/16' : '16/9',
+            'poster' => $post->video_poster,
+        ], JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP);
     }
 }
 

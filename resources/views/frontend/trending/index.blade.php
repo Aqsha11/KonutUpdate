@@ -34,7 +34,7 @@
                     @php
                         $globalNum = ($posts->currentPage() - 1) * $posts->perPage() + $loop->iteration;
                     @endphp
-                    <a href="{{ route('posts.show', $post->slug) }}" class="trending-numbered-item group">
+                    <a href="{{ route('posts.show', $post->slug) }}" class="trending-numbered-item group" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
                         <div class="trending-num-col {{ $loop->index < 3 ? 'hot' : '' }}">
                             <span class="trending-big-num">{{ str_pad($globalNum, 2, '0', STR_PAD_LEFT) }}</span>
                         </div>

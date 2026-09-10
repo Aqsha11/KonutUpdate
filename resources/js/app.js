@@ -118,11 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
             moved = false;
             startX = e.pageX - row.offsetLeft;
             scrollLeft = row.scrollLeft;
-            row.classList.add('dragging');
         });
 
         row.addEventListener('mouseleave', () => {
             isDown = false;
+            moved = false;
             row.classList.remove('dragging');
         });
 
@@ -136,12 +136,18 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             const x = e.pageX - row.offsetLeft;
             const walk = (x - startX) * 1.2;
-            if (Math.abs(x - startX) > 8) moved = true;
+            if (Math.abs(x - startX) > 8) {
+                moved = true;
+                row.classList.add('dragging');
+            }
             row.scrollLeft = scrollLeft - walk;
         });
 
+        row.addEventListener('dragstart', (e) => e.preventDefault());
+
         row.addEventListener('click', (e) => {
-            if (moved) {
+            const isVideoCard = e.target.closest('[data-video-player]');
+            if (moved && !isVideoCard) {
                 e.preventDefault();
                 e.stopPropagation();
                 moved = false;

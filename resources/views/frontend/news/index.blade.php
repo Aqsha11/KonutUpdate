@@ -52,7 +52,7 @@
         <div class="news-list">
             @foreach($posts as $post)
             <article class="news-item group">
-                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
+                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
                     <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>

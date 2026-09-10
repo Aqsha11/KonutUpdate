@@ -12,7 +12,11 @@
     <div class="col-md-4">
         <div class="card-admin">
             <div class="card-admin-body profile-card">
+                @if($user->avatar_url)
+                <img src="{{ $user->avatar_url }}" alt="{{ $user->name }}" class="avatar-lg" style="object-fit:cover;">
+                @else
                 <div class="avatar-lg">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                @endif
                 <h4>{{ $user->name }}</h4>
                 <p class="text-muted">{{ $user->email }}</p>
                 <span class="badge-admin badge-admin-orange">{{ $user->role ? ucfirst(str_replace('_', ' ', $user->role->name)) : 'Unknown' }}</span>
@@ -28,9 +32,17 @@
     </div>
     <div class="col-md-8">
         <div class="form-card">
-            <form action="{{ route('profile.update') }}" method="POST">
+            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
+                <div class="form-group">
+                    <label for="avatar" class="form-label">Foto Profil</label>
+                    <input type="file" name="avatar" id="avatar" class="form-control @error('avatar') is-invalid @enderror" accept="image/jpeg,image/png,image/gif,image/webp">
+                    @error('avatar')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <small class="form-text text-muted">JPG/PNG/GIF/WebP, maks 2MB. Di-crop persegi otomatis.</small>
+                </div>
                 <div class="form-group">
                     <label for="name" class="form-label">Nama Lengkap <span class="required">*</span></label>
                     <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" placeholder="Nama Lengkap" value="{{ old('name', $user->name) }}" required>

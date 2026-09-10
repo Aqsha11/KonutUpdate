@@ -53,8 +53,12 @@
                 <tr>
                     <td>{{ $posts->firstItem() + $index }}</td>
                     <td>
-                        <a href="{{ $post->video_url }}" target="_blank" rel="noopener" class="thumb-table bg-dark d-flex align-items-center justify-content-center text-white text-decoration-none" title="Buka di TikTok">
-                            <i class="bi bi-tiktok fs-4"></i>
+                        <a href="{{ $post->video_url }}" target="_blank" rel="noopener" class="thumb-table bg-dark d-block text-decoration-none" title="Buka di TikTok">
+                            @if($post->thumbnail)
+                            <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+                            @else
+                            <span class="d-flex align-items-center justify-content-center h-100 text-white"><i class="bi bi-tiktok fs-4"></i></span>
+                            @endif
                         </a>
                     </td>
                     <td>

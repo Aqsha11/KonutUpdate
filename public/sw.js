@@ -1,7 +1,7 @@
-const CACHE_NAME = 'konut-update-v5';
-const STATIC_CACHE = 'konut-static-v5';
-const IMAGE_CACHE = 'konut-images-v5';
-const PAGE_CACHE = 'konut-pages-v5';
+const CACHE_NAME = 'konut-update-v6';
+const STATIC_CACHE = 'konut-static-v6';
+const IMAGE_CACHE = 'konut-images-v6';
+const PAGE_CACHE = 'konut-pages-v6';
 
 const STATIC_ASSETS = [
   '/',

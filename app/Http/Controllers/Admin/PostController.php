@@ -89,6 +89,12 @@ class PostController extends Controller
             $path = 'thumbnails/'.Str::random(40).'.webp';
             Storage::disk('public')->put($path, $image->toWebp(85));
             $data['thumbnail'] = $path;
+        } elseif ($data['type'] === 'video' && ($request->filled('video_url') || ! empty($data['video_path']))) {
+            $videoUrl = $request->filled('video_url') ? $request->input('video_url') : $data['video_path'];
+            $fetched = fetchVideoThumbnail($videoUrl);
+            if ($fetched) {
+                $data['thumbnail'] = $fetched;
+            }
         }
 
         if ($data['type'] === 'video') {
@@ -165,6 +171,12 @@ class PostController extends Controller
             $path = 'thumbnails/'.Str::random(40).'.webp';
             Storage::disk('public')->put($path, $image->toWebp(85));
             $data['thumbnail'] = $path;
+        } elseif ($data['type'] === 'video' && ! $post->thumbnail && ($request->filled('video_url') || ! empty($data['video_path']))) {
+            $videoUrl = $request->filled('video_url') ? $request->input('video_url') : $data['video_path'];
+            $fetched = fetchVideoThumbnail($videoUrl);
+            if ($fetched) {
+                $data['thumbnail'] = $fetched;
+            }
         }
 
         if ($data['type'] === 'video') {

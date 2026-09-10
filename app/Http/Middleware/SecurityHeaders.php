@@ -50,7 +50,7 @@ class SecurityHeaders
             "font-src 'self' data: https://fonts.gstatic.com".$devSources,
             "img-src 'self' data: blob: https:",
             "connect-src 'self' https://challenges.cloudflare.com https://api.open-meteo.com".$devSources,
-            "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://challenges.cloudflare.com",
+            "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.tiktok.com https://challenges.cloudflare.com",
             "object-src 'none'",
             "base-uri 'self'",
             "form-action 'self'",

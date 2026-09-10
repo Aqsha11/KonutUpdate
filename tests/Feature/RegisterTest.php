@@ -192,7 +192,7 @@ class RegisterTest extends TestCase
         $this->assertNull($user->fresh()->email_verified_at);
     }
 
-    public function test_verification_link_expires_after_one_minute(): void
+    public function test_verification_link_expires_after_one_hour(): void
     {
         $this->freezeTime();
 
@@ -206,9 +206,9 @@ class RegisterTest extends TestCase
         $url = html_entity_decode($matches[1]);
         parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
 
-        $this->assertSame(now()->addMinute()->getTimestamp(), (int) $query['expires']);
+        $this->assertSame(now()->addMinutes(60)->getTimestamp(), (int) $query['expires']);
 
-        $this->travel(2)->minutes();
+        $this->travel(61)->minutes();
 
         $this->actingAs($user)->get($url)->assertForbidden();
 

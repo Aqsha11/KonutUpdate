@@ -14,9 +14,8 @@
         <link rel="icon" type="image/png" href="{{ Storage::url($site_settings['favicon']) }}">
         <link rel="apple-touch-icon" sizes="180x180" href="{{ Storage::url($site_settings['favicon']) }}">
     @else
-        <link rel="icon" type="image/x-icon" href="{{ url('/favicon.ico') }}">
-        <link rel="icon" type="image/svg+xml" href="{{ url('/icons/icon.svg') }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/icons/icon-180.png') }}">
+        <link rel="icon" type="image/png" href="{{ url('/logo/'.rawurlencode('logo KU.png')) }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/logo/'.rawurlencode('logo KU.png')) }}">
     @endif
     <link rel="alternate" type="application/rss+xml" title="{{ $site_settings['site_name'] ?? 'Konut.Update' }} RSS Feed" href="{{ url('/feed') }}">
     <title>@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))</title>
@@ -518,19 +517,9 @@
                     .catch(function() { tempEl.textContent = '--°C'; if (cityEl) cityEl.textContent = 'Konut'; });
             }
 
-            // Sticky header hide on scroll (debounced with rAF)
-            let lastScroll = 0;
-            let headerTick = null;
+            // Sticky header: topbar & navigasi selalu terlihat saat scroll
             const header = document.getElementById('mainHeader');
-            window.addEventListener('scroll', function() {
-                if (headerTick) cancelAnimationFrame(headerTick);
-                headerTick = requestAnimationFrame(function() {
-                    const st = window.pageYOffset;
-                    if (st > lastScroll && st > 200) header.classList.add('hidden-header');
-                    else header.classList.remove('hidden-header');
-                    lastScroll = st;
-                });
-            }, { passive: true });
+            if (header) header.classList.remove('hidden-header');
         })();
 
         // Like Toggle
@@ -618,6 +607,7 @@
         }
     </script>
     @stack('scripts')
+    @include('frontend.partials.video-player')
     @if(!empty($site_settings['footer_script']))
         {!! $site_settings['footer_script'] !!}
     @endif

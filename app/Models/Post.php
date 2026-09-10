@@ -224,7 +224,7 @@ class Post extends Model
         }
 
         if (preg_match('/tiktok\.com\/(?:@[\w.\-]+\/video\/|v\/|embed\/)(\d+)/', $url, $m)) {
-            return 'https://www.tiktok.com/embed/v2/'.$m[1];
+            return 'https://www.tiktok.com/embed/v2/'.$m[1].'?lang=en-US';
         }
 
         return $url;

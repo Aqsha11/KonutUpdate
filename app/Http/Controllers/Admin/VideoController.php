@@ -65,8 +65,8 @@ class VideoController extends Controller
             'title' => $validated['title'],
             'slug' => $this->uniqueSlug(Str::slug($validated['title'])),
             'excerpt' => null,
-            'body' => null,
-            'thumbnail' => null,
+            'body' => '',
+            'thumbnail' => fetchVideoThumbnail($validated['video_url']),
             'type' => 'video',
             'video_path' => $validated['video_url'],
             'status' => $validated['status'],
@@ -112,10 +112,16 @@ class VideoController extends Controller
         $wasPublished = $post->status === 'published';
         $isPublished = $validated['status'] === 'published';
 
+        $thumbnail = $post->thumbnail;
+        if ($validated['video_url'] !== $post->video_path || ! $thumbnail) {
+            $thumbnail = fetchVideoThumbnail($validated['video_url']) ?? $thumbnail;
+        }
+
         $post->update([
             'title' => $validated['title'],
             'slug' => $this->uniqueSlug(Str::slug($validated['title']), $post->id),
             'category_id' => $validated['category_id'] ?? null,
+            'thumbnail' => $thumbnail,
             'video_path' => $validated['video_url'],
             'status' => $validated['status'],
             'published_at' => match (true) {

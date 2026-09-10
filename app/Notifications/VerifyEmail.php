@@ -30,7 +30,7 @@ class VerifyEmail extends Notification
 
     protected function verificationUrl(object $notifiable): string
     {
-        return URL::temporarySignedRoute('verification.verify', now()->addMinute(), [
+        return URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), [
             'id' => $notifiable->getKey(),
             'hash' => sha1($notifiable->getEmailForVerification()),
         ]);

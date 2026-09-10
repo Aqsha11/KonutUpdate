@@ -27,7 +27,7 @@
         <div class="ku-video-grid">
             @foreach($videos as $post)
             <article class="ku-video-card" data-post-id="{{ $post->id }}">
-                <a href="{{ route('posts.show', $post->slug) }}" class="ku-video-thumb">
+                <a href="{{ route('posts.show', $post->slug) }}" class="ku-video-thumb" data-video-player="{{ videoPlayerData($post) }}">
                     @if($post->thumbnail)
                     <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                     @endif

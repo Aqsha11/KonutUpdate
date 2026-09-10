@@ -27,6 +27,8 @@
     @endif
     @if(!empty($site_settings['favicon']))
         <link rel="icon" type="image/png" href="{{ Storage::url($site_settings['favicon']) }}">
+    @else
+        <link rel="icon" type="image/png" href="{{ url('/logo/'.rawurlencode('logo KU.png')) }}">
     @endif
     @stack('styles')
 </head>
@@ -130,7 +132,11 @@
             </div>
             <div class="sidebar-footer">
                 <div class="user-info">
+                    @if(auth()->user()->avatar_url)
+                    <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="user-avatar">
+                    @else
                     <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                    @endif
                     <div class="user-details">
                         <a href="{{ route('admin.profile.index') }}" class="user-name">{{ auth()->user()->name }}</a>
                         <div class="user-role">{{ auth()->user()->role ? ucfirst(str_replace('_', ' ', auth()->user()->role->name)) : 'Unknown' }}</div>
@@ -170,7 +176,11 @@
                     </div>
                     <div class="dropdown">
                         <button class="topbar-user" data-bs-toggle="dropdown" aria-expanded="false">
+                            @if(auth()->user()->avatar_url)
+                            <img src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}" class="user-avatar-sm">
+                            @else
                             <div class="user-avatar-sm">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                            @endif
                             <span class="user-name-sm">{{ auth()->user()->name }} <i class="bi bi-chevron-down"></i></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-admin">

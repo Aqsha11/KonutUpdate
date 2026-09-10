@@ -163,7 +163,7 @@
         <div class="news-list cnn-news-cols">
             @foreach($latestForList as $post)
             <article class="news-item" data-post-id="{{ $post->id }}">
-                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
+                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
                     <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
@@ -221,8 +221,8 @@
         <div class="ku-video-row hide-scrollbar">
             @foreach($videoPosts as $post)
             <article class="ku-video-card" data-post-id="{{ $post->id }}">
-                <a href="{{ route('posts.show', $post->slug) }}" class="ku-video-thumb">
-                    @if($post->thumbnail)
+                <a href="{{ route('posts.show', $post->slug) }}" class="ku-video-thumb" data-video-player="{{ videoPlayerData($post) }}">
+                    @if($post->thumbnail || $post->video_poster)
                     <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                     @endif
                     <div class="ku-video-play"><i data-lucide="play" class="w-5 h-5 text-primary ml-0.5"></i></div>
@@ -376,7 +376,7 @@
         <div class="news-list cnn-news-cols">
             @foreach($randomPosts as $post)
             <article class="news-item" data-post-id="{{ $post->id }}">
-                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
+                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
                     <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
@@ -436,7 +436,7 @@
         <div class="news-list cnn-news-cols">
             @foreach($kecamatanRandomPosts as $post)
             <article class="news-item" data-post-id="{{ $post->id }}">
-                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
+                <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
                     <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
