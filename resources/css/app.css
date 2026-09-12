@@ -1349,7 +1349,7 @@ article:hover > .cnn-lead-thumb img,
     font-variant-numeric: tabular-nums; letter-spacing: -0.5px;
     color: var(--color-outline-strong, var(--color-outline)); transition: color 0.2s;
 }
-.cnn-pop-num::before { content: counter(pop, decimal-leading-zero); }
+.cnn-pop-num::before { content: '#' counter(pop); }
 .cnn-pop-item:nth-child(-n+3) .cnn-pop-num { color: var(--color-accent); }
 .cnn-pop-item:hover .cnn-pop-num { color: var(--color-primary); }
 .cnn-pop-body { flex: 1; min-width: 0; }

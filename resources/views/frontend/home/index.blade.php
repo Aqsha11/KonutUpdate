@@ -493,6 +493,34 @@
                 @include('frontend.partials.sidebar', ['adCompact' => true, 'hideHomeWidgets' => true])
             </div>
         </div>
+
+        {{-- Iklan Mobile (paling bawah, ala detail berita) --}}
+        @php
+            $mobileAds = isset($sidebarAds) ? $sidebarAds : \App\Models\Ad::active()->sorted()->get();
+        @endphp
+        @if($mobileAds->count() > 0)
+        <div class="md:hidden mt-4" x-data="adAutoScroll">
+            <div class="ku-feat-row hide-scrollbar ku-ad-row" x-ref="scroller" data-axis="x">
+                @foreach($mobileAds as $ad)
+                @if($ad->link)
+                <a href="{{ route('ads.click', $ad->id) }}" target="_blank" rel="nofollow sponsored" class="ku-feat-card">
+                @else
+                <div class="ku-feat-card ku-feat-card-static">
+                @endif
+                    <div class="ku-feat-media">
+                        <span class="ku-feat-thumb">
+                            <img src="{{ Storage::url($ad->image) }}" alt="{{ $ad->title }}" loading="lazy">
+                        </span>
+                    </div>
+                @if($ad->link)
+                </a>
+                @else
+                </div>
+                @endif
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 
 @endsection

@@ -11,7 +11,7 @@
 | `composer test` | `artisan config:clear` + `artisan test`. Tests use `:memory:` SQLite (see `phpunit.xml`), no external services needed. |
 | `vendor/bin/pint` | Code style (Laravel Pint, no config file). |
 | `composer setup` | Full local install (env, key, migrate, npm build). |
-| `php artisan posts:expire-flags` | Custom command, scheduled daily in `routes/console.php`. Resets expired `is_headline` (7d) and `is_breaking` (3d) flags. |
+| `php artisan posts:expire-flags` | Custom command, scheduled daily in `routes/console.php`. Resets expired `is_headline` (7d), `is_breaking` (3d), and `is_featured` (14d) flags. |
 | **Seeding** | Full `DatabaseSeeder` is local-only (creates demo admin `admin@konutupdate.com` / `password`). Production (`render.yaml`) seeds `CategorySeeder` + `PageSeeder`. |
 
 ## Architecture
@@ -53,7 +53,7 @@
 ## Domain Gotchas
 
 - **Headline posts** (`is_headline`) are excluded from "Berita Terbaru" + "Trending" via `scopeExcludeHeadline`. Limit is 6 active headlines, enforced by `Post::enforceHeadlineLimit($keepId)` on save.
-- **`is_featured`** ("Konten Pilihan") is manual-only — never auto-expires, unaffected by `posts:expire-flags`.
+- **`is_featured`** ("Konten Pilihan") auto-expires 14 days after `published_at` — the `featured()` scope hides old posts immediately, and `posts:expire-flags` clears the flag. Admin edits after expiry re-set it from scratch.
 - **Frontend queries are cached** in `AppServiceProvider` view composers (`site_settings` forever, `trending_posts`/`frontend_pages` 1h, `breaking_news` 5m) — clear cache after data changes or views won't reflect them.
 - **Video posts**: `video_path` can be a YouTube/Vimeo/TikTok URL or a stored file; `video_embed_url`/`video_poster` accessors handle embeds.
 - **DB default** is SQLite locally (`.env.example`); production is pgsql (`render.yaml`, `SESSION_ENCRYPT=true`, DB-backed cache/queue/session).

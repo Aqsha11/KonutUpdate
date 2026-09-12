@@ -38,10 +38,21 @@ class PostExpiryTest extends TestCase
         $this->assertTrue($ids->contains($expired->id));
     }
 
+    public function test_featured_scope_excludes_featured_posts_older_than_14_days(): void
+    {
+        $active = Post::factory()->published()->featured()->create();
+        Post::factory()->published()->featured()->create(['published_at' => now()->subDays(15)]);
+
+        $featured = Post::featured()->get();
+
+        $this->assertCount(1, $featured);
+        $this->assertSame($active->id, $featured->first()->id);
+    }
+
     public function test_expire_flags_command_resets_expired_flags(): void
     {
-        $expired = Post::factory()->published()->expired()->create();
-        $active = Post::factory()->published()->headline()->breaking()->create();
+        $expired = Post::factory()->published()->expired()->featured()->create(['published_at' => now()->subDays(Post::FEATURED_EXPIRE_DAYS + 1)]);
+        $active = Post::factory()->published()->headline()->breaking()->featured()->create();
 
         $this->artisan('posts:expire-flags')->assertSuccessful();
 
@@ -52,8 +63,10 @@ class PostExpiryTest extends TestCase
         $this->assertNull($expired->headline_expires_at);
         $this->assertFalse($expired->is_breaking);
         $this->assertNull($expired->breaking_expires_at);
+        $this->assertFalse($expired->is_featured);
 
         $this->assertTrue($active->is_headline);
         $this->assertTrue($active->is_breaking);
+        $this->assertTrue($active->is_featured);
     }
 }

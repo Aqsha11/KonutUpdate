@@ -15,6 +15,8 @@ class Post extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public const FEATURED_EXPIRE_DAYS = 14;
+
     protected $fillable = [
         'user_id',
         'author_name',
@@ -82,7 +84,8 @@ class Post extends Model
 
     public function scopeFeatured(Builder $query): Builder
     {
-        return $query->where('is_featured', true);
+        return $query->where('is_featured', true)
+            ->where('published_at', '>=', now()->subDays(self::FEATURED_EXPIRE_DAYS));
     }
 
     public function scopeExcludeHeadline(Builder $query): Builder

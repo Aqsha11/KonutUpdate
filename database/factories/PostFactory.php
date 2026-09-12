@@ -53,6 +53,13 @@ class PostFactory extends Factory
         ]);
     }
 
+    public function featured(): static
+    {
+        return $this->state(fn (array $attrs) => [
+            'is_featured' => true,
+        ]);
+    }
+
     public function expired(): static
     {
         return $this->state(fn (array $attrs) => [
