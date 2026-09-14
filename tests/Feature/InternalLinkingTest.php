@@ -79,7 +79,7 @@ class InternalLinkingTest extends TestCase
         ]);
     }
 
-    public function test_same_kecamatan_related_renders_baca_juga_block(): void
+    public function test_baca_juga_card_shows_exactly_one_url(): void
     {
         $category = Category::factory()->create();
         $kecamatan = $this->kecamatan('Motui');
@@ -91,17 +91,30 @@ class InternalLinkingTest extends TestCase
         ]);
         $main->categories()->attach($category->id);
 
-        $related = Post::factory()->published()->create([
+        // Dua artikel terkait sesama kecamatan — hanya satu yang boleh tampil di card.
+        $first = Post::factory()->published()->create([
             'kecamatan_id' => $kecamatan->id,
             'category_id' => $category->id,
             ...$this->related(),
         ]);
-        $related->categories()->attach($category->id);
+        $first->categories()->attach($category->id);
+
+        $second = Post::factory()->published()->create([
+            'kecamatan_id' => $kecamatan->id,
+            'category_id' => $category->id,
+            ...$this->related(),
+        ]);
+        $second->categories()->attach($category->id);
 
         $response = $this->get(route('posts.show', $main->slug));
+        $html = $response->getContent();
 
         $response->assertOk();
-        $response->assertSee('Baca juga');
-        $response->assertSee(route('posts.show', $related->slug));
+
+        // Blok "Baca juga" hanya memuat satu <a> menuju satu artikel (yang paling baru).
+        preg_match('/<div class="baca-juga-card.*?<div class="space-y-2">(.*?)<\/div>\s*<\/div>/s', $html, $m);
+        $this->assertNotEmpty($m, 'Card Baca juga tidak ditemukan di dalam body artikel.');
+        $this->assertSame(1, substr_count($m[1] ?? '', 'href='), 'Card Baca juga harus memuat tepat satu tautan.');
+        $this->assertStringContainsString(route('posts.show', $first->slug), $m[1]);
     }
 }

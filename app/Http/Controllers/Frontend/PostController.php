@@ -120,7 +120,7 @@ class PostController extends Controller
             return $html;
         }
 
-        $bacaJugaPosts = $relatedPosts->take(2);
+        $bacaJugaPosts = $relatedPosts->take(1);
 
         // Cari posisi penutup paragraf ke-N.
         $offset = 0;
