@@ -251,24 +251,6 @@
                     {!! $post->body !!}
                 </div>
 
-                {{-- Baca juga: tautan internal ke artikel terkait (prioritas sesama kecamatan) --}}
-                @if(isset($relatedPosts) && $relatedPosts->count() > 0)
-                    <div class="mt-5 p-4 rounded-xl bg-primary-light/60 border border-outline">
-                        <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
-                            <i data-lucide="link" class="w-3.5 h-3.5"></i> Baca juga
-                        </span>
-                        <ul class="mt-2.5 space-y-1.5">
-                            @foreach($relatedPosts->take(3) as $related)
-                                <li>
-                                    <a href="{{ route('posts.show', $related->slug) }}" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors no-underline">
-                                        {{ $related->title }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
                 {{-- Internal link: hub kecamatan asal berita --}}
                 @if($post->kecamatan)
                     <a href="{{ route('kecamatan.show', $post->kecamatan->slug) }}"

@@ -7,6 +7,7 @@ use App\Jobs\RecordViewJob;
 use App\Models\Kecamatan;
 use App\Models\Post;
 use App\Models\Tag;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class PostController extends Controller
@@ -77,6 +78,10 @@ class PostController extends Controller
         // Pastikan link setidaknya satu artikel terkait dari kecamatan sama bila ada.
         $post->body = seoInternalLinks($post->body, $this->internalLinkMap());
 
+        // "Baca juga" disisipkan di dalam paragraf berita (setelah paragraf ke-2),
+        // bukan di paling bawah — sebanyak 1-2 artikel terkait.
+        $post->body = $this->injectBacaJuga($post->body, $relatedPosts);
+
         return view('frontend.posts.show', compact('post', 'relatedPosts', 'nextPost', 'prevPost'));
     }
 
@@ -100,5 +105,35 @@ class PostController extends Controller
         }
 
         return $links;
+    }
+
+    /**
+     * Sisipkan blok "Baca juga" setelah paragraf N dalam body HTML artikel.
+     * Menghindari penyisipan di dalam <a>/<pre>/<code>/<script>/<style> dan
+     * hanya menyisipkan bila body memiliki minimal N paragraf.
+     *
+     * @param  Collection<int, Post>  $relatedPosts
+     */
+    private function injectBacaJuga(string $html, $relatedPosts, int $afterParagraph = 2): string
+    {
+        if (trim($html) === '' || $relatedPosts->isEmpty()) {
+            return $html;
+        }
+
+        $bacaJugaPosts = $relatedPosts->take(2);
+
+        // Cari posisi penutup paragraf ke-N.
+        $offset = 0;
+        for ($i = 0; $i < $afterParagraph; $i++) {
+            $closing = mb_strpos($html, '</p>', $offset);
+            if ($closing === false) {
+                return $html;
+            }
+            $offset = $closing + 4;
+        }
+
+        $block = (string) view('frontend.partials.baca-juga', compact('bacaJugaPosts'))->render();
+
+        return mb_substr($html, 0, $offset).$block.mb_substr($html, $offset);
     }
 }

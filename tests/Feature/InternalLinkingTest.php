@@ -31,6 +31,14 @@ class InternalLinkingTest extends TestCase
         ]);
     }
 
+    private function related(): array
+    {
+        return ['body' => implode("\n\n", array_map(
+            fn ($p) => '<p>'.$p.'</p>',
+            ['Ini adalah paragraf pembuka berita yang cukup panjang untuk diuji.', 'Paragraf kedua memuat konteks singkat tentang peristiwa di Konawe Utara.', 'Paragraf ketiga menjelaskan dampak dan langkah tindak lanjut pemerintah daerah.']
+        ))];
+    }
+
     public function test_related_posts_prefer_same_kecamatan(): void
     {
         $category = Category::factory()->create();
@@ -41,6 +49,7 @@ class InternalLinkingTest extends TestCase
             'kecamatan_id' => $motui->id,
             'title' => 'Jembatan Perintis Garuda di Motui Resmi Diresmikan',
             'category_id' => $category->id,
+            ...$this->related(),
         ]);
         $main->categories()->attach($category->id);
 
@@ -48,6 +57,7 @@ class InternalLinkingTest extends TestCase
         $sameKecamatan = Post::factory()->published()->create([
             'kecamatan_id' => $motui->id,
             'category_id' => $category->id,
+            ...$this->related(),
         ]);
         $sameKecamatan->categories()->attach($category->id);
 
@@ -55,6 +65,7 @@ class InternalLinkingTest extends TestCase
         $otherKecamatan = Post::factory()->published()->create([
             'kecamatan_id' => $molawe->id,
             'category_id' => $category->id,
+            ...$this->related(),
         ]);
         $otherKecamatan->categories()->attach($category->id);
 
@@ -76,12 +87,14 @@ class InternalLinkingTest extends TestCase
         $main = Post::factory()->published()->create([
             'kecamatan_id' => $kecamatan->id,
             'category_id' => $category->id,
+            ...$this->related(),
         ]);
         $main->categories()->attach($category->id);
 
         $related = Post::factory()->published()->create([
             'kecamatan_id' => $kecamatan->id,
             'category_id' => $category->id,
+            ...$this->related(),
         ]);
         $related->categories()->attach($category->id);
 
