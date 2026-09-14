@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Verifikasi Email - {{ $site_settings['site_name'] ?? 'Konut.Update' }}</title>
+    <title>Verifikasi Email - {{ $site_settings['site_name'] ?? 'Konut Update' }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -79,7 +79,7 @@
         <a href="{{ route('home') }}" class="btn-secondary">Kembali ke Beranda</a>
 
         <div class="auth-footer">
-            &copy; {{ date('Y') }} <strong>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</strong>. All rights reserved.
+            &copy; {{ date('Y') }} <strong>{{ $site_settings['site_name'] ?? 'Konut Update' }}</strong>. All rights reserved.
         </div>
     </div>
 </body>

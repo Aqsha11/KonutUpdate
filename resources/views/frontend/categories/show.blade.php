@@ -1,13 +1,13 @@
 @extends('frontend.layouts.app')
 
-@section('title', $category->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', $category->name . ' - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
     @php
-        $catDesc = $category->description ?: 'Kumpulan berita ' . $category->name . ' terbaru dari Konut.Update';
+        $catDesc = $category->description ?: 'Kumpulan berita ' . $category->name . ' terbaru dari KonutUpdate';
     @endphp
     <meta name="description" content="{{ $catDesc }}">
-    <meta property="og:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:title" content="{{ $category->name }} - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:description" content="{{ $catDesc }}" />
     <meta property="og:type" content="website" />
     <script type="application/ld+json">

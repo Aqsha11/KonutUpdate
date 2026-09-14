@@ -1,12 +1,12 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Opini - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Opini - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
-    <meta name="description" content="Opini dan tulisan pembaca dari {{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+    <meta name="description" content="Opini dan tulisan pembaca dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
     <link rel="canonical" href="{{ url()->current() }}" />
-    <meta property="og:title" content="Opini - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Opini dan tulisan pembaca dari {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:title" content="Opini - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
+    <meta property="og:description" content="Opini dan tulisan pembaca dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:type" content="website" />
     <script type="application/ld+json">
     {
@@ -31,7 +31,7 @@
             <span class="page-title-icon bg-primary-light text-primary"><i data-lucide="pencil-line" class="w-4 h-4"></i></span>
             Opini
         </h1>
-        <p class="text-on-surface-variant text-xs mt-1">Opini dan analisis dari redaksi {{ $site_settings['site_name'] ?? 'Konut.Update' }}</p>
+        <p class="text-on-surface-variant text-xs mt-1">Opini dan analisis dari redaksi {{ $site_settings['site_name'] ?? 'KonutUpdate' }}</p>
     </div>
 
     @if(session('success'))

@@ -1,10 +1,10 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Semua Berita - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', ($query ? 'Hasil Pencarian: '.$query.' - ' : 'Cari Berita - ').($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
-    <meta name="description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'Konut.Update' }}">
-    <link rel="canonical" href="{{ url()->current() }}" />
+    <meta name="robots" content="noindex, follow">
+    <meta name="description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
 @endsection
 
 @section('content')

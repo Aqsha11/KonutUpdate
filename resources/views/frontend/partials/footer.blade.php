@@ -13,7 +13,7 @@
             <div class="col-span-2 lg:col-span-1">
                 <a href="{{ url('/') }}" class="inline-block mb-3 no-underline">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="h-11 lg:h-14 w-auto object-contain footer-logo">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" class="h-11 lg:h-14 w-auto object-contain footer-logo">
                     @else
                         <span class="text-xl font-extrabold">
                             <span class="text-primary-fixed-dim">KONUT</span><span class="text-accent-fixed-dim">UPDATE</span>
@@ -91,7 +91,7 @@
 
     <div class="border-t border-white/10">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-2 text-xs opacity-60 footer-bottom">
-            <p>&copy; {{ date('Y') }} {{ $site_settings['site_name'] ?? 'Konut.Update' }}. All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} {{ $site_settings['site_name'] ?? 'KonutUpdate' }}. All rights reserved.</p>
             <a href="https://viteks.id" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity no-underline">
                 <img src="https://viteks.id/storage/site/J5MNxOhayYQO9ENI3oFOxy0fQd50ll84bFpyFshl.png" alt="Viteks Logo" class="h-5 w-auto brightness-0 invert opacity-90">
                 <span class="text-xs text-white/70">Powered by <span style="color:#0ea5a0">Viteks</span></span>

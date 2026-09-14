@@ -4,7 +4,7 @@
 <a href="{{ $url }}" style="display: inline-block;">
 @php
     $siteLogo = setting('logo') ?: setting('favicon');
-    $siteName = setting('site_name', 'Konut.Update');
+    $siteName = setting('site_name', 'Konut Update');
 @endphp
 @if ($siteLogo)
 <img src="{{ url(Storage::url($siteLogo)) }}" alt="{{ $siteName }}" class="logo" style="display: block; width: auto; height: auto; max-width: 200px; max-height: 75px; margin: 15px auto 10px auto;">

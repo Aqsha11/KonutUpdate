@@ -1,18 +1,18 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Kontak - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Kontak - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
     @php
-        $kontakDesc = 'Hubungi ' . ($site_settings['site_name'] ?? 'Konut.Update') . ' - Kirim saran, masukan, atau pertanyaan kepada redaksi kami.';
+        $kontakDesc = 'Hubungi ' . ($site_settings['site_name'] ?? 'KonutUpdate') . ' - Kirim saran, masukan, atau pertanyaan kepada redaksi kami.';
     @endphp
     <meta name="description" content="{{ $kontakDesc }}" />
     <link rel="canonical" href="{{ route('pages.kontak') }}" />
-    <meta property="og:title" content="Kontak - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:title" content="Kontak - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:description" content="{{ $kontakDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ route('pages.kontak') }}" />
-    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:locale" content="id_ID" />
     @if(!empty($site_settings['logo']))
         <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
@@ -20,7 +20,7 @@
         <meta property="og:image:height" content="630" />
     @endif
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Kontak - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:title" content="Kontak - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta name="twitter:description" content="{{ $kontakDesc }}" />
     @if(!empty($site_settings['logo']))
         <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
@@ -45,7 +45,7 @@
                 <i data-lucide="send" class="w-7 h-7 md:w-8 md:h-8 text-white"></i>
             </div>
             <h1 class="text-2xl md:text-4xl font-extrabold text-white mb-3">Hubungi Kami</h1>
-            <p class="text-white/80 text-base md:text-lg max-w-xl mx-auto">Kirim saran, masukan, atau pertanyaan kepada redaksi {{ $site_settings['site_name'] ?? 'Konut.Update' }}</p>
+            <p class="text-white/80 text-base md:text-lg max-w-xl mx-auto">Kirim saran, masukan, atau pertanyaan kepada redaksi {{ $site_settings['site_name'] ?? 'KonutUpdate' }}</p>
         </div>
     </div>
 

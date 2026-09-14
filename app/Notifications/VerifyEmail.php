@@ -18,7 +18,7 @@ class VerifyEmail extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $siteName = setting('site_name', 'Konut.Update');
+        $siteName = setting('site_name', 'Konut Update');
 
         return (new MailMessage)
             ->subject("Verifikasi Email - {$siteName}")

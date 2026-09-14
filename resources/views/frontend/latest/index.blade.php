@@ -1,12 +1,12 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Terkini - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Berita Terkini Konawe Utara Hari Ini - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
-    <meta name="description" content="Kumpulan berita terkini dan terbaru dari {{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+    <meta name="description" content="Kumpulan berita terkini dan terbaru Konawe Utara (Konut) hari ini dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
     <link rel="canonical" href="{{ url()->current() }}" />
-    <meta property="og:title" content="Terkini - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Kumpulan berita terkini dan terbaru dari {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:title" content="Berita Terkini Konawe Utara Hari Ini - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
+    <meta property="og:description" content="Kumpulan berita terkini dan terbaru Konawe Utara (Konut) hari ini dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:type" content="website" />
     <script type="application/ld+json">
     {

@@ -4,7 +4,7 @@
      xmlns:dc="http://purl.org/dc/elements/1.1/"
      xmlns:media="http://search.yahoo.com/mrss/">
     <channel>
-        <title>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</title>
+        <title>{{ $site_settings['site_name'] ?? 'KonutUpdate' }}</title>
         <link>{{ url('/') }}</link>
         <description>{{ $site_settings['description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}</description>
         <language>id</language>
@@ -12,7 +12,7 @@
         <atom:link href="{{ url('/feed') }}" rel="self" type="application/rss+xml"/>
         <image>
             <url>{{ !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/') }}</url>
-            <title>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</title>
+            <title>{{ $site_settings['site_name'] ?? 'KonutUpdate' }}</title>
             <link>{{ url('/') }}</link>
         </image>
         @foreach($posts as $post)

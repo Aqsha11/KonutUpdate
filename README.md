@@ -1,6 +1,6 @@
-# Konut.Update — Portal Berita Konawe Utara
+# Konut Update — Portal Berita Konawe Utara
 
-Portal berita berbasis **Laravel 12** untuk Konawe Utara (Konut.Update). Sistem berita lengkap dengan konten artikel/video, sistem headline carousel, manajemen kategori/tag/kecamatan, iklan, komentar, like, serta role-based admin panel.
+Portal berita berbasis **Laravel 12** untuk Konawe Utara (Konut Update). Sistem berita lengkap dengan konten artikel/video, sistem headline carousel, manajemen kategori/tag/kecamatan, iklan, komentar, like, serta role-based admin panel.
 
 ---
 
@@ -298,4 +298,4 @@ Semua helper ada di `app/Helpers/helpers.php`:
 
 ## License
 
-Proprietary — Konut.Update
+Proprietary — Konut Update

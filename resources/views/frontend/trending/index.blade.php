@@ -1,9 +1,9 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Trending - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Berita Trending Hari Ini di Konawe Utara - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
-    <meta name="description" content="Berita trending terpopuler di {{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+    <meta name="description" content="Berita trending terpopuler hari ini di Konawe Utara (Konut) dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
     <link rel="canonical" href="{{ url()->current() }}" />
 @endsection
 

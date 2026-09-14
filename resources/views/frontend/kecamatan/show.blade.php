@@ -1,10 +1,10 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Kec. ' . $kecamatan->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Berita ' . $kecamatan->name . ', Konawe Utara - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
     @php
-        $desc = $kecamatan->description ? 'Berita terkini Kecamatan ' . $kecamatan->name . ' - ' . $kecamatan->description : 'Kumpulan berita Kecamatan ' . $kecamatan->name . ' terbaru dari Konut.Update';
+        $desc = $kecamatan->description ? 'Berita ' . $kecamatan->name . ' hari ini - ' . $kecamatan->description : 'Kumpulan berita ' . $kecamatan->name . ' terbaru dan terkini, Konawe Utara dari KonutUpdate';
     @endphp
     <meta name="description" content="{{ $desc }}">
     <script type="application/ld+json">

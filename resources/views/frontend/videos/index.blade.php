@@ -1,12 +1,12 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Video - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Video - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
-    <meta name="description" content="Kumpulan video berita dan momen terkini dari {{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+    <meta name="description" content="Kumpulan video berita dan momen terkini dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
     <link rel="canonical" href="{{ url()->current() }}" />
-    <meta property="og:title" content="Video - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
-    <meta property="og:description" content="Kumpulan video berita dan momen terkini dari {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:title" content="Video - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
+    <meta property="og:description" content="Kumpulan video berita dan momen terkini dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:type" content="website" />
 @endsection
 

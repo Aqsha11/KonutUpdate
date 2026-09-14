@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Daftar Akun - {{ $site_settings['site_name'] ?? 'Konut.Update' }}</title>
+    <title>Daftar Akun - {{ $site_settings['site_name'] ?? 'Konut Update' }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -182,12 +182,12 @@
             <div class="register-brand-content">
                 <div class="register-brand-logo">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut Update' }}">
                     @else
                         <div class="brand-text"><span>K</span>onut.Update</div>
                     @endif
                 </div>
-                <h1>Bergabung dengan<br><span>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</span></h1>
+                <h1>Bergabung dengan<br><span>{{ $site_settings['site_name'] ?? 'Konut Update' }}</span></h1>
                 <p>Daftar gratis untuk mulai membaca berita terkini dan menulis opini Anda.</p>
                 <div class="register-brand-features">
                     <div class="register-brand-feature">
@@ -281,7 +281,7 @@
                     Sudah punya akun? <a href="{{ route('login') }}">Masuk di sini</a>
                 </div>
                 <div class="register-footer">
-                    &copy; {{ date('Y') }} <strong>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</strong>. All rights reserved.
+                    &copy; {{ date('Y') }} <strong>{{ $site_settings['site_name'] ?? 'Konut Update' }}</strong>. All rights reserved.
                 </div>
             </div>
         </div>

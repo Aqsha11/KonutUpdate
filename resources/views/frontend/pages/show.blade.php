@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', $page->title . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', $page->title . ' - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
     @php
@@ -8,11 +8,11 @@
     @endphp
     <meta name="description" content="{{ $pageDesc }}">
     <link rel="canonical" href="{{ route('pages.show', $page->slug) }}" />
-    <meta property="og:title" content="{{ $page->title }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:title" content="{{ $page->title }} - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:description" content="{{ $pageDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ route('pages.show', $page->slug) }}" />
-    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:locale" content="id_ID" />
     @if(!empty($site_settings['logo']))
         <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
@@ -20,7 +20,7 @@
         <meta property="og:image:height" content="630" />
     @endif
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $page->title }} - {{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta name="twitter:title" content="{{ $page->title }} - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta name="twitter:description" content="{{ $pageDesc }}" />
     @if(!empty($site_settings['logo']))
         <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />

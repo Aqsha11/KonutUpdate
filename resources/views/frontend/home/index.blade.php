@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', ($site_settings['site_name'] ?? 'Konut.Update') . ' - Berita Terpercaya Konawe Utara')
+@section('title', ($site_settings['site_name'] ?? 'KonutUpdate') . ' - Berita Terpercaya Konawe Utara')
 
 @section('meta')
     @php
@@ -9,50 +9,10 @@
     @endphp
     <meta name="description" content="{{ $homeDesc }}">
     <meta name="keywords" content="{{ $homeKw }}">
-    <meta property="og:title" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+    <meta property="og:title" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
     <meta property="og:description" content="{{ $homeDesc }}" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="{{ url('/') }}" />
-    @php
-        $sameAs = collect(['facebook', 'instagram', 'youtube', 'tiktok'])
-            ->filter(fn ($key) => !empty($site_settings[$key]))
-            ->map(fn ($key) => $site_settings[$key])
-            ->values()
-            ->all();
-    @endphp
-    <script type="application/ld+json">
-    {
-        "@@context": "https://schema.org",
-        "@@type": "NewsMediaOrganization",
-        "name": @json($site_settings['site_name'] ?? 'Konut.Update'),
-        "alternateName": ["Konut Update", "KonutUpdate", "Konut"],
-        "url": "{{ url('/') }}",
-        "description": "Portal berita terkini Konawe Utara",
-        @if(!empty($site_settings['logo']))"logo": {
-            "@@type": "ImageObject",
-            "url": "{{ url(Storage::url($site_settings['logo'])) }}"
-        },
-        @endif
-        "sameAs": @json($sameAs)
-    }
-    </script>
-    <script type="application/ld+json">
-    {
-        "@@context": "https://schema.org",
-        "@@type": "WebSite",
-        "name": @json($site_settings['site_name'] ?? 'Konut.Update'),
-        "alternateName": "Konut Update",
-        "url": "{{ url('/') }}",
-        "potentialAction": {
-            "@@type": "SearchAction",
-            "target": {
-                "@@type": "EntryPoint",
-                "urlTemplate": "{{ route('search') }}?q={search_term_string}"
-            },
-            "query-input": "required name=search_term_string"
-        }
-    }
-    </script>
 @endsection
 
 @php
@@ -64,7 +24,7 @@
 
     {{-- H1 utama homepage (visual hidden) — target keyword: konut, berita konawe utara, berita konut hari ini --}}
     <h1 class="sr-only">
-        {{ ($site_settings['site_name'] ?? 'Konut.Update') }} — Berita Terkini Konawe Utara (Konut) Hari Ini
+        {{ ($site_settings['site_name'] ?? 'KonutUpdate') }} — Berita Terkini Konawe Utara (Konut) Hari Ini
     </h1>
 
     <div class="flex flex-col md:flex-row gap-4 md:gap-6">

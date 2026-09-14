@@ -1,6 +1,6 @@
 # AGENTS.md
 
-**Konut.Update** — Laravel 12 news portal (Indonesian). README.md is partially stale; trust `routes/web.php` and the code over it.
+**Konut Update** — Laravel 12 news portal (Indonesian). README.md is stale (posts columns/status, headline limit, and routes like `/semua-berita`, `/terkini`, `/video`, `/opini` + `/iklan/{ad}` are missing/outdated); trust `routes/web.php` and the code.
 
 ## Commands
 
@@ -36,8 +36,9 @@
 ### Auth
 - Controller-based (own `Auth\*` controllers), **not** Laravel Breeze/Jetstream.
 - Users must verify email (`MustVerifyEmail`).
-- Login/register use Cloudflare Turnstile (`app/Services/TurnstileService.php`); `TURNSTILE_ENABLED=false` (default in `.env.example`) fully disables the widget + validation for local dev. `TurnstileService` also short-circuits `true` for the Cloudflare test secret `1x00000000000000000000AA` and in `local` env.
-- Admin sessions timeout after 5 minutes idle (`AdminSessionTimeout` middleware).
+- Login/register use Cloudflare Turnstile (`app/Services/TurnstileService.php` + `App\Rules\Turnstile`). The widget renders only when `TURNSTILE_SITE_KEY` is set, but the Turnstile validation rule runs **unconditionally** — with empty keys (`.env.example` default) `TurnstileService::verify()` returns `false`, so **every login/register attempt fails**. There is no `TURNSTILE_ENABLED` switch; local dev needs real keys and tests must stub `Http` (see Testing).
+- Non-`super_admin` users cannot log in until email is verified; `super_admin` may log in unverified.
+- Admin sessions time out after 5 minutes idle (`AdminSessionTimeout`). `SecurityHeaders` is appended to every web request; `TRUST_PROXIES=true` env enables `trustProxies('*')`.
 
 ### Contributors
 - `/panel-kontributor` is the public contributor panel (`role:kontributor`). Contributor posts are stored but not auto-published.
@@ -63,7 +64,7 @@
 - Feature tests use `RefreshDatabase` + factories, no seeding. Create roles inline: `Role::factory()->create(['slug' => 'editor'])` then attach permissions via `$role->permissions()->attach(...)`.
 - `UserFactory` emails are verified by default; use `unverified()` state when testing the verification flow.
 - Frontend/comments/likes are IP-based, not auth-based. `RecordViewJob` uses the `sync` queue in tests.
-- Turnstile is enabled in phpunit.xml but uses dummy keys (`TURNSTILE_SECRET_KEY=test-secret-key`). The `TurnstileService` short-circuits `true` for the Cloudflare test secret `1x00000000000000000000AA`, so registration/login tests pass without hitting Cloudflare.
+- Turnstile has **no built-in test bypass** — auth tests must stub the Cloudflare call. Pattern in `LoginTurnstileTest`/`RegisterTest`: `Http::fake()` returning `['success' => $request->data()['response'] === 'valid-token']`. Any test posting to login/register/forgot-password that hits the real endpoint will fail/non-deterministically.
 
 ## Ops / Build
 

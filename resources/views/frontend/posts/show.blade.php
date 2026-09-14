@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', $post->title . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', $post->title . ' - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
     @php
@@ -25,31 +25,37 @@
         $publishedAt = $post->published_at ? \Carbon\Carbon::parse($post->published_at) : null;
         $modifiedAt = $post->updated_at ? \Carbon\Carbon::parse($post->updated_at) : $publishedAt;
         $firstCategory = $post->categories->first() ?: $post->category;
+        $keywords = $post->tags->pluck('name')->implode(', ');
+        $wordCount = str_word_count(strip_tags($post->body ?? ''));
+        $mainImage = $thumb ?: $fallbackImage;
+        $publisherLogo = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/icons/favicon.png');
     @endphp
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "{{ $post->isVideo() ? 'VideoObject' : 'NewsArticle' }}",
+        "@@id": "{{ url()->current() }}",
         "mainEntityOfPage": {
             "@@type": "WebPage",
             "@@id": "{{ url()->current() }}"
         },
         "headline": @json($post->title),
         "description": @json($excerpt),
-        @if($thumb)
-            "image": ["{{ $thumb }}"],
-        @elseif($fallbackImage)
-            "image": ["{{ $fallbackImage }}"],
-        @endif
+        @if($mainImage)"image": ["{{ $mainImage }}"],@endif
         @if($publishedAt)"datePublished": "{{ $publishedAt->toIso8601String() }}",@endif
         @if($modifiedAt)"dateModified": "{{ $modifiedAt->toIso8601String() }}",@endif
         "author": { "@@type": "Person", "name": @json($post->author_name) },
         "publisher": {
+            "@@id": "{{ url('#organization') }}",
             "@@type": "Organization",
-            "name": @json($site_settings['site_name'] ?? 'Konut.Update'),
-            @if(!empty($site_settings['logo']))"logo": { "@@type": "ImageObject", "url": "{{ url(Storage::url($site_settings['logo'])) }}" },@endif
-            "url": "{{ url('/') }}"
+            "name": @json($site_settings['site_name'] ?? 'KonutUpdate'),
+            "logo": { "@@type": "ImageObject", "url": @json($publisherLogo) },
+            "url": @json(url('/'))
         },
+        @if($firstCategory)"articleSection": @json($firstCategory->name),@endif
+        @if($keywords)"keywords": @json($keywords),@endif
+        "inLanguage": "id-ID",
+        @if($wordCount && ! $post->isVideo())"wordCount": {{ $wordCount }},@endif
         "isAccessibleForFree": true
     }
     </script>
@@ -244,6 +250,24 @@
                 <div class="article-body" id="articleBody">
                     {!! $post->body !!}
                 </div>
+
+                {{-- Baca juga: tautan internal ke artikel terkait (prioritas sesama kecamatan) --}}
+                @if(isset($relatedPosts) && $relatedPosts->count() > 0)
+                    <div class="mt-5 p-4 rounded-xl bg-primary-light/60 border border-outline">
+                        <span class="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                            <i data-lucide="link" class="w-3.5 h-3.5"></i> Baca juga
+                        </span>
+                        <ul class="mt-2.5 space-y-1.5">
+                            @foreach($relatedPosts->take(3) as $related)
+                                <li>
+                                    <a href="{{ route('posts.show', $related->slug) }}" class="text-sm font-semibold text-on-surface hover:text-primary transition-colors no-underline">
+                                        {{ $related->title }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 {{-- Internal link: hub kecamatan asal berita --}}
                 @if($post->kecamatan)

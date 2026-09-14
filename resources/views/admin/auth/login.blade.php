@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Masuk - {{ $site_settings['site_name'] ?? 'Konut.Update' }}</title>
+    <title>Masuk - {{ $site_settings['site_name'] ?? 'Konut Update' }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -234,12 +234,12 @@
             <div class="login-brand-content">
                 <div class="login-brand-logo">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut Update' }}">
                     @else
                         <div class="brand-text"><span>K</span>onut.Update</div>
                     @endif
                 </div>
-                <h1>Selamat Datang di<br><span>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</span></h1>
+                <h1>Selamat Datang di<br><span>{{ $site_settings['site_name'] ?? 'Konut Update' }}</span></h1>
                 <p>Baca berita terkini, bagikan opini, dan kelola konten portal dari satu akun.</p>
                 <div class="login-brand-features">
                     <div class="login-brand-feature">
@@ -315,7 +315,7 @@
                     <div style="margin-bottom:10px;font-size:0.78rem;">
                         Belum menerima email verifikasi? <a href="{{ route('register.success') }}" style="color:var(--primary, #189B39);font-weight:600;text-decoration:none;">Kirim ulang di sini</a>
                     </div>
-                    &copy; {{ date('Y') }} <strong>{{ $site_settings['site_name'] ?? 'Konut.Update' }}</strong>. All rights reserved.
+                    &copy; {{ date('Y') }} <strong>{{ $site_settings['site_name'] ?? 'Konut Update' }}</strong>. All rights reserved.
                 </div>
             </div>
         </div>

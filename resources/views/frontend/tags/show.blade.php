@@ -1,9 +1,9 @@
 @extends('frontend.layouts.app')
 
-@section('title', $tag->name . ' - ' . ($site_settings['site_name'] ?? 'Konut.Update'))
+@section('title', 'Berita ' . $tag->name . ' - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('meta')
-    <meta name="description" content="Kumpulan berita dengan tag {{ $tag->name }} terbaru dari Konut.Update">
+    <meta name="description" content="Kumpulan berita {{ $tag->name }} terbaru dan terkini, Konawe Utara dari KonutUpdate">
     @if(($tag->posts_count ?? $posts->total()) < 2)
         <meta name="robots" content="noindex, follow">
     @endif

@@ -1,7 +1,8 @@
 {
-  "name": "Konut.Update - Portal Berita Konawe Utara",
-  "short_name": "Konut.Update",
-  "description": "Portal berita terkini Konawe Utara. Informasi cepat dan terpercaya dari Konawe Utara, Sulawesi Tenggara.",
+  "name": "KonutUpdate - Daily News & Update Konawe Utara",
+  "short_name": "KonutUpdate",
+  "description": "Daily News & Update Konawe Utara. Informasi cepat dan terpercaya dari Konawe Utara, Sulawesi Tenggara.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -23,7 +24,7 @@
       "name": "Berita Terbaru",
       "short_name": "Terbaru",
       "description": "Lihat berita terbaru",
-      "url": "/search"
+      "url": "/terkini"
     }
   ]
 }

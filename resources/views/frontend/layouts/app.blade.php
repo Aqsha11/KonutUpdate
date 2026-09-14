@@ -8,36 +8,35 @@
     <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Konut.Update">
+    <meta name="apple-mobile-web-app-title" content="KonutUpdate">
     <link rel="manifest" href="{{ url('/manifest.json') }}">
     @if(!empty($site_settings['favicon']))
         <link rel="icon" type="image/png" href="{{ Storage::url($site_settings['favicon']) }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ Storage::url($site_settings['favicon']) }}">
     @else
-        <link rel="icon" type="image/png" href="{{ url('/logo/'.rawurlencode('logo KU.png')) }}">
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/logo/'.rawurlencode('logo KU.png')) }}">
+        <link rel="icon" type="image/png" href="{{ url('/icons/favicon.png') }}">
     @endif
-    <link rel="alternate" type="application/rss+xml" title="{{ $site_settings['site_name'] ?? 'Konut.Update' }} RSS Feed" href="{{ url('/feed') }}">
-    <title>@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/icons/icon-180.png') }}">
+    <link rel="alternate" type="application/rss+xml" title="{{ $site_settings['site_name'] ?? 'KonutUpdate' }} RSS Feed" href="{{ url('/feed') }}">
+    <title>@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))</title>
     @hasSection('meta')
         @yield('meta')
     @else
         <meta name="description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}">
         <meta name="keywords" content="{{ $site_settings['meta_keywords'] ?? 'konut, konawe utara, berita, news, informasi, sulawesi tenggara' }}">
-        <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+        <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
         <meta property="og:locale" content="id_ID" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="{{ url()->current() }}" />
-        <meta property="og:title" content="@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))" />
+        <meta property="og:title" content="@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))" />
         <meta property="og:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
         @if(!empty($site_settings['logo']))
             <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
             <meta property="og:image:width" content="1200" />
             <meta property="og:image:height" content="630" />
-            <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" />
+            <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
         @endif
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="@yield('title', ($site_settings['site_name'] ?? 'Konut.Update'))" />
+        <meta name="twitter:title" content="@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))" />
         <meta name="twitter:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
         @if(!empty($site_settings['logo']))
             <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
@@ -52,8 +51,14 @@
     @endphp
     <link rel="canonical" href="@yield('canonical', $__canonical)" />
     <meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    @if(!empty($site_settings['google_site_verification']))
-        <meta name="google-site-verification" content="{{ $site_settings['google_site_verification'] }}">
+    @include('frontend.partials.schema-org')
+    @php
+        // Normalisasi nilai Google Site Verification bila disimpan bersama prefix (mis. "google-site-verification=xxx")
+        $__gsv = trim((string) ($site_settings['google_site_verification'] ?? ''));
+        $__gsv = (string) preg_replace('/^(?:google-site-verification|content)\s*=\s*/i', '', $__gsv);
+    @endphp
+    @if($__gsv !== '')
+        <meta name="google-site-verification" content="{{ $__gsv }}">
     @endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -172,7 +177,7 @@
                 <div class="ku-header-logo">
                     <a href="{{ url('/') }}" class="ku-header-logo-link">
                         @if(!empty($site_settings['logo']))
-                            <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'Konut.Update' }}" class="ku-header-logo-img">
+                            <img src="{{ Storage::url($site_settings['logo']) }}" alt="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" class="ku-header-logo-img">
                         @else
                             <span class="ku-header-logo-text">
                                 <span class="text-primary">KONUT</span><span class="text-accent">UPDATE</span>
@@ -334,7 +339,7 @@
             <div class="fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-surface transform transition-transform duration-300 shadow-2xl overflow-y-auto" x-ref="mobileDrawer" x-effect="if (mobileOpen) { const el = $refs.mobileDrawer.querySelector('.drawer-active'); if (el) { $nextTick(() => { const drawer = $refs.mobileDrawer; drawer.scrollTop = Math.max(0, el.offsetTop - drawer.clientHeight / 2 + el.offsetHeight / 2); }); } }" x-show="mobileOpen" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" x-cloak @click.away="mobileOpen = false" style="z-index: 106;">
                 <div class="relative flex items-center justify-center px-4 py-4 border-b border-outline bg-surface-container-low">
                     @if(!empty($site_settings['logo']))
-                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="Konut.Update" class="h-12 w-auto object-contain">
+                        <img src="{{ Storage::url($site_settings['logo']) }}" alt="KonutUpdate" class="h-12 w-auto object-contain">
                     @else
                         <span class="text-xl font-extrabold"><span class="text-primary">KONUT</span><span class="text-accent">UPDATE</span></span>
                     @endif
@@ -553,7 +558,7 @@
         // Share — popup ala KendariInfo
         function sharePost(url, title) {
             if (!url) return;
-            var encTitle = encodeURIComponent(title || 'Konut.Update');
+            var encTitle = encodeURIComponent(title || 'KonutUpdate');
             var encUrl = encodeURIComponent(url);
             document.getElementById('shareWa').href = 'https://wa.me/?text=' + encTitle + '%20' + encUrl;
             document.getElementById('shareFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl;
