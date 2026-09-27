@@ -11,7 +11,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Admin Konut.Update',
+            'name' => 'Admin Konut Update',
             'email' => 'admin@konutupdate.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Editor Konut.Update',
+            'name' => 'Editor Konut Update',
             'email' => 'editor@konutupdate.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'Reporter Konut.Update',
+            'name' => 'Reporter Konut Update',
             'email' => 'reporter@konutupdate.com',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),

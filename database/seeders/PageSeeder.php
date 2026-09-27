@@ -13,7 +13,7 @@ class PageSeeder extends Seeder
             [
                 'title' => 'Tentang Kami',
                 'slug' => 'tentang-kami',
-                'content' => '<h2>Selamat Datang di Konut.Update</h2>
+                'content' => '<h2>Selamat Datang di Konut Update</h2>
 <p>Portal berita online yang menyajikan informasi terkini, akurat, dan terpercaya dari Konawe Utara (Konut), Sulawesi Tenggara.</p>
 <hr />
 <h3>Visi</h3>
@@ -32,14 +32,14 @@ class PageSeeder extends Seeder
                 'slug' => 'kontak',
                 'content' => '<h2>Hubungi Kami</h2>
 <p>Jika Anda memiliki pertanyaan, saran, atau ingin menghubungi redaksi, silakan gunakan formulir kontak di halaman ini atau hubungi kami melalui informasi di bawah ini.</p>
-<p>Email: redaksi@konut.update</p>',
+<p>Email: redaksi@Konut Update</p>',
                 'is_published' => true,
             ],
             [
                 'title' => 'Pedoman Media Siber',
                 'slug' => 'pedoman-media-siber',
                 'content' => '<h2>Pedoman Media Siber</h2>
-<p>Pedoman Media Siber ini berlaku untuk seluruh konten yang dipublikasikan melalui platform Konut.Update, termasuk namun tidak terbatas pada artikel berita, opini, foto, video, dan konten multimedia lainnya.</p>
+<p>Pedoman Media Siber ini berlaku untuk seluruh konten yang dipublikasikan melalui platform Konut Update, termasuk namun tidak terbatas pada artikel berita, opini, foto, video, dan konten multimedia lainnya.</p>
 <h3>1. Prinsip Dasar</h3>
 <ul>
 <li>Kami berkomitmen untuk menyajikan informasi yang akurat, berimbang, dan tidak memihak.</li>
@@ -62,7 +62,7 @@ class PageSeeder extends Seeder
                 'title' => 'Kebijakan Privasi',
                 'slug' => 'privacy-policy',
                 'content' => '<h2>Kebijakan Privasi</h2>
-<p>Kebijakan Privasi ini menjelaskan bagaimana Konut.Update mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat menggunakan layanan kami.</p>
+<p>Kebijakan Privasi ini menjelaskan bagaimana Konut Update mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat menggunakan layanan kami.</p>
 <h3>1. Informasi yang Kami Kumpulkan</h3>
 <ul>
 <li>Informasi yang Anda berikan: Nama, alamat email, dan informasi lainnya saat Anda mengisi formulir kontak.</li>
@@ -83,8 +83,8 @@ class PageSeeder extends Seeder
                 'title' => 'Pasang Iklan',
                 'slug' => 'pasang-iklan',
                 'content' => '<h2>Pasang Iklan</h2>
-<p>Konut.Update menawarkan berbagai pilihan ruang iklan untuk mempromosikan produk, layanan, atau brand Anda kepada ribuan pembaca kami di Konawe Utara dan sekitarnya.</p>
-<h3>Keunggulan Beriklan di Konut.Update</h3>
+<p>Konut Update menawarkan berbagai pilihan ruang iklan untuk mempromosikan produk, layanan, atau brand Anda kepada ribuan pembaca kami di Konawe Utara dan sekitarnya.</p>
+<h3>Keunggulan Beriklan di Konut Update</h3>
 <ul>
 <li>Jangkauan pembaca yang luas dan tersegmentasi di wilayah Konawe Utara.</li>
 <li>Posisi iklan strategis: banner atas, sidebar, dan dalam artikel.</li>
