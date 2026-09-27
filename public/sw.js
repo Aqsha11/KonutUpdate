@@ -1,12 +1,20 @@
-const CACHE_NAME = 'konut-update-v6';
-const STATIC_CACHE = 'konut-static-v6';
-const IMAGE_CACHE = 'konut-images-v6';
-const PAGE_CACHE = 'konut-pages-v6';
+const CACHE_NAME = 'konut-update-v10';
+const STATIC_CACHE = 'konut-static-v9';
+const IMAGE_CACHE = 'konut-images-v9';
+const PAGE_CACHE = 'konut-pages-v9';
 
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
   '/manifest.json',
+  '/favicon.ico',
+  '/icons/favicon-32.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/apple-touch-icon-152.png',
+  '/icons/apple-touch-icon-167.png',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/icon-maskable-512.png',
   '/icons/icon.svg'
 ];
 

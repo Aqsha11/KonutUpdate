@@ -4,7 +4,7 @@
     $schemaDesc = $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya';
     $schemaLogo = !empty($site_settings['logo'])
         ? url(Storage::url($site_settings['logo']))
-        : url('/icons/favicon.png');
+        : url('/icons/icon-512.png');
     $schemaSameAs = collect(['facebook', 'instagram', 'youtube', 'tiktok'])
         ->map(fn ($k) => $site_settings[$k] ?? null)
         ->filter()

@@ -6,7 +6,7 @@
     @php
         $excerpt = strip_tags($post->excerpt ?: Str::limit(strip_tags($post->body), 160));
         $thumb = $post->thumbnail ? url(Storage::url($post->thumbnail)) : '';
-        $fallbackImage = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : '';
+        $fallbackImage = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/og-default.jpg');
         $shareImage = $thumb ?: $fallbackImage;
     @endphp
     <meta name="description" content="{{ $excerpt }}" />
@@ -14,13 +14,11 @@
     <meta property="og:description" content="{{ $excerpt }}" />
     <meta property="og:type" content="{{ $post->isVideo() ? 'video.other' : 'article' }}" />
     <meta property="og:url" content="{{ url()->current() }}" />
-    @if($shareImage)<meta property="og:image" content="{{ $shareImage }}" />@endif
     <meta property="article:published_time" content="{{ $post->published_at }}" />
     <meta property="article:author" content="{{ $post->author_name }}" />
-    <meta name="twitter:card" content="{{ $shareImage ? 'summary_large_image' : 'summary' }}" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ $post->title }}" />
     <meta name="twitter:description" content="{{ $excerpt }}" />
-    @if($shareImage)<meta name="twitter:image" content="{{ $shareImage }}" />@endif
     @php
         $publishedAt = $post->published_at ? \Carbon\Carbon::parse($post->published_at) : null;
         $modifiedAt = $post->updated_at ? \Carbon\Carbon::parse($post->updated_at) : $publishedAt;
@@ -28,7 +26,7 @@
         $keywords = $post->tags->pluck('name')->implode(', ');
         $wordCount = str_word_count(strip_tags($post->body ?? ''));
         $mainImage = $thumb ?: $fallbackImage;
-        $publisherLogo = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/icons/favicon.png');
+        $publisherLogo = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/icons/icon-512.png');
     @endphp
     <script type="application/ld+json">
     {
@@ -72,6 +70,21 @@
     }
     </script>
     @endif
+@endsection
+
+@section('share_image')
+    @php
+        // Thumbnail artikel (1200x675) adalah gambar share terbaik; jatuh ke logo/kartu default.
+        $__img = $post->thumbnail
+            ? url(Storage::url($post->thumbnail))
+            : (!empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/og-default.jpg'));
+        $__h = $post->thumbnail ? 675 : 630;
+    @endphp
+    <meta property="og:image" content="{{ $__img }}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="{{ $__h }}" />
+    <meta property="og:image:alt" content="{{ $post->title }}" />
+    <meta name="twitter:image" content="{{ $__img }}" />
 @endsection
 
 @section('content')

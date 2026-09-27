@@ -1,76 +1,83 @@
 # AGENTS.md
 
-**Konut Update** — Laravel 12 news portal (Indonesian). README.md is stale (posts columns/status, headline limit, and routes like `/semua-berita`, `/terkini`, `/video`, `/opini` + `/iklan/{ad}` are missing/outdated); trust `routes/web.php` and the code.
+**Konut Update** — Laravel 12 news portal (Indonesian, Konawe Utara). Bootstrap-style, no modules/packages of its own.
+
+**README.md is unreliable.** Verified wrong claims: headline limit is **6** (`Post::enforceHeadlineLimit`), not 9/unlimited; there is no Cropper.js client-side crop and no "headline keeps original size" exception; the `posts` columns/status list is outdated. Trust `routes/web.php`, `app/`, and migrations.
 
 ## Commands
 
-| Command | What it does |
+| Command | Notes |
 |---|---|
-| `composer dev` | Runs `artisan serve` + `queue:listen` + `pail` (logs) + `npm run dev` concurrently. **Queue worker is required**: `RecordViewJob` runs on the `database` queue, so views never persist without it. |
-| `npm run build` / `npm run dev` | Vite (Tailwind 4 via `@tailwindcss/vite`). Frontend is unstyled without running this at least once. |
-| `composer test` | `artisan config:clear` + `artisan test`. Tests use `:memory:` SQLite (see `phpunit.xml`), no external services needed. |
-| `vendor/bin/pint` | Code style (Laravel Pint, no config file). |
-| `composer setup` | Full local install (env, key, migrate, npm build). |
-| `php artisan posts:expire-flags` | Custom command, scheduled daily in `routes/console.php`. Resets expired `is_headline` (7d), `is_breaking` (3d), and `is_featured` (14d) flags. |
-| **Seeding** | Full `DatabaseSeeder` is local-only (creates demo admin `admin@konutupdate.com` / `password`). Production (`render.yaml`) seeds `CategorySeeder` + `PageSeeder`. |
+| `composer dev` | `artisan serve` + `queue:listen --tries=1` + `pail` + `npm run dev`. **The queue worker is mandatory** — `RecordViewJob` runs on the `database` queue, so `views_count` never moves without it. |
+| `composer test` | `artisan config:clear` + `artisan test`. Currently 79 tests, ~6s, fully offline (`:memory:` SQLite, `QUEUE_CONNECTION=sync`). |
+| `php artisan test --filter=PostExpiryTest` | Single test / class. Also `--testsuite=Unit`. |
+| `vendor/bin/pint` | Style. **No `pint.json`** — Pint defaults. No lint/typecheck step otherwise; no CI (`.github/` does not exist), so run `pint` + `composer test` yourself. |
+| `composer setup` | `composer install` → `.env` copy → `key:generate` → `migrate` → `npm install` → `npm run build`. |
+| `php artisan storage:link` | Required for thumbnails/CKEditor uploads (`storage/app/public/{thumbnails,avatars,uploads/images,videos}`). |
+| `php artisan posts:expire-flags` | `routes/console.php` schedules it daily. Only prod worker runs it (see Ops). |
+| `npm run build` | Vite 7 + Tailwind 4 (`@tailwindcss/vite`). Pages are unstyled until this has run once. Vite dev server is pinned to `127.0.0.1` (`vite.config.js`) — HMR breaks if you browse from another device. |
 
 ## Architecture
 
-### Routes & Controllers
-- Routes in one file: `routes/web.php`.
-- Controllers grouped: `app/Http/Controllers/{Admin,Frontend,Contributor,Auth}`.
-- Admin routes use `auth`, `admin`, and `admin.session-timeout` middleware.
+- **Single route file**: `routes/web.php` (includes hand-written `robots.txt`, `/feed`, `/sitemap.xml` closures). Article detail is the root-level catch-all `GET /{slug}` at the **very end** of the file; `GET /berita/{slug}` is a 301 legacy redirect to it. Comment/like POST endpoints deliberately stay under `/berita/{post}/...`.
+- **A route can never shadow a file in `public/`**: `artisan serve` (and `render.yaml` in production) uses `server.php`, which serves any existing `public/` file directly without booting the framework. A route at `/manifest.json` is therefore dead code while the file exists. Corollary for tests: `$this->get('/manifest.json')` 404s in the test client (it hits the routes), so read `public_path('manifest.json')` from disk instead.
+- **Controllers**: `app/Http/Controllers/{Admin,Frontend,Contributor,Auth}`. Validation lives in `app/Http/Requests/{Store,Update}*` FormRequests, not in controllers.
+- `Auth\LoginController` renders the **admin** login view (`admin/auth.login`) for *everyone* — there is no separate public login page.
+- `admin` routes run `['auth','admin','admin.session-timeout']`; `bootstrap/app.php` aliases `admin`, `role`, `permission`, `admin.session-timeout` and appends `SecurityHeaders` to every web request.
+- `app/Repositories/PostRepository.php` is the real frontend query layer (headline/trending/category/kecamatan structures); `HeadlineService` is a thin wrapper. Go here before adding query logic to a controller.
 
-### Data Model
-- **`posts` table** serves all content via `type` enum: `article`, `video`, `opini`.
-- `status` enum: `draft`, `pending`, `published`, `rejected`. Contributor submissions need admin approve/reject; `rejection_reason` is set on reject.
-- `category_id` is legacy — use the `post_categories` pivot (`categories()` relation).
-- `is_headline` was renamed from the original `is_featured` column; a separate `is_featured` ("Konten Pilihan") column was re-added later — they are independent.
+### Data model
+- `posts` holds all content via `type`: `article`, `video`, `opini`.
+  - Gotcha: the column migration declares only `['article','video']`; `opini` was added later **only as a raw pgsql CHECK constraint** (`2026_08_15_000002`). So `type='opini'` works on SQLite but has no local DB enforcement.
+- `status`: `draft`, `pending`, `published`, `rejected`. Contributor submissions land as `pending`; admin approve/reject sets `status` + `rejection_reason`.
+- `category_id` is legacy. Use the `post_categories` pivot via `Category::allPosts()` / `$post->categories()`. `Category::posts()` (HasMany on `category_id`) still exists — don't use it.
+- `is_headline` and `is_featured` are **independent** columns (renamed apart in `2025_07_26`, then `is_featured` re-added in `2026_08_15`). Don't conflate them.
+- **Max 3 categories per post** — controllers hard-slice with `array_slice($category_ids, 0, 3)`.
 
-### Roles
-- `super_admin`, `editor`, `reporter`, `kontributor`.
-- Custom middleware aliases in `bootstrap/app.php`: `admin` (super_admin/editor/reporter), `role`, `permission`, `admin.session-timeout`.
-- `User::hasPermission()` short-circuits `true` for `super_admin`.
-- Admin opini routes gated by `permission:manage_opini`; `/admin/users` additionally requires `role:super_admin`.
+### Roles & auth
+- Roles: `super_admin`, `editor`, `reporter`, `kontributor`. `User::hasPermission()` short-circuits `true` for `super_admin`.
+- Admin opini routes are gated by `permission:manage_opini`; `/admin/users` + `users/{user}/verifikasi` require `role:super_admin`.
+- Controller-based auth, **not** Breeze/Jetstream. `User` implements `MustVerifyEmail`; only `super_admin` may log in unverified. Contributors land on `/panel-kontributor`.
+- `AdminSessionTimeout` hardcodes 5 idle minutes (`$idleMinutes = 5`, not env-driven).
+- `TRUST_PROXIES` is only set in `render.yaml`, **not** in `.env.example` — set it manually if you reverse-proxy locally.
 
-### Auth
-- Controller-based (own `Auth\*` controllers), **not** Laravel Breeze/Jetstream.
-- Users must verify email (`MustVerifyEmail`).
-- Login/register use Cloudflare Turnstile (`app/Services/TurnstileService.php` + `App\Rules\Turnstile`). The widget renders only when `TURNSTILE_SITE_KEY` is set, but the Turnstile validation rule runs **unconditionally** — with empty keys (`.env.example` default) `TurnstileService::verify()` returns `false`, so **every login/register attempt fails**. There is no `TURNSTILE_ENABLED` switch; local dev needs real keys and tests must stub `Http` (see Testing).
-- Non-`super_admin` users cannot log in until email is verified; `super_admin` may log in unverified.
-- Admin sessions time out after 5 minutes idle (`AdminSessionTimeout`). `SecurityHeaders` is appended to every web request; `TRUST_PROXIES=true` env enables `trustProxies('*')`.
+### Turnstile (read this before touching auth)
+- Login/register/resend POSTs always validate `cf-turnstile-response` via `App\Rules\Turnstile`. There is **no bypass flag** — `TURNSTILE_ENABLED=false` exists in your local `.env` but **nothing in the codebase reads it**. Dead flag; ignore it.
+- The widget partial renders only if `TURNSTILE_SITE_KEY` is set, but the rule runs regardless. Empty keys ⇒ `TurnstileService::verify()` returns `false` ⇒ every login/register fails.
+- Local dev works with Cloudflare's always-pass dummy keys (`1x00000000000000000000AA` for both site + secret, as in `.env`) — but that still makes a real outbound call to `challenges.cloudflare.com`.
+- Tests **must** `Http::fake()`; see `tests/Feature/LoginTurnstileTest.php`.
 
-### Contributors
-- `/panel-kontributor` is the public contributor panel (`role:kontributor`). Contributor posts are stored but not auto-published.
+### Helpers & rendering
+- `app/Helpers/helpers.php` is loaded via `require_once` in `AppServiceProvider::register()` — not composer autoload. Adding a helper file means editing that call.
+- `setting($key)` caches per-key forever; `clearSettingCache()` clears `site_settings` + per-key entries. Call it after writing settings.
+- `HtmlSanitizer` whitelists CKEditor `body` HTML; controllers call it before persisting, and views print with `{!! !!}`. **The sanitizer is the only XSS defense** — never skip it, and never widen `allowedTags`/`allowedAttributes` casually.
+- `seoInternalLinks()` auto-links the first occurrence of each keyword in article bodies (skips `<a>`/`<pre>`/`<code>`/`<script>`/`<style>`).
+- `SecurityHeaders::buildCsp()` hardcodes the CSP allowlist. Adding a new external embed/CDN (a new video host, a font, an analytics script) requires editing it or the browser blocks it silently.
+- **Favicon/icon must be opaque.** Apple silently rejects transparent PNGs for `apple-touch-icon`, and Android `maskable` icons need a full-bleed background. The bundled defaults in `public/icons/` + `public/favicon.ico` were pre-rendered from `public/logo/logo KU.png` on a white background with ~18–40% padding (logo occupies the maskable safe zone); don't regenerate them straight from a transparent source.
+- **Favicon/icon are static and must stay opaque.** Apple silently rejects transparent PNGs for `apple-touch-icon`, and Android `maskable` icons need a full-bleed background. The assets in `public/icons/` + `public/favicon.ico` were pre-rendered from `public/logo/logo KU.png` on white with ~18–40% padding (logo fills the maskable safe zone); don't regenerate them from the transparent source. The `favicon` site setting is **no longer read** by the frontend — the `<link>`s point at the bundled files unconditionally, and `public/manifest.json` is plain static. `tests/Feature/FaviconFallbackTest.php` locks this, including that every declared `sizes` matches the real pixel size of the file it points to.
+- **`og:image` is emitted from a `@section('share_image')`, not the layout's meta block.** 13 frontend views define their own `@section('meta')`, so anything placed in the layout's `@else` branch silently never renders on those pages. Article pages override the section with their thumbnail (1200×675), falling back to the `logo` setting then `/og-default.jpg`.
 
-### Helpers
-- `app/Helpers/helpers.php` loaded via `require_once` in `AppServiceProvider::register()` — **not** via composer autoload files.
-- `setting($key)` reads from DB with a forever cache; after updating Settings use `clearSettingCache()` or `php artisan cache:clear`.
-- Also includes `seoInternalLinks()` for auto-linking keywords in article body HTML.
+## Domain gotchas
 
-### HTML Sanitization
-- `app/Services/HtmlSanitizer.php` whitelist-sanitizes CKEditor `body` input; apply it before persisting HTML. Render output uses `{!! ... !!}` (raw) — sanitizer is the safety net.
-
-## Domain Gotchas
-
-- **Headline posts** (`is_headline`) are excluded from "Berita Terbaru" + "Trending" via `scopeExcludeHeadline`. Limit is 6 active headlines, enforced by `Post::enforceHeadlineLimit($keepId)` on save.
-- **`is_featured`** ("Konten Pilihan") auto-expires 14 days after `published_at` — the `featured()` scope hides old posts immediately, and `posts:expire-flags` clears the flag. Admin edits after expiry re-set it from scratch.
-- **Frontend queries are cached** in `AppServiceProvider` view composers (`site_settings` forever, `trending_posts`/`frontend_pages` 1h, `breaking_news` 5m) — clear cache after data changes or views won't reflect them.
-- **Video posts**: `video_path` can be a YouTube/Vimeo/TikTok URL or a stored file; `video_embed_url`/`video_poster` accessors handle embeds.
-- **DB default** is SQLite locally (`.env.example`); production is pgsql (`render.yaml`, `SESSION_ENCRYPT=true`, DB-backed cache/queue/session).
+- **Headline** (`is_headline`, 7-day `headline_expires_at`) is excluded from "Berita Terbaru" and trending via `scopeExcludeHeadline`. Cap is 6, enforced by `Post::enforceHeadlineLimit($keepId)` from all four post-writing controllers — it silently revokes the oldest headline flag.
+- **`is_featured`** ("Konten Pilihan") expires 14 days after `published_at` (`Post::FEATURED_EXPIRE_DAYS`). `scopeFeatured()` hides expired rows immediately; `posts:expire-flags` clears the flag. Re-saving an old post in admin re-arms it from scratch.
+- **Frontend caching** lives in `AppServiceProvider` view composers: `site_settings` (forever), `frontend_pages` / `trending_posts` (1h), `breaking_news` (5m). Admin controllers forget these in a private `forgetFrontendCaches()`. If you add a cached query, add its key there too, or the UI goes stale. (Note: `frontend_categories` is forgotten by controllers but never actually written — dead key.)
+- **Images**: Intervention Image 3 instantiated inline as `new ImageManager(new Driver)` (GD) — there is no `config/image.php`. All output is WebP 85%. Post/Opini/Video/contributor thumbnails are unconditionally `cover(1200, 675)` (no headline exception). Inline CKEditor uploads use `resizeDown(1200)`. Avatars are `cover(400,400)`.
+- **Video**: `video_path` may be a YouTube/Vimeo/TikTok URL or an uploaded file. `video_url` / `video_embed_url` / `video_poster` / `is_tiktok` accessors handle the branching. `fetchVideoThumbnail()` (helpers) makes **real outbound HTTP** to YouTube/TikTok oEmbed — guard it in tests.
+- **Views/comments/likes are IP-keyed, not auth-keyed.** `RecordViewJob` dedupes per IP for 10 min and stores an anonymized IP (last octet zeroed).
+- Local DB is SQLite (`.env`, `.env.example`); prod is **pgsql** (`render.yaml`). Migrations that use raw `ALTER TABLE ... ADD CONSTRAINT` are pgsql-guarded — keep that guard if you add one.
+- Rate limits: login 10/min/IP, register 5/min/IP, password reset 5/min, comments 5/min, likes 30/min, verification 6/min.
 
 ## Testing
 
-- Feature tests use `RefreshDatabase` + factories, no seeding. Create roles inline: `Role::factory()->create(['slug' => 'editor'])` then attach permissions via `$role->permissions()->attach(...)`.
-- `UserFactory` emails are verified by default; use `unverified()` state when testing the verification flow.
-- Frontend/comments/likes are IP-based, not auth-based. `RecordViewJob` uses the `sync` queue in tests.
-- Turnstile has **no built-in test bypass** — auth tests must stub the Cloudflare call. Pattern in `LoginTurnstileTest`/`RegisterTest`: `Http::fake()` returning `['success' => $request->data()['response'] === 'valid-token']`. Any test posting to login/register/forgot-password that hits the real endpoint will fail/non-deterministically.
+- `RefreshDatabase` + factories; `phpunit.xml` forces `:memory:` SQLite, `array` cache/session, `sync` queue, and dummy `TURNSTILE_*` keys.
+- Roles are created inline — `Role::factory()->create(['slug' => 'editor'])` — then permissions attached via `$role->permissions()->attach(...)`. `UserFactory` emails are verified unless you use the `unverified()` state.
+- `tests/Feature/SmokeSeedTest.php` is the exception: it calls `$this->seed()` (full `DatabaseSeeder`, Faker-driven) and smoke-renders `/`, `/berita/{slug}`, `/kecamatan/{slug}`, `/semua-berita`, `/terkini`, `/trending`. Run it after touching frontend queries or views — it's the cheapest regression net here.
+- `UserSeeder` hardcodes `role_id` 1/2/3 and depends on `RoleSeeder` inserting in that exact order. Don't reorder or renumber roles.
 
-## Ops / Build
+## Ops
 
-- **Deploy target**: Render (`render.yaml`) — PHP runtime. Two services: `konut-update` (web, `artisan serve`, storage mounted to a disk) and `konut-worker` (worker, runs `queue:work` + `schedule:work`). Without the worker, `RecordViewJob` and `posts:expire-flags` never run in prod. Env vars in `render.yaml` are the source of truth for prod DB/queue/cache/session.
-- `php artisan storage:link` required for thumbnails/CKEditor uploads at `storage/app/public/{thumbnails,uploads/images}`.
-- Images are converted to WebP 85% (Intervention Image 3, GD driver); headline thumbnails keep original size, others are downscaled to max 1200px.
-- Livewire `^4.3` is installed but **unused** — no components, no views, no `wire:` directives anywhere. Safe to ignore.
-- No CI workflows (`.github/workflows/`) exist — tests must be run locally.
-- **Rate limiting**: login (10/min/IP), register (5/min/IP), comments (5/min/IP), likes (30/min/IP).
+- Deploy: Render (`render.yaml`), two services. `konut-update` (web) runs `artisan serve` and its buildCommand runs `migrate --force`, `CategorySeeder`, `PageSeeder`, `storage:link --force`, `optimize`. `konut-worker` runs `queue:work` + `schedule:work` but **does not migrate** — deploy order matters. Without the worker, `RecordViewJob` and `posts:expire-flags` never run in prod.
+- Full `DatabaseSeeder` (demo admin `admin@konutupdate.com` / `password`, plus editor/reporter) is **local-only**; production seeds just categories and pages.
+- `livewire/livewire` `^4.3` is in `composer.json` but unused — no components, no views, no `wire:` directives (the only trace is a `livewire:navigated` listener in `resources/js/app.js`). Ignore it.
+- Frontend is Alpine.js + jQuery/Bootstrap 5/DataTables/Swiper/Lucide; Tailwind 4 is compiled from `resources/css/*.css` with no `tailwind.config.js`.

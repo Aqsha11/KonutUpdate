@@ -9,13 +9,22 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="KonutUpdate">
+    <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="{{ url('/manifest.json') }}">
-    @if(!empty($site_settings['favicon']))
-        <link rel="icon" type="image/png" href="{{ Storage::url($site_settings['favicon']) }}">
-    @else
-        <link rel="icon" type="image/png" href="{{ url('/icons/favicon.png') }}">
-    @endif
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/icons/icon-180.png') }}">
+    @php
+        // Favicon selalu dari aset statis: logo KU.png yang sudah dirender ulang
+        // jadi PNG opaque (HTML5 spec: Apple menolak PNG transparan untuk
+        // apple-touch-icon; Android maskable butuh latar penuh).
+        $shareFallback = url('/og-default.jpg');
+    @endphp
+    <link rel="icon" href="{{ url('/favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url('/icons/favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ url('/icons/icon-192.png') }}">
+    <link rel="icon" type="image/png" sizes="512x512" href="{{ url('/icons/icon-512.png') }}">
+    <link rel="mask-icon" href="{{ url('/icons/icon.svg') }}" color="#189B39">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url('/icons/apple-touch-icon.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ url('/icons/apple-touch-icon-152.png') }}">
+    <link rel="apple-touch-icon" sizes="167x167" href="{{ url('/icons/apple-touch-icon-167.png') }}">
     <link rel="alternate" type="application/rss+xml" title="{{ $site_settings['site_name'] ?? 'KonutUpdate' }} RSS Feed" href="{{ url('/feed') }}">
     <title>@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))</title>
     @hasSection('meta')
@@ -29,18 +38,33 @@
         <meta property="og:url" content="{{ url()->current() }}" />
         <meta property="og:title" content="@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))" />
         <meta property="og:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
-        @if(!empty($site_settings['logo']))
-            <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-            <meta property="og:image:width" content="1200" />
-            <meta property="og:image:height" content="630" />
-            <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-        @endif
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))" />
         <meta name="twitter:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
         @if(!empty($site_settings['logo']))
             <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        @else
+            <meta name="twitter:image" content="{{ $shareFallback }}" />
         @endif
+    @endif
+    {{-- Gambar share. Halaman yang punya gambar sendiri (mis. detail artikel) override lewat
+         @section('share_image'); sisanya otomatis dapat logo situs / kartu default.
+         Harus DI LUAR blok meta di atas: hampir semua halaman punya @section('meta') sendiri,
+         sehingga og:image di dalam blok default tidak pernah ikut ter-render. --}}
+    @hasSection('share_image')
+        @yield('share_image')
+    @elseif(!empty($site_settings['logo']))
+        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
+        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
+    @else
+        <meta property="og:image" content="{{ $shareFallback }}" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
+        <meta name="twitter:image" content="{{ $shareFallback }}" />
     @endif
     @php
         // Canonical self-referencing; arsip terpaginasi tetap mengarah ke URL halamannya sendiri (?page=N)
@@ -589,8 +613,13 @@
                 }
             });
             document.addEventListener('click', function(e) {
-                var link = e.target.closest('a[href*="/berita/"]');
+                var link = e.target.closest('a[href]');
                 if (!link) return;
+                // Artikel berada di root: /{slug} (path satu segmen).
+                // Link kategori/kecamatan (/kategori/..., /kecamatan/...) punya
+                // dua segmen sehingga tidak ikut terhitung.
+                var path = link.getAttribute('href').split('#')[0].split('?')[0];
+                if (path.split('/').filter(Boolean).length !== 1) return;
                 var article = link.closest('[data-post-id]');
                 if (!article) return;
                 var id = article.dataset.postId;

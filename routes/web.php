@@ -49,8 +49,13 @@ Route::get('/iklan/{ad}', function (Ad $ad) {
     return redirect($ad->link ?: url('/'));
 })->name('ads.click');
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Backward-compat: URL lama /berita/{slug} -> 301 ke URL kanonik tanpa prefix.
+// Dijaga agar backlink lama & indeks search engine tidak ikut mati.
+Route::get('/berita/{slug}', function (string $slug) {
+    return redirect()->to(url($slug), 301);
+})->where('slug', '[A-Za-z0-9\-]+')->name('posts.legacy');
 Route::get('/semua-berita', [NewsArchiveController::class, 'index'])->name('news.index');
-Route::get('/berita/{slug}', [PostController::class, 'show'])->name('posts.show');
 Route::get('/kategori/{slug}', [CategoryController::class, 'show'])->name('categories.show');
 Route::get('/tag/{slug}', [TagController::class, 'show'])->name('tags.show');
 Route::get('/kecamatan/{slug}', [FrontendKecamatanController::class, 'show'])->name('kecamatan.show');
@@ -226,3 +231,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.sess
     Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
     Route::put('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
 });
+
+// ── Detail berita: URL kanonik /{slug} (tanpa prefix /berita) ──────────────
+// WAJIB didaftarkan paling akhir. Laravel mencocokkan route sesuai urutan
+// registrasi, sehingga semua route literal di atas (/terkini, /trending,
+// /opini, /video, /search, /login, /daftar, /admin, ...) tetap menang dulu.
+// Menambah route root-level baru berarti menambahkannya DI ATAS blok ini.
+Route::get('/{slug}', [PostController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('posts.show');

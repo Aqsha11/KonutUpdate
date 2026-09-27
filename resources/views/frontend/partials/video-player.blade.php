@@ -48,7 +48,7 @@
         embedWrap.innerHTML = '';
         directWrap.innerHTML = '';
         sourceLink.hidden = !data.url;
-        detailLink.href = data.slug ? '/berita/' + encodeURIComponent(data.slug) : '#';
+        detailLink.href = data.slug ? '/' + encodeURIComponent(data.slug) : '#';
 
         if (data.embed) {
             var frame = document.createElement('iframe');
