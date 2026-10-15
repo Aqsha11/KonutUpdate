@@ -198,6 +198,11 @@ if (! function_exists('shareLinks')) {
     {
         return 'https://twitter.com/intent/tweet?text='.urlencode($text).'&url='.urlencode($url);
     }
+
+    function shareThreads(string $url, string $text = ''): string
+    {
+        return 'https://www.threads.com/intent/post?text='.urlencode($text).'&url='.urlencode($url);
+    }
 }
 
 if (! function_exists('seoInternalLinks')) {

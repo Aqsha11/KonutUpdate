@@ -22,7 +22,9 @@ class LoginController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-            'cf-turnstile-response' => ['required', 'string', new Turnstile],
+            'cf-turnstile-response' => config('services.turnstile.enabled')
+                ? ['required', 'string', new Turnstile]
+                : [new Turnstile],
         ], [
             'cf-turnstile-response.required' => 'Verifikasi bukan robot wajib diselesaikan.',
         ]);

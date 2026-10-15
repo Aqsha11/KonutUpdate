@@ -10,6 +10,10 @@ class TurnstileService
 {
     public function verify(string $token, ?string $remoteIp = null): bool
     {
+        if (! config('services.turnstile.enabled')) {
+            return true;
+        }
+
         $secret = config('services.turnstile.secret_key');
 
         if (! $secret || $token === '') {

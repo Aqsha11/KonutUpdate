@@ -30,7 +30,9 @@ class RegisterController extends Controller
             'name' => ['bail', 'required', 'string', 'min:3', 'max:100', 'regex:/^[\p{L}\p{M}\s\'\-\.\,]+$/u'],
             'email' => ['bail', 'required', 'email:rfc'.(extension_loaded('intl') ? ',spoof' : ''), 'max:191', Rule::unique('users', 'email')],
             'password' => ['bail', 'required', 'string', 'confirmed', new StrongPassword],
-            'cf-turnstile-response' => ['bail', 'required', 'string', new Turnstile],
+            'cf-turnstile-response' => config('services.turnstile.enabled')
+                ? ['bail', 'required', 'string', new Turnstile]
+                : [new Turnstile],
         ], [
             'name.required' => 'Nama wajib diisi.',
             'name.min' => 'Nama minimal :min karakter.',

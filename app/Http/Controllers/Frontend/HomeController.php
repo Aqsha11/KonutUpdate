@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Kecamatan;
 use App\Models\Post;
+use App\Models\Story;
 use App\Models\Tag;
 use App\Repositories\PostRepository;
 
@@ -16,6 +17,8 @@ class HomeController extends Controller
 
     public function index()
     {
+        $stories = Story::with('category')->active()->sorted()->get();
+
         $headlinePosts = $this->postRepository->getHeadlinePosts();
 
         // Hero ala CNN: 1 headline terbaru sebagai lead, sisanya kolom kanan.
@@ -131,6 +134,7 @@ class HomeController extends Controller
         $usedIds = array_merge($usedIds, $kecamatanRandomPosts->pluck('id')->toArray());
 
         return view('frontend.home.index', compact(
+            'stories',
             'headlinePosts',
             'heroMain',
             'heroSidePosts',

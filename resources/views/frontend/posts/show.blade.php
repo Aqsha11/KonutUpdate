@@ -94,21 +94,10 @@
         <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
         <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
         <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn twitter" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+        <a href="{{ shareThreads(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="sticky-share-btn threads" aria-label="Threads"><i class="fab fa-threads"></i></a>
+        <button type="button" data-share-url="{{ url()->current() }}" onclick="return copyShareUrl(this)" class="sticky-share-btn copy" aria-label="Salin link"><i data-lucide="link"></i></button>
         <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-sticky" data-like-btn="{{ $post->id }}" class="sticky-share-btn like {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
             <i data-lucide="heart" class="w-4 h-4"></i>
-        </button>
-    </div>
-
-    {{-- Sticky Share Mobile --}}
-    <div class="sticky-share-mobile" id="stickyShareMobile">
-        <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-        <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-        <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
-        <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="ssm-btn twitter" aria-label="X"><i class="fab fa-x-twitter"></i></a>
-        <span class="ssm-divider"></span>
-        <button type="button" onclick="toggleLike({{ $post->id }})" id="like-btn-mshare-{{ $post->id }}" data-like-btn="{{ $post->id }}" class="ssm-btn like {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
-            <i data-lucide="heart" class="w-3.5 h-3.5"></i>
-            <span data-like-count="{{ $post->id }}" id="like-count-mshare-{{ $post->id }}">{{ $post->likesCount() }}</span>
         </button>
     </div>
 
@@ -264,6 +253,23 @@
                     {!! $post->body !!}
                 </div>
 
+                {{-- Bagikan (mobile, inline — bukan bubble karena dock bawah sudah bubble) --}}
+                <div class="md:hidden share-inline-wrap">
+                    <span class="share-inline-label"><i data-lucide="share-2" class="w-3.5 h-3.5"></i> Bagikan</span>
+                    <div class="share-inline-actions">
+                        <a href="{{ shareWhatsApp(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-inline-btn whatsapp" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="{{ shareFacebook(url()->current()) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-inline-btn facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        <a href="{{ shareTelegram(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-inline-btn telegram" aria-label="Telegram"><i class="fab fa-telegram"></i></a>
+                        <a href="{{ shareTwitter(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-inline-btn twitter" aria-label="X"><i class="fab fa-x-twitter"></i></a>
+                        <a href="{{ shareThreads(url()->current(), $post->title) }}" target="_blank" rel="nofollow noopener noreferrer" class="share-inline-btn threads" aria-label="Threads" title="Threads"><i class="fab fa-threads"></i></a>
+                        <button type="button" data-share-url="{{ url()->current() }}" onclick="return copyShareUrl(this)" class="share-inline-btn copy" aria-label="Salin link" title="Salin link"><i data-lucide="link" class="w-4 h-4"></i></button>
+                        <button type="button" onclick="toggleLike({{ $post->id }})" data-like-btn="{{ $post->id }}" class="share-inline-btn like {{ $post->isLikedBy(request()->ip()) ? 'liked' : '' }}">
+                            <i data-lucide="heart" class="w-3.5 h-3.5"></i>
+                            <span data-like-count="{{ $post->id }}">{{ $post->likesCount() }}</span>
+                        </button>
+                    </div>
+                </div>
+
                 {{-- Internal link: hub kecamatan asal berita --}}
                 @if($post->kecamatan)
                     <a href="{{ route('kecamatan.show', $post->kecamatan->slug) }}"
@@ -417,17 +423,14 @@
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         var stickyShare = document.getElementById('stickyShare');
-        var stickyShareMobile = document.getElementById('stickyShareMobile');
         var trigger = document.querySelector('.article-meta-bar') || document.querySelector('.article-hero-media');
         if (!trigger) return;
         window.addEventListener('scroll', function() {
             var rect = trigger.getBoundingClientRect();
             if (rect.bottom < 0) {
                 if (stickyShare) stickyShare.classList.add('visible');
-                if (stickyShareMobile) stickyShareMobile.classList.add('visible');
             } else {
                 if (stickyShare) stickyShare.classList.remove('visible');
-                if (stickyShareMobile) stickyShareMobile.classList.remove('visible');
             }
         }, { passive: true });
     });

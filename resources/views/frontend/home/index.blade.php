@@ -27,6 +27,9 @@
         {{ ($site_settings['site_name'] ?? 'KonutUpdate') }} — Berita Terkini Konawe Utara (Konut) Hari Ini
     </h1>
 
+    {{-- Story — strip ring di atas headline (berakhir otomatis 7 hari) --}}
+    @include('frontend.partials.stories', ['stories' => $stories])
+
     <div class="flex flex-col md:flex-row gap-4 md:gap-6">
         <div class="min-w-0 md:w-[68%]">
 

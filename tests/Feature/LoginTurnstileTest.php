@@ -138,4 +138,29 @@ class LoginTurnstileTest extends TestCase
 
         $this->assertAuthenticatedAs($user);
     }
+
+    public function test_login_page_hides_turnstile_when_disabled(): void
+    {
+        config(['services.turnstile.enabled' => false]);
+
+        $this->get(route('login'))
+            ->assertOk()
+            ->assertDontSee('cf-turnstile')
+            ->assertDontSee('Verifikasi Bukan Robot');
+    }
+
+    public function test_login_succeeds_without_turnstile_when_disabled(): void
+    {
+        config(['services.turnstile.enabled' => false]);
+
+        $role = Role::factory()->create(['slug' => 'super_admin']);
+        $user = User::factory()->create(['role_id' => $role->id]);
+
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertRedirect(route('admin.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+    }
 }

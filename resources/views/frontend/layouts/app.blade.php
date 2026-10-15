@@ -295,28 +295,69 @@
     @endauth
 
     {{-- Mobile Bottom Navigation --}}
-    <nav class="mobile-bottom-nav md:hidden safe-bottom">
-        <div class="flex items-center justify-around max-w-lg mx-auto">
-            <a href="{{ url('/') }}" class="flex flex-col items-center gap-0.5 py-1.5 px-3 no-underline min-w-0 {{ request()->routeIs('home') ? 'text-primary' : 'text-on-surface-variant' }}" aria-label="Home">
-                <i data-lucide="home" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Home</span>
-            </a>
-            <button class="flex flex-col items-center gap-0.5 py-1.5 px-3 no-underline text-on-surface-variant cursor-pointer bg-transparent border-none min-w-0" x-on:click="searchOpen = true" aria-label="Cari">
-                <i data-lucide="search" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Cari</span>
-            </button>
-            <a href="{{ route('terkini') }}" class="flex flex-col items-center gap-0.5 py-1.5 px-3 no-underline min-w-0 {{ request()->routeIs('terkini') ? 'text-primary' : 'text-on-surface-variant' }}" aria-label="Terkini">
-                <i data-lucide="clock" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Terkini</span>
-            </a>
-            <a href="{{ route('trending') }}" class="flex flex-col items-center gap-0.5 py-1.5 px-3 no-underline min-w-0 {{ request()->routeIs('trending') ? 'text-primary' : 'text-on-surface-variant' }}" aria-label="Trending">
-                <i data-lucide="flame" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Trending</span>
-            </a>
-            <button class="flex flex-col items-center gap-0.5 py-1.5 px-3 no-underline text-on-surface-variant cursor-pointer bg-transparent border-none min-w-0" x-on:click="mobileOpen = true" aria-label="Menu">
-                <i data-lucide="align-left" class="w-5 h-5"></i>
-                <span class="text-[9px] font-medium">Menu</span>
-            </button>
+    <nav class="mobile-bottom-nav md:hidden safe-bottom"
+         x-data="bottomNav()"
+         x-init="init()"
+         x-ref="navBar">
+        <div class="mobile-dock-container">
+            <div class="mobile-dock-track">
+                <button type="button"
+                        class="mobile-dock-item"
+                        :class="active === 'home' && 'active'"
+                        x-on:click="goHome()"
+                        aria-label="Home">
+                    <span class="mobile-dock-icon">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                    </span>
+                    <span class="mobile-dock-label">Home</span>
+                </button>
+
+                <button type="button"
+                        class="mobile-dock-item"
+                        :class="active === 'search' && 'active'"
+                        x-on:click="openSearch()"
+                        aria-label="Cari">
+                    <span class="mobile-dock-icon">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </span>
+                    <span class="mobile-dock-label">Cari</span>
+                </button>
+
+                <a href="{{ route('terkini') }}"
+                   class="mobile-dock-item"
+                   :class="active === 'terkini' && 'active'"
+                   aria-label="Terkini">
+                    <span class="mobile-dock-icon">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                    </span>
+                    <span class="mobile-dock-label">Terkini</span>
+                </a>
+
+                <a href="{{ route('trending') }}"
+                   class="mobile-dock-item"
+                   :class="active === 'trending' && 'active'"
+                   aria-label="Trending">
+                    <span class="mobile-dock-icon">
+                        <i data-lucide="flame" class="w-5 h-5"></i>
+                    </span>
+                    <span class="mobile-dock-label">Trending</span>
+                </a>
+
+                <button type="button"
+                        class="mobile-dock-item"
+                        :class="active === 'menu' && 'active'"
+                        x-on:click="openMenu()"
+                        aria-label="Menu">
+                    <span class="mobile-dock-icon">
+                        <i data-lucide="align-left" class="w-5 h-5"></i>
+                    </span>
+                    <span class="mobile-dock-label">Menu</span>
+                </button>
+
+                <span class="mobile-dock-pill"
+                      x-cloak
+                      :style="pillStyle"></span>
+            </div>
         </div>
     </nav>
 
@@ -348,7 +389,11 @@
                     <span class="ku-share-icon ku-share-tw"><svg viewBox="0 0 24 24" width="20" height="20" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></span>
                     X
                 </a>
-                <button class="ku-share-opt" id="shareCopy" x-on:click="document.getElementById('sharePopup').classList.remove('open')">
+                <a class="ku-share-opt" id="shareTh" href="#" target="_blank" rel="noopener">
+                    <span class="ku-share-icon ku-share-th"><i class="fab fa-threads"></i></span>
+                    Threads
+                </a>
+                <button class="ku-share-opt" id="shareCopy" onclick="return copyShareUrl(this)" x-on:click="document.getElementById('sharePopup').classList.remove('open')">
                     <span class="ku-share-icon ku-share-copy"><i data-lucide="link" class="w-5 h-5"></i></span>
                     Salin Link
                 </button>
@@ -580,28 +625,52 @@
         }
 
         // Share — popup ala KendariInfo
+        var currentShareUrl = location.href;
+        var currentShareTitle = document.title;
         function sharePost(url, title) {
             if (!url) return;
-            var encTitle = encodeURIComponent(title || 'KonutUpdate');
+            currentShareUrl = url;
+            currentShareTitle = title || 'KonutUpdate';
+            var encTitle = encodeURIComponent(currentShareTitle);
             var encUrl = encodeURIComponent(url);
             document.getElementById('shareWa').href = 'https://wa.me/?text=' + encTitle + '%20' + encUrl;
             document.getElementById('shareFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encUrl;
             document.getElementById('shareTg').href = 'https://t.me/share/url?url=' + encUrl + '&text=' + encTitle;
             document.getElementById('shareTw').href = 'https://twitter.com/intent/tweet?text=' + encTitle + '&url=' + encUrl;
+            var th = document.getElementById('shareTh');
+            if (th) th.href = 'https://www.threads.com/intent/post?text=' + encTitle + '&url=' + encUrl;
+            var cp = document.getElementById('shareCopy');
+            if (cp) cp.dataset.shareUrl = url;
             document.getElementById('sharePopup').classList.add('open');
         }
-        document.getElementById('shareCopy').addEventListener('click', function() {
-            var url = new URL(location.href);
-            var href = document.getElementById('shareWa').getAttribute('href');
-            var m = href && href.match(/url=([^&]+)/);
-            var link = m ? decodeURIComponent(m[1]) : url.href;
+
+        function copyToClipboard(text, onDone) {
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(link).then(function() {
-                    document.getElementById('shareCopy').textContent = 'Tersalin!';
-                    setTimeout(function() { document.getElementById('shareCopy').textContent = 'Salin Link'; }, 1500);
-                });
+                navigator.clipboard.writeText(text).then(onDone).catch(function() { legacyCopy(text, onDone); });
+            } else {
+                legacyCopy(text, onDone);
             }
-        });
+        }
+        function legacyCopy(text, onDone) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.top = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); } catch (e) {}
+            document.body.removeChild(ta);
+            if (onDone) onDone();
+        }
+        function copyShareUrl(el) {
+            var url = (el && el.dataset && el.dataset.shareUrl) || currentShareUrl || location.href;
+            copyToClipboard(url, function() {
+                if (window.showToast) { window.showToast('Link berhasil disalin', 'success', 2000); }
+            });
+            return false;
+        }
+        window.copyShareUrl = copyShareUrl;
 
         // Viewed Posts
         (function() {

@@ -18,7 +18,9 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'cf-turnstile-response' => ['required', 'string', new Turnstile],
+            'cf-turnstile-response' => config('services.turnstile.enabled')
+                ? ['required', 'string', new Turnstile]
+                : [new Turnstile],
         ], [
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',

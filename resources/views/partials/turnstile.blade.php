@@ -1,4 +1,6 @@
-@if (config('services.turnstile.site_key'))
+@if (! config('services.turnstile.enabled'))
+    {{-- Cloudflare Turnstile dimatikan (TURNSTILE_ENABLED=false, mis. saat mode pengembang). --}}
+@elseif (config('services.turnstile.site_key'))
     <label for="cf-turnstile-response">Verifikasi Bukan Robot</label>
     <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light"></div>
     @error('cf-turnstile-response')

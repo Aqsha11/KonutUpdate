@@ -73,6 +73,11 @@
                         <i class="bi bi-play-btn"></i> Video
                     </a>
                 </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.stories.index') }}" class="nav-link {{ request()->routeIs('admin.stories.*') ? 'active' : '' }}">
+                        <i class="bi bi-collection-play"></i> Story
+                    </a>
+                </div>
                 @if(auth()->user()->hasPermission('manage_opini'))
                 <div class="nav-item">
                     <a href="{{ route('admin.opini.index') }}" class="nav-link {{ request()->routeIs('admin.opini.*') ? 'active' : '' }}">

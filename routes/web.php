@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RoleController as AdminRoleController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\StoryController as AdminStoryController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\VideoController as AdminVideoController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
@@ -205,6 +206,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.sess
     Route::delete('/videos/{post}', [AdminVideoController::class, 'destroy'])->name('videos.destroy');
     Route::post('/videos/{post}/publish', [AdminVideoController::class, 'publish'])->name('videos.publish');
     Route::post('/videos/{post}/draft', [AdminVideoController::class, 'draft'])->name('videos.draft');
+
+    Route::get('/stories', [AdminStoryController::class, 'index'])->name('stories.index');
+    Route::get('/stories/buat', [AdminStoryController::class, 'create'])->name('stories.create');
+    Route::post('/stories', [AdminStoryController::class, 'store'])->name('stories.store');
+    Route::get('/stories/{story}/edit', [AdminStoryController::class, 'edit'])->name('stories.edit');
+    Route::put('/stories/{story}', [AdminStoryController::class, 'update'])->name('stories.update');
+    Route::delete('/stories/{story}', [AdminStoryController::class, 'destroy'])->name('stories.destroy');
+    Route::post('/stories/{story}/extend', [AdminStoryController::class, 'extend'])->name('stories.extend');
+    Route::post('/stories/{story}/toggle', [AdminStoryController::class, 'toggle'])->name('stories.toggle');
 
     Route::resource('categories', AdminCategoryController::class);
     Route::resource('kecamatans', KecamatanController::class);

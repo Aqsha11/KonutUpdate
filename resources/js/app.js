@@ -10,6 +10,12 @@ scrollToTop(Alpine);
 
 import navMenuArrows from './components/navMenuArrows';
 navMenuArrows(Alpine);
+import bottomNav from './components/bottomNav';
+bottomNav(Alpine);
+
+import storyViewer from './components/storyViewer';
+storyViewer(Alpine);
+
 
 import adAutoScroll from './components/adAutoScroll';
 adAutoScroll(Alpine);
