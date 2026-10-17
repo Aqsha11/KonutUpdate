@@ -49,18 +49,17 @@ class LoginController extends Controller
             $request->session()->regenerate();
             app(RateLimiter::class)->clear($this->throttleKey($request));
 
-            $user = Auth::user();
-            $role = $user->role?->slug;
+            $role = Auth::user()->role?->slug;
 
-            if ($role === 'kontributor') {
-                if ($redirect = $this->safeRedirect($request->input('redirect'))) {
-                    return redirect($redirect);
-                }
-
-                return redirect()->intended(route('kontributor.dashboard'));
+            if ($redirect = $this->safeRedirect($request->input('redirect'))) {
+                return redirect($redirect);
             }
 
-            return redirect()->intended(route('admin.dashboard'));
+            return match ($role) {
+                'super_admin', 'editor', 'reporter' => redirect()->intended(route('admin.dashboard')),
+                'kontributor' => redirect()->intended(route('kontributor.dashboard')),
+                default => redirect()->intended(route('home')),
+            };
         }
 
         app(RateLimiter::class)->hit($this->throttleKey($request), 60);

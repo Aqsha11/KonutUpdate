@@ -268,31 +268,8 @@
         <i data-lucide="arrow-up" class="w-5 h-5"></i>
     </button>
 
-    {{-- Bubble Widget Akun --}}
-    @auth
-        @php
-            $accountRole = auth()->user()->role?->slug;
-            $accountUrl = match ($accountRole) {
-                'kontributor' => route('kontributor.dashboard'),
-                'super_admin', 'editor', 'reporter' => route('admin.dashboard'),
-                default => route('home'),
-            };
-        @endphp
-        <a href="{{ $accountUrl }}" class="ku-bubble-widget" aria-label="Akun Saya">
-            <i data-lucide="user-round" class="w-5 h-5"></i>
-            <span class="ku-bubble-label">{{ auth()->user()->name }}</span>
-        </a>
-        <form id="frontend-logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
-        <button type="button" class="ku-bubble-widget ku-bubble-logout" aria-label="Keluar" onclick="event.preventDefault(); document.getElementById('frontend-logout-form').submit();">
-            <i data-lucide="log-out" class="w-5 h-5"></i>
-            <span class="ku-bubble-label">Keluar</span>
-        </button>
-    @else
-        <a href="{{ route('login') }}" class="ku-bubble-widget" aria-label="Masuk atau Daftar">
-            <i data-lucide="user-round" class="w-5 h-5"></i>
-            <span class="ku-bubble-label">Masuk / Daftar</span>
-        </a>
-    @endauth
+    {{-- Floating Hub: Tanya Berita AI + Akun/Login --}}
+    @include('frontend.partials.floating-hub')
 
     {{-- Mobile Bottom Navigation --}}
     <nav class="mobile-bottom-nav md:hidden safe-bottom"
@@ -480,27 +457,43 @@
                     </div>
 
                     <div class="pt-4 mt-4 border-t border-outline">
-                        <p class="text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Ikuti Kami</p>
-                        <div class="flex gap-2">
-                            @if(!empty($site_settings['facebook']))
-                                <a href="{{ $site_settings['facebook'] }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1877f2] text-white no-underline"><i class="fab fa-facebook text-sm"></i></a>
+                        <p class="text-xs font-semibold text-on-surface-variant mb-2 uppercase tracking-wider">Akun</p>
+                        @auth
+                            @if(auth()->user()->role?->slug === 'pembaca' || auth()->user()->role?->slug === 'kontributor')
+                                <a href="{{ route('opini.submit.create') }}"
+                                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm {{ request()->routeIs('opini.submit.*') ? 'drawer-active text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
+                                    <i data-lucide="pen-line" class="w-4 h-4 text-on-surface-variant"></i>
+                                    <span>Kirim Opini</span>
+                                </a>
+                                <a href="{{ match(auth()->user()->role?->slug){ 'kontributor' => route('profile.index'), 'super_admin','editor','reporter' => route('admin.dashboard'), default => route('home') } }}"
+                                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm {{ request()->routeIs('profile.index') || request()->routeIs('profile.update') ? 'drawer-active text-primary bg-primary-light font-bold' : 'text-on-surface hover:bg-surface-container' }} no-underline transition-colors">
+                                    <i data-lucide="user-round" class="w-4 h-4 text-on-surface-variant"></i>
+                                    <span>Akun Saya</span>
+                                </a>
+                                <button type="button" x-on:click="document.getElementById('frontend-logout-form')?.submit(); mobileOpen=false"
+                                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors w-full text-left">
+                                    <i data-lucide="log-out" class="w-4 h-4 text-on-surface-variant"></i>
+                                    <span>Keluar</span>
+                                </button>
+                            @else
+                                <a href="{{ match(auth()->user()->role?->slug){ 'kontributor' => route('profile.index'), 'super_admin','editor','reporter' => route('admin.dashboard'), default => route('home') } }}"
+                                   class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
+                                    <i data-lucide="user-round" class="w-4 h-4 text-on-surface-variant"></i>
+                                    <span>Akun Saya</span>
+                                </a>
+                                <button type="button" x-on:click="document.getElementById('frontend-logout-form')?.submit(); mobileOpen=false"
+                                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors w-full text-left">
+                                    <i data-lucide="log-out" class="w-4 h-4 text-on-surface-variant"></i>
+                                    <span>Keluar</span>
+                                </button>
                             @endif
-                            @if(!empty($site_settings['instagram']))
-                                <a href="{{ $site_settings['instagram'] }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-gradient-to-tr from-[#833ab4] via-[#fd1d1d] to-[#f77737] text-white no-underline"><i class="fab fa-instagram text-sm"></i></a>
-                            @endif
-                            @if(!empty($site_settings['youtube']))
-                                <a href="{{ $site_settings['youtube'] }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#ff0000] text-white no-underline"><i class="fab fa-youtube text-sm"></i></a>
-                            @endif
-                            @if(!empty($site_settings['tiktok']))
-                                <a href="{{ $site_settings['tiktok'] }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-black text-white no-underline"><i class="fab fa-tiktok text-sm"></i></a>
-                            @endif
-                            @if(!empty($site_settings['whatsapp']))
-                                <a href="{{ $site_settings['whatsapp'] }}" target="_blank" class="w-10 h-10 flex items-center justify-center rounded-xl bg-[#25d366] text-white no-underline"><i class="fab fa-whatsapp text-sm"></i></a>
-                            @endif
-                            @if(!empty($site_settings['email']))
-                                <a href="mailto:{{ $site_settings['email'] }}" class="w-10 h-10 flex items-center justify-center rounded-xl bg-on-surface text-white no-underline"><i data-lucide="mail" class="w-4 h-4"></i></a>
-                            @endif
-                        </div>
+                        @else
+                            <a href="{{ route('login') }}"
+                               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
+                                <i data-lucide="log-in" class="w-4 h-4 text-on-surface-variant"></i>
+                                <span>Masuk / Daftar</span>
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>

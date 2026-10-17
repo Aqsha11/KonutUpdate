@@ -14,6 +14,7 @@ class RoleSeeder extends Seeder
             ['name' => 'Editor', 'slug' => 'editor', 'description' => 'Dapat mengelola dan mereview berita'],
             ['name' => 'Reporter', 'slug' => 'reporter', 'description' => 'Dapat menulis dan mengelola berita sendiri'],
             ['name' => 'Kontributor', 'slug' => 'kontributor', 'description' => 'Masyarakat yang dapat mengirim berita atau opini untuk diverifikasi'],
+            ['name' => 'Pembaca', 'slug' => 'pembaca', 'description' => 'Pembaca terdaftar — dapat menggunakan Tanya AI dan mengirim opini untuk diverifikasi'],
         ];
 
         foreach ($roles as $role) {

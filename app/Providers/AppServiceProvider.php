@@ -30,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
         RateLimiter::for('register', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+        RateLimiter::for('ai-chat', fn (Request $request) => [
+            Limit::perMinute(10)->by($request->ip()),
+            Limit::perDay(100)->by($request->ip()),
+        ]);
 
         View::composer('*', function ($view) {
             if (Schema::hasTable('settings')) {

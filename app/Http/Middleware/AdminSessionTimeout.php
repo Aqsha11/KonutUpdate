@@ -17,6 +17,13 @@ class AdminSessionTimeout
             return $next($request);
         }
 
+        $role = Auth::user()->role?->slug;
+        $adminRoles = ['super_admin', 'editor', 'reporter'];
+
+        if (! in_array($role, $adminRoles, true)) {
+            return $next($request);
+        }
+
         $lastActivity = $request->session()->get('admin_last_activity');
 
         if ($lastActivity && $lastActivity->lte(now()->subMinutes($this->idleMinutes))) {

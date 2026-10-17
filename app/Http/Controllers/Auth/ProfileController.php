@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
+use App\Models\Kecamatan;
 use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,11 +13,23 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        if (auth()->user()->role?->slug !== 'kontributor') {
-            return redirect()->route('admin.profile.index');
+        $role = auth()->user()->role?->slug;
+
+        if ($role === 'pembaca') {
+            $categories = Category::all();
+            $kecamatans = Kecamatan::ordered()->get();
+
+            return view('frontend.account.index', ['user' => auth()->user(), 'categories' => $categories, 'kecamatans' => $kecamatans]);
         }
 
-        return view('contributor.profile.index', ['user' => auth()->user()]);
+        if ($role === 'kontributor') {
+            $categories = Category::all();
+            $kecamatans = Kecamatan::ordered()->get();
+
+            return view('frontend.account.index', ['user' => auth()->user(), 'categories' => $categories, 'kecamatans' => $kecamatans]);
+        }
+
+        return redirect()->route('admin.profile.index');
     }
 
     public function update(Request $request)

@@ -55,6 +55,8 @@ services:
         value: local
       - key: NODE_VERSION
         value: "20"
+      - key: PHP_CLI_SERVER_WORKERS
+        value: "4"
     disk:
       name: storage
       mountPath: /opt/render/project/storage

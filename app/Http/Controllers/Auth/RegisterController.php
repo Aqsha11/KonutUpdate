@@ -48,16 +48,16 @@ class RegisterController extends Controller
 
         try {
             $user = DB::transaction(function () use ($validated) {
-                $kontributorRole = Role::firstOrCreate(
-                    ['slug' => 'kontributor'],
-                    ['name' => 'Kontributor', 'description' => 'Masyarakat yang dapat mengirim berita atau opini untuk diverifikasi']
+                $pembacaRole = Role::firstOrCreate(
+                    ['slug' => 'pembaca'],
+                    ['name' => 'Pembaca', 'description' => 'Pembaca terdaftar — dapat menggunakan Tanya AI dan mengirim opini untuk diverifikasi']
                 );
 
                 $user = User::create([
                     'name' => $validated['name'],
                     'email' => $validated['email'],
                     'password' => $validated['password'],
-                    'role_id' => $kontributorRole->id,
+                    'role_id' => $pembacaRole->id,
                 ]);
 
                 $user->sendEmailVerificationNotification();

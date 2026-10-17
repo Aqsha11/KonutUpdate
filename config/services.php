@@ -41,4 +41,15 @@ return [
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    'gemini' => [
+        'enabled' => env('GEMINI_ENABLED', true),
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash'),
+        'fallback_models' => array_values(array_filter(array_map('trim', explode(',', (string) env('GEMINI_FALLBACK_MODELS', 'gemini-3.5-flash,gemini-flash-latest,gemini-2.5-flash-lite'))))),
+        'daily_limit' => (int) env('GEMINI_DAILY_LIMIT', 1000),
+        // Jumlah pertanyaan gratis untuk tamu sebelum diminta login/daftar.
+        // 0 = tamu tidak boleh sama sekali (wajib login).
+        'guest_limit' => (int) env('GEMINI_GUEST_LIMIT', 2),
+    ],
+
 ];

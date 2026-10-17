@@ -16,14 +16,77 @@ bottomNav(Alpine);
 import storyViewer from './components/storyViewer';
 storyViewer(Alpine);
 
+import floatingHub from './components/floatingHub';
+floatingHub(Alpine);
+
 
 import adAutoScroll from './components/adAutoScroll';
 adAutoScroll(Alpine);
 
-import '@fortawesome/fontawesome-free/css/fontawesome.css';
-import '@fortawesome/fontawesome-free/css/brands.css';
+// ===== CKEditor =====
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
-Alpine.start();
+class FrontendUploadAdapter {
+    constructor(loader, uploadUrl) {
+        this.loader = loader;
+        this.uploadUrl = uploadUrl;
+    }
+    upload() {
+        return this.loader.file.then(file => new Promise((resolve, reject) => {
+            const data = new FormData();
+            data.append('upload', file);
+            fetch(this.uploadUrl, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content },
+                body: data,
+            })
+            .then(res => res.json())
+            .then(res => { resolve({ default: res.url }); })
+            .catch(() => { reject('Gagal upload gambar'); });
+        }));
+    }
+    abort() { }
+}
+
+function FrontendUploadAdapterPlugin(editor, uploadUrl) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+        return new FrontendUploadAdapter(loader, uploadUrl);
+    };
+}
+
+window.initCKEditor = function(elementId, placeholder = 'Tulis isi opini di sini...', uploadUrl = null) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    const finalUploadUrl = uploadUrl || element.dataset.uploadUrl || '/kirim-opini/upload-image';
+
+    ClassicEditor
+        .create(element, {
+            extraPlugins: [function(editor) { return FrontendUploadAdapterPlugin(editor, finalUploadUrl); }],
+            toolbar: {
+                items: [
+                    'undo', 'redo',
+                    '|', 'heading',
+                    '|', 'bold', 'italic', 'underline',
+                    '|', 'bulletedList', 'numberedList',
+                    '|', 'blockQuote', 'link',
+                    '|', 'imageUpload',
+                    '|', 'removeFormat'
+                ]
+            },
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                ]
+            },
+            placeholder: placeholder,
+        })
+        .catch(error => {
+            console.error('CKEditor initialization error:', error);
+        });
+};
 
 import { createIcons, icons } from 'lucide';
 

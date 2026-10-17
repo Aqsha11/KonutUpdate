@@ -61,7 +61,7 @@ class RegisterTest extends TestCase
         ]);
 
         $user = User::where('email', 'budi@example.com')->firstOrFail();
-        $this->assertSame('kontributor', $user->role?->slug);
+        $this->assertSame('pembaca', $user->role?->slug);
         $this->assertGuest();
 
         Notification::assertSentTo($user, VerifyEmail::class);

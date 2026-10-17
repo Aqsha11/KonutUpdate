@@ -280,6 +280,7 @@
 
                 <form method="POST" action="{{ route('login') }}" id="loginForm">
                     @csrf
+                    <input type="hidden" name="redirect" value="{{ request('redirect') }}">
                     <div class="form-group">
                         <label for="email">Alamat Email</label>
                         <input type="email" name="email" id="email" class="form-input @error('email') is-invalid @enderror" placeholder="nama@email.com" value="{{ old('email') }}" required autofocus autocomplete="email">
