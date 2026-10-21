@@ -58,7 +58,7 @@
                 <h4 class="font-bold text-xs uppercase tracking-wider mb-4 text-inverse-on-surface dark:text-gray-100">Halaman</h4>
                 <ul class="space-y-2.5 text-xs list-none p-0">
                     @foreach($footerPages as $page)
-                        <li><a href="{{ route('pages.show', $page->slug) }}" class="opacity-70 hover:opacity-100 hover:translate-x-1 inline-block transition-all no-underline text-inverse-on-surface dark:text-gray-300">{{ $page->title }}</a></li>
+                        <li><a href="{{ $page->canonicalUrl() }}" class="opacity-70 hover:opacity-100 hover:translate-x-1 inline-block transition-all no-underline text-inverse-on-surface dark:text-gray-300">{{ $page->title }}</a></li>
                     @endforeach
                     @if($footerPages->isEmpty())
                         <li class="opacity-50">Belum ada halaman.</li>

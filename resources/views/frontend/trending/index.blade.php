@@ -2,10 +2,9 @@
 
 @section('title', 'Berita Trending Hari Ini di Konawe Utara - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    <meta name="description" content="Berita trending terpopuler hari ini di Konawe Utara (Konut) dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
-    <link rel="canonical" href="{{ url()->current() }}" />
-@endsection
+@section('seo_title', 'Berita Trending Konawe Utara Hari Ini - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_description', 'Berita trending terpopuler hari ini di Konawe Utara (Konut) dari ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_type', 'website')
 
 @php
     $trendingItems = collect($posts->items());
@@ -39,7 +38,7 @@
                             <span class="trending-big-num">{{ str_pad($globalNum, 2, '0', STR_PAD_LEFT) }}</span>
                         </div>
                         <div class="trending-item-thumb">
-                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/e9ecef/6b7280?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/e9ecef/6b7280?text=N') }}" alt="{{ $post->image_alt }}" loading="lazy">
                             @if($post->isVideo())
                             <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                             @endif

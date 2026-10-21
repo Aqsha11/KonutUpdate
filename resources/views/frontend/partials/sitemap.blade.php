@@ -8,7 +8,7 @@
         <priority>1.0</priority>
     </url>
 
-    {{-- Halaman statis --}}
+    {{-- Halaman statis (URL ramah) --}}
     <url>
         <loc>{{ route('pages.about') }}</loc>
         <changefreq>monthly</changefreq>
@@ -28,6 +28,42 @@
         <loc>{{ route('pages.kontak') }}</loc>
         <changefreq>monthly</changefreq>
         <priority>0.5</priority>
+    </url>
+
+    {{-- Halaman statis lain (mis. info-iklan) --}}
+    @foreach($pages as $page)
+    <url>
+        <loc>{{ route('pages.show', $page->slug) }}</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.3</priority>
+    </url>
+    @endforeach
+
+    {{-- Arsip utama --}}
+    <url>
+        <loc>{{ route('news.index') }}</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{{ route('terkini') }}</loc>
+        <changefreq>hourly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>{{ route('trending') }}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.7</priority>
+    </url>
+    <url>
+        <loc>{{ route('opini') }}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.6</priority>
+    </url>
+    <url>
+        <loc>{{ route('videos') }}</loc>
+        <changefreq>daily</changefreq>
+        <priority>0.6</priority>
     </url>
 
     {{-- Hub Kecamatan (13 kecamatan Konawe Utara) --}}
@@ -67,7 +103,7 @@
     @foreach($posts as $post)
     <url>
         <loc>{{ route('posts.show', $post->slug) }}</loc>
-        <lastmod>{{ optional($post->updated_at ?: $post->published_at)->toAtomString() }}</lastmod>
+        <lastmod>{{ optional($post->content_updated_at ?: $post->updated_at ?: $post->published_at)->toAtomString() }}</lastmod>
         <changefreq>daily</changefreq>
         <priority>0.9</priority>
     </url>

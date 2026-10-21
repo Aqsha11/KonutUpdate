@@ -57,7 +57,7 @@ class LoginController extends Controller
 
             return match ($role) {
                 'super_admin', 'editor', 'reporter' => redirect()->intended(route('admin.dashboard')),
-                'kontributor' => redirect()->intended(route('kontributor.dashboard')),
+                'kontributor' => redirect()->intended(route('profile.index')),
                 default => redirect()->intended(route('home')),
             };
         }

@@ -297,7 +297,7 @@ class OpiniController extends Controller
 
     private function forgetFrontendCaches(): void
     {
-        foreach (['frontend_categories', 'breaking_news', 'trending_posts'] as $key) {
+        foreach (['frontend_categories', 'frontend_kecamatans', 'breaking_news', 'trending_posts', 'sitemap_xml', 'sitemap_news_xml'] as $key) {
             Cache::forget($key);
         }
     }

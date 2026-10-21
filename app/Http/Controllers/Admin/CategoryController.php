@@ -31,6 +31,7 @@ class CategoryController extends Controller
         Category::create($data);
 
         Cache::forget('frontend_categories');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan.');
     }
@@ -48,6 +49,7 @@ class CategoryController extends Controller
         $category->update($data);
 
         Cache::forget('frontend_categories');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');
     }
@@ -57,6 +59,7 @@ class CategoryController extends Controller
         $category->delete();
 
         Cache::forget('frontend_categories');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');
     }

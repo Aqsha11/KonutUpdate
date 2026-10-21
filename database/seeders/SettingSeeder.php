@@ -24,8 +24,13 @@ class SettingSeeder extends Seeder
             ['key' => 'meta_keywords', 'value' => 'konutupdate, konut update, berita konut, berita konawe utara, berita konawe utara hari ini, media konawe utara, konawe utara, sultra, news'],
         ];
 
+        // firstOrCreate (bukan create): settings.key punya unique index dan
+        // nilai yang sudah disunting editor di admin tidak boleh ditimpa.
         foreach ($settings as $setting) {
-            Setting::create($setting);
+            Setting::firstOrCreate(
+                ['key' => $setting['key']],
+                ['value' => $setting['value']],
+            );
         }
     }
 }

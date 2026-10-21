@@ -20,9 +20,8 @@ use App\Http\Controllers\Auth\ProfileController as AuthProfileController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
-use App\Http\Controllers\Contributor\DashboardController as ContributorDashboardController;
-use App\Http\Controllers\Contributor\PostController as ContributorPostController;
 use App\Http\Controllers\Frontend\AiChatController;
+use App\Http\Controllers\Frontend\AuthorController;
 use App\Http\Controllers\Frontend\CategoryController;
 use App\Http\Controllers\Frontend\CommentController;
 use App\Http\Controllers\Frontend\HomeController;
@@ -41,8 +40,10 @@ use App\Http\Controllers\Frontend\VideoArchiveController;
 use App\Models\Ad;
 use App\Models\Category;
 use App\Models\Kecamatan;
+use App\Models\Page;
 use App\Models\Post;
 use App\Models\Tag;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 
 // Frontend Routes
@@ -69,7 +70,7 @@ Route::get('/opini', [OpiniController::class, 'index'])->name('opini');
 Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::post('/tanya-berita', [AiChatController::class, 'ask'])->middleware('throttle:ai-chat')->name('ai-chat.ask');
 Route::middleware(['auth', 'role:pembaca,kontributor'])->group(function () {
-    Route::get('/kirim-opini', [OpiniSubmissionController::class, 'create'])->name('opini.submit.create');
+    Route::get('/kirim-opini', fn () => redirect()->route('profile.index', ['opini' => 1]))->name('opini.submit.create');
     Route::post('/kirim-opini', [OpiniSubmissionController::class, 'store'])->middleware('throttle:5,1')->name('opini.submit.store');
     Route::post('/kirim-opini/upload-image', [OpiniSubmissionController::class, 'uploadImage'])->middleware('throttle:10,1')->name('opini.submit.upload-image');
 });
@@ -80,6 +81,11 @@ Route::get('/pedoman-media-siber', [PageController::class, 'pedoman'])->name('pa
 Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('pages.privacy');
 Route::get('/kontak', [PageController::class, 'kontak'])->name('pages.kontak');
 Route::get('/p/{slug}', [PageController::class, 'show'])->name('pages.show');
+
+// Profil publik penulis (byline artikel). Harus di atas catch-all /{slug}.
+Route::get('/penulis/{slug}', [AuthorController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('authors.show');
 
 // Auth Routes (Laravel built-in)
 Route::middleware('guest')->group(function () {
@@ -115,16 +121,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/profil', [AuthProfileController::class, 'update'])->name('profile.update');
 });
 
-// Panel Kontributor — masyarakat menulis berita/opini, menunggu verifikasi admin
-Route::prefix('panel-kontributor')->name('kontributor.')->middleware(['auth', 'role:kontributor'])->group(function () {
-    Route::get('/', [ContributorDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/tulis', [ContributorPostController::class, 'create'])->name('posts.create');
-    Route::post('/tulis', [ContributorPostController::class, 'store'])->name('posts.store');
-    Route::post('/upload-image', [ContributorPostController::class, 'uploadImage'])->name('posts.upload-image');
-    Route::get('/{post}/edit', [ContributorPostController::class, 'edit'])->name('posts.edit');
-    Route::put('/{post}', [ContributorPostController::class, 'update'])->name('posts.update');
-    Route::delete('/{post}', [ContributorPostController::class, 'destroy'])->name('posts.destroy');
-});
+// Panel kontributor dihapus — kontributor memakai halaman profil publik.
+Route::middleware(['auth', 'role:kontributor'])->get('/panel-kontributor', fn () => redirect()->route('profile.index'))
+    ->name('kontributor.dashboard');
 
 // SEO Routes
 Route::get('/robots.txt', function () {
@@ -134,15 +133,16 @@ Route::get('/robots.txt', function () {
         'Disallow: /admin',
         'Disallow: /login',
         'Disallow: /daftar',
-        'Disallow: /panel-kontributor',
         'Disallow: /email/',
         'Disallow: /search',
+        'Disallow: /kirim-opini',
         '',
         'Sitemap: '.url('sitemap.xml'),
+        'Sitemap: '.url('sitemap-news.xml'),
     ];
 
     return response(implode("\n", $lines))->header('Content-Type', 'text/plain');
-});
+})->name('robots');
 
 Route::get('/feed', function () {
     $posts = Post::published()->with(['author', 'categories'])->latest()->take(20)->get();
@@ -155,33 +155,71 @@ Route::get('/feed', function () {
 })->name('rss.feed');
 
 Route::get('/sitemap.xml', function () {
-    $posts = Post::published()
-        ->orderByDesc('published_at')
-        ->get(['slug', 'updated_at', 'published_at']);
+    $xml = Cache::remember('sitemap_xml', 3600, function () {
+        // Artikel duplikat (duplicate_of_id) sengaja tidak dimasukkan.
+        $posts = Post::published()->notDuplicate()
+            ->orderByDesc('published_at')
+            ->get(['slug', 'published_at', 'updated_at', 'content_updated_at']);
 
-    $categories = Category::query()
-        ->whereHas('posts', fn ($q) => $q->published())
-        ->withMax(['posts' => fn ($q) => $q->published()], 'published_at')
-        ->orderBy('name')
-        ->get();
+        // Kategori diambil lewat pivot post_categories (relasi category_id
+        // lama tidak pernah diisi admin sehingga bisa kosong semua).
+        $categories = Category::query()
+            ->whereHas('allPosts', fn ($q) => $q->published()->notDuplicate())
+            ->withMax(['allPosts' => fn ($q) => $q->published()->notDuplicate()], 'published_at')
+            ->orderBy('name')
+            ->get();
 
-    $tags = Tag::query()
-        ->withCount(['posts' => fn ($q) => $q->published()])
-        ->orderByDesc('posts_count')
-        ->get()
-        ->filter(fn ($tag) => $tag->posts_count >= 2)
-        ->values();
+        $tags = Tag::query()
+            ->whereHas('posts', fn ($q) => $q->published()->notDuplicate())
+            ->withCount(['posts' => fn ($q) => $q->published()->notDuplicate()])
+            ->orderByDesc('posts_count')
+            ->get()
+            ->filter(fn ($tag) => $tag->posts_count >= 2)
+            ->values();
 
-    $kecamatans = Kecamatan::query()
-        ->ordered()
-        ->withMax(['posts' => fn ($q) => $q->published()], 'published_at')
-        ->get();
+        $kecamatans = Kecamatan::query()
+            ->ordered()
+            ->withMax(['posts' => fn ($q) => $q->published()->notDuplicate()], 'published_at')
+            ->get();
 
-    $lastmod = $posts->first()?->published_at ?? now();
+        // Halaman statis tanpa URL ramah tetap perlu masuk sitemap.
+        $pages = Page::published()
+            ->whereNotIn('slug', array_keys(Page::FRIENDLY_ROUTES))
+            ->orderBy('title')
+            ->get();
 
-    return response()->view('frontend.partials.sitemap', compact('posts', 'categories', 'tags', 'kecamatans', 'lastmod'))
-        ->header('Content-Type', 'application/xml');
-});
+        $lastmod = $posts->first()?->published_at ?? now();
+
+        return response()->view('frontend.partials.sitemap', compact('posts', 'categories', 'tags', 'kecamatans', 'pages', 'lastmod'))
+            ->getContent();
+    });
+
+    return response($xml, 200)
+        ->header('Content-Type', 'application/xml')
+        ->header('Cache-Control', 'public, max-age=3600');
+})->name('sitemap');
+
+// News sitemap (Google News). Alias /news-sitemap.xml disediakan karena
+// itu konvensi yang paling umum dipakai tooling & publisher lain.
+$newsSitemap = function () {
+    $xml = Cache::remember('sitemap_news_xml', 900, function () {
+        $posts = Post::published()->notDuplicate()
+            ->where('published_at', '>=', now()->subDays(2))
+            ->with(['writer', 'categories'])
+            ->orderByDesc('published_at')
+            ->limit(1000)
+            ->get();
+
+        return response()->view('frontend.partials.sitemap-news', compact('posts'))->getContent();
+    });
+
+    return response($xml, 200)
+        ->header('Content-Type', 'application/xml')
+        ->header('Cache-Control', 'public, max-age=900');
+};
+
+Route::get('/sitemap-news.xml', $newsSitemap)->name('sitemap.news');
+Route::get('/news-sitemap.xml', $newsSitemap)->name('sitemap.news.alias');
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'admin.session-timeout'])->group(function () {

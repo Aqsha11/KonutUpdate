@@ -176,18 +176,13 @@ class AdminOpiniTest extends TestCase
         $this->actingAs($user)->get(route('admin.opini.edit', $article->id))->assertNotFound();
     }
 
-    public function test_contributor_cannot_submit_opini_anymore(): void
+    public function test_contributor_panel_redirects_to_public_profile(): void
     {
         $role = Role::factory()->create(['slug' => 'kontributor']);
         $user = User::factory()->create(['role_id' => $role->id]);
 
-        $this->actingAs($user)->post(route('kontributor.posts.store'), [
-            'type' => 'opini',
-            'title' => 'Coba kirim opini',
-            'body' => '<p>'.str_repeat('Isi konten yang cukup panjang. ', 20).'</p>',
-            'status' => 'draft',
-        ])->assertSessionHasErrors('type');
-
-        $this->assertDatabaseCount('posts', 0);
+        $this->actingAs($user)
+            ->get(route('kontributor.dashboard'))
+            ->assertRedirect(route('profile.index'));
     }
 }

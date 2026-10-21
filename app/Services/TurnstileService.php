@@ -17,6 +17,12 @@ class TurnstileService
         $secret = config('services.turnstile.secret_key');
 
         if (! $secret || $token === '') {
+            Log::error('Turnstile tidak dapat diverifikasi', [
+                'secret_configured' => filled($secret),
+                'token_present' => $token !== '',
+                'hint' => 'Isi TURNSTILE_SECRET_KEY di environment (dashboard Render) bila captcha aktif.',
+            ]);
+
             return false;
         }
 

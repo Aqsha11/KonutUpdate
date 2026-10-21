@@ -19,6 +19,22 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Memo per-request untuk Schema::hasTable().
+     *
+     * Composer('*') dijalankan untuk SETIAP view yang dirender. Tanpa memo,
+     * satu halaman homepage (40 view, termasuk partial breaking-badge yang
+     * di-include ~30x) menembak ~80 query metadata_schema per request.
+     */
+    protected static array $tableCache = [];
+
+    /**
+     * Data bersama (kategori, kecamatan, iklan, trending, breaking) yang
+     * dipakai beberapa partial sekaligus. Dihitung satu kali per request;
+     * hasil query-nya tetap di-cache di cache store.
+     */
+    protected static array $sharedCache = [];
+
     public function register(): void
     {
         require_once app_path('Helpers/helpers.php');
@@ -36,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
         ]);
 
         View::composer('*', function ($view) {
-            if (Schema::hasTable('settings')) {
+            if ($this->tableExists('settings')) {
                 $settings = Cache::rememberForever('site_settings', function () {
                     $all = Setting::all();
                     $result = [];
@@ -50,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
                 $view->with('site_settings', $settings);
             }
 
-            if (Schema::hasTable('pages')) {
+            if ($this->tableExists('pages')) {
                 $footerPages = Cache::remember('frontend_pages', 3600, function () {
                     return Page::published()->orderBy('title')->get();
                 });
@@ -68,43 +84,71 @@ class AppServiceProvider extends ServiceProvider
             'frontend.partials.footer',
             'frontend.posts.show',
         ], function ($view) {
-            if (! Schema::hasTable('categories') || ! Schema::hasTable('posts')) {
+            if (! $this->tableExists('categories') || ! $this->tableExists('posts')) {
                 return;
             }
 
-            $categories = Category::whereHas('allPosts', function ($q) {
+            $view->with($this->sharedFrontendData());
+        });
+    }
+
+    /**
+     * Cache status tabel per request (tidak berulang ke database).
+     */
+    protected function tableExists(string $table): bool
+    {
+        return static::$tableCache[$table] ??= Schema::hasTable($table);
+    }
+
+    /**
+     * Data navigasi yang dipakai bersama. Tanpa memo ini, composer di atas
+     * berjalan 4-6x per halaman (sidebar desktop + mobile, footer, breaking
+     * news) dan query yang sama diulang-ulang.
+     */
+    protected function sharedFrontendData(): array
+    {
+        if (static::$sharedCache !== []) {
+            return static::$sharedCache;
+        }
+
+        $categories = Cache::remember('frontend_categories', 3600, function () {
+            return Category::whereHas('allPosts', function ($q) {
                 $q->published();
             })->withCount(['allPosts' => function ($q) {
                 $q->published();
             }])->get();
+        });
 
-            $trendingPosts = Cache::remember('trending_posts', 3600, function () {
-                return Post::published()
-                    ->excludeHeadline()
-                    ->with(['categories', 'author'])
-                    ->orderBy('views_count', 'desc')
-                    ->take(5)
-                    ->get();
-            });
-
-            $breakingNews = Cache::remember('breaking_news', 300, function () {
-                return Post::published()
-                    ->breaking()
-                    ->with(['categories', 'author'])
-                    ->orderBy('published_at', 'desc')
-                    ->take(10)
-                    ->get();
-            });
-
-            $sidebarAds = Ad::active()->sorted()->get();
-
-            $kecamatans = Kecamatan::whereHas('posts', function ($q) {
+        $kecamatans = Cache::remember('frontend_kecamatans', 3600, function () {
+            return Kecamatan::whereHas('posts', function ($q) {
                 $q->published();
             })->withCount(['posts' => function ($q) {
                 $q->published();
             }])->ordered()->get();
-
-            $view->with(compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAds', 'kecamatans'));
         });
+
+        $sidebarAds = Cache::remember('frontend_ads', 3600, function () {
+            return Ad::active()->sorted()->get();
+        });
+
+        $trendingPosts = Cache::remember('trending_posts', 3600, function () {
+            return Post::published()
+                ->excludeHeadline()
+                ->with(['categories', 'author'])
+                ->orderBy('views_count', 'desc')
+                ->take(5)
+                ->get();
+        });
+
+        $breakingNews = Cache::remember('breaking_news', 300, function () {
+            return Post::published()
+                ->breaking()
+                ->with(['categories', 'author'])
+                ->orderBy('published_at', 'desc')
+                ->take(10)
+                ->get();
+        });
+
+        return static::$sharedCache = compact('categories', 'trendingPosts', 'breakingNews', 'sidebarAds', 'kecamatans');
     }
 }

@@ -64,6 +64,25 @@
                     @enderror
                 </div>
             </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="slug" class="form-label">Slug Profil Penulis</label>
+                    <input type="text" name="slug" id="slug" class="form-control @error('slug') is-invalid @enderror" value="{{ old('slug') }}" placeholder="otomatis dari nama bila kosong">
+                    <div class="form-text">URL profil publik: /penulis/{slug}</div>
+                    @error('slug')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <label for="bio" class="form-label">Bio</label>
+                    <textarea name="bio" id="bio" rows="3" class="form-control @error('bio') is-invalid @enderror" placeholder="Profil singkat penulis (maks 1000 karakter)">{{ old('bio') }}</textarea>
+                    @error('bio')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
         </div>
         <button type="submit" class="btn-admin btn-admin-primary">
             <i class="bi bi-save"></i> Simpan

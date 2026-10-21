@@ -2,18 +2,22 @@
 
 @section('title', 'Berita ' . $kecamatan->name . ', Konawe Utara - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    @php
-        $desc = $kecamatan->description ? 'Berita ' . $kecamatan->name . ' hari ini - ' . $kecamatan->description : 'Kumpulan berita ' . $kecamatan->name . ' terbaru dan terkini, Konawe Utara dari KonutUpdate';
-    @endphp
-    <meta name="description" content="{{ $desc }}">
+@php
+    $desc = $kecamatan->description ? 'Berita ' . $kecamatan->name . ' hari ini - ' . $kecamatan->description : 'Kumpulan berita ' . $kecamatan->name . ' terbaru dan terkini, Konawe Utara dari ' . ($site_settings['site_name'] ?? 'KonutUpdate');
+@endphp
+@section('seo_title', 'Berita ' . $kecamatan->name . ', Konawe Utara - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_description', $desc)
+@section('seo_type', 'website')
+@section('seo_robots', $posts->total() === 0 ? 'noindex, follow' : '')
+
+@section('json_ld')
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "BreadcrumbList",
         "itemListElement": [
             { "@@type": "ListItem", "position": 1, "name": "Beranda", "item": "{{ url('/') }}" },
-            { "@@type": "ListItem", "position": 2, "name": "Kec. {{ $kecamatan->name }}", "item": "{{ route('kecamatan.show', $kecamatan->slug) }}" }
+            { "@@type": "ListItem", "position": 2, "name": "Kec. " . $kecamatan->name, "item": "{{ route('kecamatan.show', $kecamatan->slug) }}" }
         ]
     }
     </script>
@@ -42,7 +46,7 @@
                     @foreach($posts as $post)
                     <article class="news-item group">
                         <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
-                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->image_alt }}" loading="lazy">
                             @if($post->isVideo())
                             <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                             @endif

@@ -129,6 +129,48 @@
                     <div id="thumbnailPreview" class="mt-2"></div>
                 </div>
                 <div class="form-group">
+                    <label for="image_alt" class="form-label">Alt Text Gambar</label>
+                    <input type="text" name="image_alt" id="image_alt" class="form-control @error('image_alt') is-invalid @enderror" value="{{ old('image_alt') }}" placeholder="Deskripsi singkat isi gambar">
+                    <div class="form-text">Dipakai untuk og:image:alt dan aksesibilitas. Kosongkan bila judul artikel sudah cukup.</div>
+                    @error('image_alt')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="author_name" class="form-label">Nama Penulis (Byline)</label>
+                    <input type="text" name="author_name" id="author_name" class="form-control @error('author_name') is-invalid @enderror" value="{{ old('author_name') }}" placeholder="mis. Reporter Konut Update">
+                    <div class="form-text">Ditampilkan di atas artikel. Kosongkan untuk memakai nama akun.</div>
+                    @error('author_name')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="author_id" class="form-label">Akun Penulis</label>
+                    <select name="author_id" id="author_id" class="form-select @error('author_id') is-invalid @enderror">
+                        <option value="">-- Tanpa akun penulis --</option>
+                        @foreach($writers as $writer)
+                            <option value="{{ $writer->id }}" {{ (int) old('author_id') === (int) $writer->id ? 'selected' : '' }}>{{ $writer->name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">Akun ini yang dipakai untuk halaman profil penulis /penulis/{slug}.</div>
+                    @error('author_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="duplicate_of_id" class="form-label">Tandai sebagai Duplikat dari</label>
+                    <select name="duplicate_of_id" id="duplicate_of_id" class="form-select @error('duplicate_of_id') is-invalid @enderror">
+                        <option value="">-- Bukan duplikat --</option>
+                        @foreach($duplicateSources as $source)
+                            <option value="{{ $source->id }}" {{ (int) old('duplicate_of_id') === (int) $source->id ? 'selected' : '' }}>{{ $source->title }}</option>
+                        @endforeach
+                    </select>
+                    <div class="form-text">Artikel duplikat otomatis <code>noindex</code> dan tidak dimasukan ke sitemap.</div>
+                    @error('duplicate_of_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+                <div class="form-group">
                     <label class="form-label">Status</label>
                     <div class="d-flex gap-3 flex-wrap">
                         <div class="form-check">

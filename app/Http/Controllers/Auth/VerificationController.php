@@ -32,7 +32,7 @@ class VerificationController extends Controller
         $role = $user->role?->slug;
 
         if ($role === 'kontributor') {
-            return redirect()->route('kontributor.dashboard')
+            return redirect()->route('profile.index')
                 ->with('success', 'Email Anda berhasil diverifikasi. Akun Anda sudah aktif dan masuk otomatis.');
         }
 

@@ -32,7 +32,7 @@ class PageSeeder extends Seeder
                 'slug' => 'kontak',
                 'content' => '<h2>Hubungi Kami</h2>
 <p>Jika Anda memiliki pertanyaan, saran, atau ingin menghubungi redaksi, silakan gunakan formulir kontak di halaman ini atau hubungi kami melalui informasi di bawah ini.</p>
-<p>Email: redaksi@Konut Update</p>',
+<p>Email: redaksi@konutupdate.com</p>',
                 'is_published' => true,
             ],
             [

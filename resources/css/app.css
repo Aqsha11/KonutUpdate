@@ -1839,3 +1839,15 @@ article:hover > .cnn-lead-thumb img,
 @media (max-width: 768px) {
     .ku-chat-panel { bottom: 164px; right: 8px; width: calc(100vw - 16px); height: min(62vh, 480px); }
 }
+
+/* ===== CKEditor (selaras dengan admin, dipakai form opini publik) ===== */
+.ck-editor__editable a { color: var(--color-primary); }
+.ck.ck-editor { border-radius: 12px; overflow: hidden; border: 1.5px solid var(--color-outline); transition: border-color 0.3s; }
+.ck.ck-editor:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(24, 155, 57, 0.1); }
+.ck.ck-toolbar { border: none !important; border-bottom: 1px solid var(--color-outline) !important; background: var(--color-surface-container-low) !important; }
+.ck.ck-content { border: none !important; }
+.ck-editor__editable_inline { min-height: 320px !important; }
+.ck.ck-editor__editable:not(.ck-editor__nested-editable) { background: var(--color-surface); color: var(--color-on-surface); }
+.dark .ck-editor__editable { background: var(--color-surface) !important; color: var(--color-on-surface) !important; }
+.dark .ck.ck-toolbar { background: var(--color-surface-container) !important; border-color: var(--color-outline) !important; }
+.dark .ck.ck-editor__main > .ck-editor__editable:not(.ck-focused) { border-color: var(--color-outline) !important; }

@@ -22,8 +22,15 @@ class CategorySeeder extends Seeder
             ['name' => 'Nasional', 'slug' => 'nasional', 'description' => 'Berita nasional Indonesia'],
         ];
 
+        // firstOrCreate (bukan create): seeder ini dijalankan pada setiap build
+        // Render, sementara tabel categories sudah berisi baris (dibuat lewat
+        // admin). categories.slug punya unique index, jadi create() akan
+        // melempar QueryException dan menghentikan build sebelum storage:link.
         foreach ($categories as $category) {
-            Category::create($category);
+            Category::firstOrCreate(
+                ['slug' => $category['slug']],
+                ['name' => $category['name'], 'description' => $category['description']],
+            );
         }
     }
 }

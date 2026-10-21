@@ -23,6 +23,11 @@ floatingHub(Alpine);
 import adAutoScroll from './components/adAutoScroll';
 adAutoScroll(Alpine);
 
+import '@fortawesome/fontawesome-free/css/fontawesome.css';
+import '@fortawesome/fontawesome-free/css/brands.css';
+
+Alpine.start();
+
 // ===== CKEditor =====
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
@@ -57,6 +62,9 @@ function FrontendUploadAdapterPlugin(editor, uploadUrl) {
 window.initCKEditor = function(elementId, placeholder = 'Tulis isi opini di sini...', uploadUrl = null) {
     const element = document.getElementById(elementId);
     if (!element) return;
+    if (element.dataset.ckReady === '1') return;
+    element.dataset.ckReady = '1';
+
     const finalUploadUrl = uploadUrl || element.dataset.uploadUrl || '/kirim-opini/upload-image';
 
     ClassicEditor
@@ -67,8 +75,10 @@ window.initCKEditor = function(elementId, placeholder = 'Tulis isi opini di sini
                     'undo', 'redo',
                     '|', 'heading',
                     '|', 'bold', 'italic', 'underline',
+                    '|', 'alignment',
                     '|', 'bulletedList', 'numberedList',
                     '|', 'blockQuote', 'link',
+                    '|', 'insertTable', 'mediaEmbed',
                     '|', 'imageUpload',
                     '|', 'removeFormat'
                 ]
@@ -79,17 +89,50 @@ window.initCKEditor = function(elementId, placeholder = 'Tulis isi opini di sini
                     { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
                     { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
                     { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                    { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' },
                 ]
             },
+            image: {
+                toolbar: ['imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'],
+                styles: ['full', 'side', 'alignLeft', 'alignCenter', 'alignRight']
+            },
+            table: {
+                contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+            },
+            link: {
+                addTargetToExternalLinks: true,
+                decorators: {
+                    openInNewTab: {
+                        mode: 'manual',
+                        label: 'Buka di tab baru',
+                        attributes: { target: '_blank', rel: 'noopener noreferrer' }
+                    }
+                }
+            },
             placeholder: placeholder,
+            shouldNotGroupWhenFull: false,
+        })
+        .then(editor => {
+            editor.model.document.on('change:data', () => {
+                element.value = editor.getData();
+            });
+
+            const form = element.closest('form');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    element.value = editor.getData();
+                });
+            }
         })
         .catch(error => {
+            element.dataset.ckReady = '';
             console.error('CKEditor initialization error:', error);
         });
 };
 
 import { createIcons, icons } from 'lucide';
 
+window.lucide = { createIcons, icons };
 window.__lucideCreateIcons = createIcons;
 window.__lucideIcons = icons;
 

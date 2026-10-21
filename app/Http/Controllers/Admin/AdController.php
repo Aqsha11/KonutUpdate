@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAdRequest;
 use App\Http\Requests\UpdateAdRequest;
 use App\Models\Ad;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
@@ -33,6 +34,8 @@ class AdController extends Controller
 
         Ad::create($data);
 
+        Cache::forget('frontend_ads');
+
         return redirect()->route('admin.ads.index')->with('success', 'Iklan berhasil ditambahkan.');
     }
 
@@ -55,6 +58,8 @@ class AdController extends Controller
 
         $ad->update($data);
 
+        Cache::forget('frontend_ads');
+
         return redirect()->route('admin.ads.index')->with('success', 'Iklan berhasil diperbarui.');
     }
 
@@ -65,6 +70,8 @@ class AdController extends Controller
         }
 
         $ad->delete();
+
+        Cache::forget('frontend_ads');
 
         return redirect()->route('admin.ads.index')->with('success', 'Iklan berhasil dihapus.');
     }

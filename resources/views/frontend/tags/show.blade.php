@@ -2,11 +2,12 @@
 
 @section('title', 'Berita ' . $tag->name . ' - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    <meta name="description" content="Kumpulan berita {{ $tag->name }} terbaru dan terkini, Konawe Utara dari KonutUpdate">
-    @if(($tag->posts_count ?? $posts->total()) < 2)
-        <meta name="robots" content="noindex, follow">
-    @endif
+@section('seo_title', 'Berita ' . $tag->name . ' - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_description', 'Kumpulan berita ' . $tag->name . ' terbaru dan terkini, Konawe Utara dari ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_type', 'website')
+@section('seo_robots', ($tag->posts_count ?? $posts->total()) < 2 ? 'noindex, follow' : '')
+
+@section('json_ld')
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
@@ -40,7 +41,7 @@
                     @foreach($posts as $post)
                     <article class="news-item group">
                         <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb">
-                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : 'https://placehold.co/110x80/e9ecef/6b7280?text=N' }}" alt="{{ $post->title }}" loading="lazy">
+                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : 'https://placehold.co/110x80/e9ecef/6b7280?text=N' }}" alt="{{ $post->image_alt }}" loading="lazy">
                         </a>
                         <div class="news-item-body">
                             <div class="news-item-meta">

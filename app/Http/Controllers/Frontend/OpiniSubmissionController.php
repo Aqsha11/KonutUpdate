@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreOpiniSubmissionRequest;
-use App\Models\Category;
-use App\Models\Kecamatan;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Services\HtmlSanitizer;
@@ -16,14 +14,6 @@ use Intervention\Image\ImageManager;
 
 class OpiniSubmissionController extends Controller
 {
-    public function create()
-    {
-        $categories = Category::all();
-        $kecamatans = Kecamatan::ordered()->get();
-
-        return view('frontend.opini.create', compact('categories', 'kecamatans'));
-    }
-
     public function store(StoreOpiniSubmissionRequest $request)
     {
         $data = $request->validated();
@@ -46,8 +36,22 @@ class OpiniSubmissionController extends Controller
 
         $this->syncRelations($post, $request);
 
-        return redirect()->route('opini.submit.create')
+        return redirect()->route('profile.index', ['tab' => 'posts'])
             ->with('success', 'Opini Anda berhasil dikirim dan sedang menunggu verifikasi admin.');
+    }
+
+    private function uniqueSlug(string $slug): string
+    {
+        $original = $slug !== '' ? $slug : 'opini';
+        $slug = $original;
+        $counter = 1;
+
+        while (Post::where('slug', $slug)->exists()) {
+            $slug = $original.'-'.$counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     private function processThumbnail($file): string

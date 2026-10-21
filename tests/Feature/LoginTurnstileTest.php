@@ -125,7 +125,7 @@ class LoginTurnstileTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_verified_kontributor_is_sent_to_contributor_dashboard(): void
+    public function test_verified_kontributor_is_sent_to_public_profile(): void
     {
         $role = Role::factory()->create(['slug' => 'kontributor']);
         $user = User::factory()->create(['role_id' => $role->id]);
@@ -134,7 +134,7 @@ class LoginTurnstileTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
             'cf-turnstile-response' => 'valid-token',
-        ])->assertRedirect(route('kontributor.dashboard'));
+        ])->assertRedirect(route('profile.index'));
 
         $this->assertAuthenticatedAs($user);
     }
@@ -162,5 +162,43 @@ class LoginTurnstileTest extends TestCase
         ])->assertRedirect(route('admin.dashboard'));
 
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_env_files_use_the_correct_turnstile_dummy_keys(): void
+    {
+        foreach (['.env', '.env.example'] as $file) {
+            $path = base_path($file);
+
+            if (! file_exists($path)) {
+                continue;
+            }
+
+            $contents = file_get_contents($path);
+
+            $this->assertStringContainsString('TURNSTILE_ENABLED=true', $contents, $file);
+            $this->assertSame('1x00000000000000000000AA', $this->envValue($contents, 'TURNSTILE_SITE_KEY'), $file);
+            $this->assertSame(
+                '1x0000000000000000000000000000000AA',
+                $this->envValue($contents, 'TURNSTILE_SECRET_KEY'),
+                $file
+            );
+        }
+
+        $production = base_path('.env.production');
+
+        if (file_exists($production)) {
+            $contents = file_get_contents($production);
+
+            $this->assertStringContainsString('TURNSTILE_ENABLED=true', $contents);
+            // Secret asli tidak boleh masuk git — diisi lewat dashboard Render (render.yaml sync: false).
+            $this->assertSame('', $this->envValue($contents, 'TURNSTILE_SECRET_KEY'));
+        }
+    }
+
+    private function envValue(string $contents, string $key): string
+    {
+        preg_match('/^'.preg_quote($key, '/').'=(.*)$/m', $contents, $matches);
+
+        return trim($matches[1] ?? '');
     }
 }

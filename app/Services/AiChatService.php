@@ -15,6 +15,7 @@ class AiChatService
 {
     public function __construct(
         protected PostRepository $posts,
+        protected AiGuide $guide,
     ) {}
 
     public function enabled(): bool
@@ -23,7 +24,7 @@ class AiChatService
     }
 
     /**
-     * Jawab pertanyaan pengguna dari berita published.
+     * Jawab pertanyaan pengguna dari berita published + panduan penggunaan situs.
      *
      * @return array{ok: bool, answer?: string, sources?: array<int, array<string, string>>, error?: string}
      */
@@ -39,15 +40,6 @@ class AiChatService
 
         $posts = $this->posts->searchForChat($question, 8);
 
-        if ($posts->isEmpty()) {
-            return [
-                'ok' => true,
-                'answer' => 'Maaf, saya tidak menemukan berita yang cocok dengan pertanyaan itu di Konut Update. '
-                    .'Coba gunakan kata kunci lain seperti nama tokoh, tempat, atau peristiwa.',
-                'sources' => [],
-            ];
-        }
-
         $text = $this->callGemini($this->buildSystemInstruction(), $this->buildUserPrompt($question, $posts));
 
         if ($text === null) {
@@ -56,10 +48,16 @@ class AiChatService
 
         $this->trackCall();
 
+        $guideSources = $this->guide->sourcesFor($question);
+        $isProcedural = $this->guide->isProcedural($question);
+
         return [
             'ok' => true,
             'answer' => $text,
-            'sources' => $this->buildSources($posts),
+            // Pertanyaan prosedural memakai tautan panduan; pertanyaan berita memakai artikel.
+            'sources' => $isProcedural && $guideSources !== []
+                ? $guideSources
+                : ($posts->isNotEmpty() ? $this->buildSources($posts) : $guideSources),
         ];
     }
 
@@ -89,15 +87,40 @@ class AiChatService
 
     private function buildSystemInstruction(): string
     {
-        return implode(' ', [
-            'Anda adalah asisten berita untuk portal "Konut Update" (Konawe Utara, Sulawesi Tenggara).',
-            'Jawab pertanyaan pengguna HANYA berdasarkan ARTIKEL yang disediakan.',
-            'Jangan menambah fakta, angka, atau nama di luar artikel tersebut.',
-            'Jika artikel-artikel tidak memuat jawabannya, katakan dengan jujur bahwa informasinya belum ada di Konut Update',
-            'lalu sebutkan topik terdekat yang tersedia.',
-            'Gunakan Bahasa Indonesia yang ringkas, maksimal 4 paragraf pendek.',
-            'Selalu sertakan tautan artikel relevan di akhir jawaban dengan URL persis seperti yang tertera di artikel.',
+        $guide = trim($this->guide->text());
+
+        $sections = [
+            'Anda adalah asisten berita sekaligus pemandu untuk portal "Konut Update" (Konawe Utara, Sulawesi Tenggara).',
+            'Jadilah ramah, ringkas, dan edukatif. Maksimal 5 paragraf pendek.',
+        ];
+
+        if ($guide !== '') {
+            $sections[] = implode("\n", [
+                '## PANDUAN PENGGUNAAN SITUS KONUT UPDATE',
+                'Bagian di bawah ini adalah sumber kebenaran untuk pertanyaan tentang cara memakai situs',
+                '(daftar akun, masuk, kirim opini, menjadi kontributor, like, komentar, menjelajah berita, dll).',
+                'Jawab HANYA dengan langkah, fitur, dan alamat halaman yang benar-benar tertulis di PANDUAN.',
+                'Jangan mengarang langkah, batas angka, atau tautan yang tidak ada di sana.',
+                'Kalau PANDUAN tidak memuat jawabannya, katakan terus terang bahwa informasi itu belum tersedia di situs.',
+                $guide,
+            ]);
+        }
+
+        $sections[] = implode("\n", [
+            '## ATURAN JAWABAN',
+            '1. Pertanyaan CARA/PROSEDUR (mis. "cara daftar akun", "bagaimana mengirim opini") → jawab dengan',
+            '   langkah bernomor dari PANDUAN, lalu sebutkan halaman yang relevan (mis. /daftar, /profil).',
+            '2. Pertanyaan FAKTA BERITA → gunakan hanya isi ARTIKEL di bawah. Jangan mengarang angka, tanggal,',
+            '   nama tokoh, kutipan, atau isi berita yang tidak tertulis di sana.',
+            '3. Jika ARTIKEL tidak relevan atau kosong sementara pertanyaannya faktual, katakan jujur bahwa',
+            '   informasi spesifik itu belum ada di Konut Update, lalu tawarkan hal yang memang tersedia',
+            '   (panduan, kategori, kecamatan, atau kontak redaksi).',
+            '4. Jangan mengarang tautan. Tautan yang boleh dipakai hanya yang disebut di PANDUAN atau URL',
+            '   artikel pada bagian ARTIKEL.',
+            '5. Gunakan Bahasa Indonesia yang lugas dan mudah dipahami.',
         ]);
+
+        return implode("\n\n", $sections);
     }
 
     /**
@@ -122,7 +145,11 @@ class AiChatService
             ]));
         }
 
-        return "Pertanyaan pengguna:\n".$question."\n\nARTIKEL:\n\n".implode("\n\n", $articles);
+        $articleBlock = $articles === []
+            ? "ARTIKEL:\n(tidak ada artikel yang cocok dengan pertanyaan ini)"
+            : "ARTIKEL:\n\n".implode("\n\n", $articles);
+
+        return "Pertanyaan pengguna:\n".$question."\n\n".$articleBlock;
     }
 
     /**

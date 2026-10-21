@@ -43,16 +43,6 @@
                 <span class="ku-hub-item-label">Profile</span>
                 <span class="ku-hub-item-icon"><i data-lucide="user-round" class="w-5 h-5"></i></span>
             </a>
-            @if (in_array(auth()->user()->role?->slug, ['pembaca', 'kontributor']))
-                <a href="{{ route('opini.submit.create') }}" class="ku-hub-item">
-                    <span class="ku-hub-item-label">Kirim Opini</span>
-                    <span class="ku-hub-item-icon"><i data-lucide="pen-line" class="w-5 h-5"></i></span>
-                </a>
-            @endif
-            <button type="button" class="ku-hub-item ku-hub-item--danger" x-on:click="logout()">
-                <span class="ku-hub-item-label">Keluar</span>
-                <span class="ku-hub-item-icon"><i data-lucide="log-out" class="w-5 h-5"></i></span>
-            </button>
         @else
             <a href="{{ route('login') }}" class="ku-hub-item">
                 <span class="ku-hub-item-label">Masuk / Daftar</span>
@@ -71,10 +61,6 @@
         <i data-lucide="x" class="w-6 h-6" x-show="menuOpen"></i>
         <span class="ku-hub-fab-badge" x-show="!chatOpen && messages.length > 0" x-cloak></span>
     </button>
-
-    @auth
-        <form id="frontend-logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
-    @endauth
 
     @if ($chatEnabled)
         {{-- Panel Chat AI --}}
@@ -108,7 +94,7 @@
             <div class="ku-chat-body" x-ref="body">
                 <template x-if="messages.length === 0">
                     <div class="ku-chat-intro">
-                        <p>Halo! Tanya apa saja seputar berita Konawe Utara. Contoh:</p>
+                        <p>Halo! Tanya berita Konawe Utara sekaligus cara memakai situs ini — daftar akun, kirim opini, dan lainnya. Contoh:</p>
                         <div class="ku-chat-suggestions">
                             <template x-for="suggestion in suggestions" :key="suggestion">
                                 <button type="button" class="ku-chat-chip" x-on:click="useSuggestion(suggestion)" x-text="suggestion"></button>
@@ -164,7 +150,7 @@
             </form>
 
             <p class="ku-chat-disclaimer">
-                Jawaban dibuat AI dari berita Konut Update. Selalu cek tautan sumbernya.
+                Jawaban dibuat AI dari berita &amp; panduan Konut Update. Selalu cek tautan sumbernya.
                 <span x-show="isGuest && guestRemaining !== null && guestRemaining > 0" x-cloak>
                     &nbsp;Sisa pertanyaan gratis: <span x-text="guestRemaining"></span>.
                 </span>

@@ -57,6 +57,13 @@ services:
         value: "20"
       - key: PHP_CLI_SERVER_WORKERS
         value: "4"
+      - key: TURNSTILE_ENABLED
+        value: "true"
+      # Nilai diisi manual di dashboard Render (sync: false = jangan ditimpa blueprint).
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
     disk:
       name: storage
       mountPath: /opt/render/project/storage

@@ -110,6 +110,9 @@
                         @if($post->type === 'opini')
                         <span class="badge-admin badge-admin-warning ms-1"><i class="bi bi-chat-quote"></i> Opini</span>
                         @endif
+                        @if($post->duplicate_of_id)
+                        <span class="badge-admin badge-admin-danger ms-1" title="Duplikat dari {{ $post->duplicateOf?->title ?? 'artikel lain' }} - otomatis noindex & tidak masuk sitemap"><i class="bi bi-files"></i> Duplikat</span>
+                        @endif
                         @if($post->rejection_reason)
                         <div class="mt-1 text-danger" style="font-size:0.78rem;" title="{{ $post->rejection_reason }}">
                             <i class="bi bi-exclamation-circle"></i> Alasan: {{ Str::limit($post->rejection_reason, 60) }}

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
@@ -19,6 +21,7 @@ class Post extends Model
 
     protected $fillable = [
         'user_id',
+        'author_id',
         'author_name',
         'category_id',
         'kecamatan_id',
@@ -27,6 +30,7 @@ class Post extends Model
         'excerpt',
         'body',
         'thumbnail',
+        'image_alt',
         'type',
         'video_path',
         'status',
@@ -37,6 +41,8 @@ class Post extends Model
         'headline_expires_at',
         'breaking_expires_at',
         'published_at',
+        'content_updated_at',
+        'duplicate_of_id',
         'views_count',
     ];
 
@@ -49,6 +55,7 @@ class Post extends Model
             'headline_expires_at' => 'datetime',
             'breaking_expires_at' => 'datetime',
             'published_at' => 'datetime',
+            'content_updated_at' => 'datetime',
             'views_count' => 'integer',
             'status' => 'string',
         ];
@@ -112,11 +119,104 @@ class Post extends Model
         return $query->where('slug', $slug);
     }
 
+    /**
+     * Artikel yang ditandai duplikat dari artikel lain. Halaman ini otomatis
+     * noindex dan tidak dimasukan ke sitemap (duplikasi konten).
+     */
+    public function scopeNotDuplicate(Builder $query): Builder
+    {
+        return $query->whereNull('duplicate_of_id');
+    }
+
+    public function scopeDuplicate(Builder $query): Builder
+    {
+        return $query->whereNotNull('duplicate_of_id');
+    }
+
+    /**
+     * Normalisasi judul untuk perbandingan kemiripan (duplikasi konten).
+     */
+    public static function normalizeTitle(string $title): string
+    {
+        $normalized = preg_replace('/[^a-z0-9]+/i', ' ', mb_strtolower(trim($title)) ?? '');
+
+        return trim((string) $normalized);
+    }
+
+    /**
+     * Kandidat artikel yang judulnya nyaris sama (>= $threshold).
+     * Dipakai admin sebagai peringatan, tidak pernah mengubah data.
+     *
+     * @return Collection<int, array{post: static, score: float}>
+     */
+    public static function duplicateCandidates(?int $exceptId = null, float $threshold = 0.85): Collection
+    {
+        $current = $exceptId ? static::find($exceptId) : null;
+
+        if (! $current) {
+            return collect();
+        }
+
+        $needle = static::normalizeTitle($current->title);
+        $words = array_slice(array_filter(explode(' ', $needle)), 0, 4);
+
+        $query = static::query()
+            ->published()
+            ->where('id', '!=', $current->id);
+
+        if ($words) {
+            $query->where(function (Builder $q) use ($words) {
+                foreach ($words as $word) {
+                    // LOWER(...) LIKE portabel untuk sqlite & pgsql
+                    $q->orWhereRaw('LOWER(title) LIKE ?', ['%'.$word.'%']);
+                }
+            });
+        }
+
+        // Hanya id + title yang dibutuhkan: Hindari menarik kolom body
+        // (ribuan baris) ke memori hanya untuk dihitung similar_text().
+        return $query->get(['id', 'title'])
+            ->map(function (self $post) use ($needle) {
+                $haystack = static::normalizeTitle($post->title);
+                $denominator = max(mb_strlen($needle), mb_strlen($haystack), 1);
+
+                return ['post' => $post, 'score' => similar_text($needle, $haystack) / $denominator];
+            })
+            ->filter(fn (array $row) => $row['score'] >= $threshold)
+            ->sortByDesc('score')
+            ->values();
+    }
+
     // ── Relationships ───────────────────────────────────────────
 
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Akun penulis (bisa berbeda dari akun admin yang memuat artikel).
+     * Dipakai untuk halaman profil /penulis/{slug} dan schema.org Person.
+     */
+    public function writer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    /**
+     * Artikel asal yang dirujuk sebagai duplikat.
+     */
+    public function duplicateOf(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'duplicate_of_id');
+    }
+
+    /**
+     * Artikel-artikel yang ditandai duplikat dari artikel ini.
+     */
+    public function duplicates(): HasMany
+    {
+        return $this->hasMany(self::class, 'duplicate_of_id');
     }
 
     public function category(): BelongsTo
@@ -194,7 +294,35 @@ class Post extends Model
 
     public function getAuthorNameAttribute(): string
     {
-        return ($this->attributes['author_name'] ?? null) ?: ($this->author?->name ?: 'Redaksi');
+        return ($this->attributes['author_name'] ?? null)
+            ?: ($this->writer?->name ?: null)
+            ?: ($this->author?->name ?: 'Redaksi');
+    }
+
+    /**
+     * Alt text gambar: kolom yang diisi editor, fallback ke judul artikel.
+     */
+    public function getImageAltAttribute(): string
+    {
+        return ($this->attributes['image_alt'] ?? null) ?: $this->title;
+    }
+
+    /**
+     * Waktu artikel terakhir diubah isinya. Hanya berubah bila isi benar-benar
+     * diubah (bukan saat flag admin di-toggle ulang), jadi tidak "melompat"
+     * jauh setelah tanggal publikasi.
+     */
+    public function contentModifiedAt(): ?Carbon
+    {
+        return $this->content_updated_at ?: ($this->published_at ?: $this->updated_at);
+    }
+
+    /**
+     * True bila artikel ditandai duplikat (otomatis noindex, tak masuk sitemap).
+     */
+    public function isDuplicate(): bool
+    {
+        return $this->duplicate_of_id !== null;
     }
 
     public function getVideoUrlAttribute(): ?string

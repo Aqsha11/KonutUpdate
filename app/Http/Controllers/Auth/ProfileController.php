@@ -11,22 +11,43 @@ use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $role = auth()->user()->role?->slug;
 
-        if ($role === 'pembaca') {
-            $categories = Category::all();
-            $kecamatans = Kecamatan::ordered()->get();
+        if ($role === 'pembaca' || $role === 'kontributor') {
+            $user = auth()->user();
 
-            return view('frontend.account.index', ['user' => auth()->user(), 'categories' => $categories, 'kecamatans' => $kecamatans]);
-        }
+            $filter = in_array($request->get('filter'), ['published', 'pending', 'rejected'], true)
+                ? $request->get('filter')
+                : 'all';
 
-        if ($role === 'kontributor') {
-            $categories = Category::all();
-            $kecamatans = Kecamatan::ordered()->get();
+            $postsQuery = $user->posts()->with('categories')->latest();
 
-            return view('frontend.account.index', ['user' => auth()->user(), 'categories' => $categories, 'kecamatans' => $kecamatans]);
+            $allPosts = (clone $postsQuery)->get();
+
+            $stats = [
+                'total' => $allPosts->count(),
+                'published' => $allPosts->where('status', 'published')->count(),
+                'pending' => $allPosts->where('status', 'pending')->count(),
+                'rejected' => $allPosts->where('status', 'rejected')->count(),
+            ];
+
+            if ($filter !== 'all') {
+                $postsQuery->where('status', $filter);
+            }
+
+            $posts = $postsQuery->paginate(10)->withQueryString();
+
+            return view('frontend.account.index', [
+                'user' => $user,
+                'categories' => Category::all(),
+                'kecamatans' => Kecamatan::ordered()->get(),
+                'posts' => $posts,
+                'stats' => $stats,
+                'filter' => $filter,
+                'activeTab' => $request->get('tab') === 'edit' ? 'edit' : 'posts',
+            ]);
         }
 
         return redirect()->route('admin.profile.index');
@@ -57,7 +78,7 @@ class ProfileController extends Controller
             $user->update(['password' => Hash::make($validated['new_password'])]);
         }
 
-        return redirect()->route('profile.index')
+        return redirect()->route('profile.index', ['tab' => 'edit'])
             ->with('success', 'Profil berhasil diperbarui.');
     }
 }

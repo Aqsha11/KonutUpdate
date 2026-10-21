@@ -41,6 +41,7 @@ class PageController extends Controller
         Page::create($validated);
 
         Cache::forget('frontend_pages');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.pages.index')
             ->with('success', 'Halaman berhasil dibuat.');
@@ -68,6 +69,7 @@ class PageController extends Controller
         $page->update($validated);
 
         Cache::forget('frontend_pages');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.pages.index')
             ->with('success', 'Halaman berhasil diperbarui.');
@@ -78,6 +80,7 @@ class PageController extends Controller
         $page->update(['is_published' => true]);
 
         Cache::forget('frontend_pages');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.pages.index')
             ->with('success', 'Halaman berhasil dipublikasikan.');
@@ -88,6 +91,7 @@ class PageController extends Controller
         $page->update(['is_published' => false]);
 
         Cache::forget('frontend_pages');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.pages.index')
             ->with('success', 'Halaman dikembalikan ke draft.');
@@ -103,6 +107,7 @@ class PageController extends Controller
         $page->delete();
 
         Cache::forget('frontend_pages');
+        Cache::forget('sitemap_xml');
 
         return redirect()->route('admin.pages.index')
             ->with('success', 'Halaman berhasil dihapus.');

@@ -15,7 +15,7 @@
 {
     "@@context": "https://schema.org",
     "@@type": ["Organization", "NewsMediaOrganization"],
-    "@@id": "{{ url('#organization') }}",
+    "@@id": "{{ url('/') }}#organization",
     "name": @json($schemaName),
     "alternateName": ["KonutUpdate", "Konut Update", "Konut"],
     "url": @json(url('/')),
@@ -38,10 +38,10 @@
 {
     "@@context": "https://schema.org",
     "@@type": "WebSite",
-    "@@id": "{{ url('#website') }}",
+    "@@id": "{{ url('/') }}#website",
     "url": @json(url('/')),
     "name": @json($schemaName),
-    "publisher": { "@@id": "{{ url('#organization') }}" },
+    "publisher": { "@@id": "{{ url('/') }}#organization" },
     "potentialAction": {
         "@@type": "SearchAction",
         "target": {

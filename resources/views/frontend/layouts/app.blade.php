@@ -11,12 +11,9 @@
     <meta name="apple-mobile-web-app-title" content="KonutUpdate">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="{{ url('/manifest.json') }}">
-    @php
-        // Favicon selalu dari aset statis: logo KU.png yang sudah dirender ulang
-        // jadi PNG opaque (HTML5 spec: Apple menolak PNG transparan untuk
-        // apple-touch-icon; Android maskable butuh latar penuh).
-        $shareFallback = url('/og-default.jpg');
-    @endphp
+    {{-- Favicon selalu dari aset statis: logo KU.png yang sudah dirender ulang
+         jadi PNG opaque (Apple menolak PNG transparan untuk apple-touch-icon;
+         Android maskable butuh latar penuh). --}}
     <link rel="icon" href="{{ url('/favicon.ico') }}" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ url('/icons/favicon-32.png') }}">
     <link rel="icon" type="image/png" sizes="192x192" href="{{ url('/icons/icon-192.png') }}">
@@ -27,45 +24,6 @@
     <link rel="apple-touch-icon" sizes="167x167" href="{{ url('/icons/apple-touch-icon-167.png') }}">
     <link rel="alternate" type="application/rss+xml" title="{{ $site_settings['site_name'] ?? 'KonutUpdate' }} RSS Feed" href="{{ url('/feed') }}">
     <title>@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))</title>
-    @hasSection('meta')
-        @yield('meta')
-    @else
-        <meta name="description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}">
-        <meta name="keywords" content="{{ $site_settings['meta_keywords'] ?? 'konut, konawe utara, berita, news, informasi, sulawesi tenggara' }}">
-        <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-        <meta property="og:locale" content="id_ID" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="{{ url()->current() }}" />
-        <meta property="og:title" content="@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))" />
-        <meta property="og:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="@yield('title', ($site_settings['site_name'] ?? 'KonutUpdate'))" />
-        <meta name="twitter:description" content="{{ $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya' }}" />
-        @if(!empty($site_settings['logo']))
-            <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-        @else
-            <meta name="twitter:image" content="{{ $shareFallback }}" />
-        @endif
-    @endif
-    {{-- Gambar share. Halaman yang punya gambar sendiri (mis. detail artikel) override lewat
-         @section('share_image'); sisanya otomatis dapat logo situs / kartu default.
-         Harus DI LUAR blok meta di atas: hampir semua halaman punya @section('meta') sendiri,
-         sehingga og:image di dalam blok default tidak pernah ikut ter-render. --}}
-    @hasSection('share_image')
-        @yield('share_image')
-    @elseif(!empty($site_settings['logo']))
-        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-    @else
-        <meta property="og:image" content="{{ $shareFallback }}" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-        <meta name="twitter:image" content="{{ $shareFallback }}" />
-    @endif
     @php
         // Canonical self-referencing; arsip terpaginasi tetap mengarah ke URL halamannya sendiri (?page=N)
         $__canonical = url()->current();
@@ -73,8 +31,11 @@
             $__canonical .= '?page=' . $page;
         }
     @endphp
+    {{-- Metadata SEO: satu sumber untuk description, robots, Open Graph & Twitter Card.
+         Halaman menyuplai nilai lewat @section('seo_*'); lihat partial seo-meta. --}}
+    @include('frontend.partials.seo-meta', ['canonical' => $__canonical])
     <link rel="canonical" href="@yield('canonical', $__canonical)" />
-    <meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    @yield('json_ld')
     @include('frontend.partials.schema-org')
     @php
         // Normalisasi nilai Google Site Verification bila disimpan bersama prefix (mis. "google-site-verification=xxx")
@@ -446,7 +407,7 @@
                                 ];
                                 $pageIcon = $pageIcons[$page->slug] ?? 'file-text';
                             @endphp
-                            <a href="{{ route('pages.show', $page->slug) }}"
+                            <a href="{{ $page->canonicalUrl() }}"
                                class="flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-on-surface hover:bg-surface-container no-underline transition-colors">
                                 <i data-lucide="{{ $pageIcon }}" class="w-4 h-4 text-on-surface-variant"></i>
                                 {{ $page->title }}

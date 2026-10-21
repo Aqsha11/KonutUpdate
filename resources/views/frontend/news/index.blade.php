@@ -2,13 +2,9 @@
 
 @section('title', 'Semua Berita Konawe Utara - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    <meta name="description" content="Kumpulan berita Konawe Utara (Konut) dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }} — cari dan filter berdasarkan kategori serta kecamatan.">
-    <link rel="canonical" href="{{ url()->current() }}" />
-    <meta property="og:title" content="Semua Berita Konawe Utara - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta property="og:description" content="Kumpulan berita Konawe Utara (Konut) dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta property="og:type" content="website" />
-@endsection
+@section('seo_title', 'Semua Berita Konawe Utara - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_description', 'Kumpulan berita Konawe Utara (Konut) dari ' . ($site_settings['site_name'] ?? 'KonutUpdate') . ' — cari dan filter berdasarkan kategori serta kecamatan.')
+@section('seo_type', 'website')
 
 @section('content')
     <div class="mb-3">
@@ -53,7 +49,7 @@
             @foreach($posts as $post)
             <article class="news-item group">
                 <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
-                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                     @endif

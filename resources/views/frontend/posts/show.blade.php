@@ -2,37 +2,54 @@
 
 @section('title', $post->title . ' - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    @php
-        $excerpt = strip_tags($post->excerpt ?: Str::limit(strip_tags($post->body), 160));
-        $thumb = $post->thumbnail ? url(Storage::url($post->thumbnail)) : '';
-        $fallbackImage = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/og-default.jpg');
-        $shareImage = $thumb ?: $fallbackImage;
-    @endphp
-    <meta name="description" content="{{ $excerpt }}" />
-    <meta property="og:title" content="{{ $post->title }}" />
-    <meta property="og:description" content="{{ $excerpt }}" />
-    <meta property="og:type" content="{{ $post->isVideo() ? 'video.other' : 'article' }}" />
-    <meta property="og:url" content="{{ url()->current() }}" />
-    <meta property="article:published_time" content="{{ $post->published_at }}" />
-    <meta property="article:author" content="{{ $post->author_name }}" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $post->title }}" />
-    <meta name="twitter:description" content="{{ $excerpt }}" />
-    @php
-        $publishedAt = $post->published_at ? \Carbon\Carbon::parse($post->published_at) : null;
-        $modifiedAt = $post->updated_at ? \Carbon\Carbon::parse($post->updated_at) : $publishedAt;
-        $firstCategory = $post->categories->first() ?: $post->category;
-        $keywords = $post->tags->pluck('name')->implode(', ');
-        $wordCount = str_word_count(strip_tags($post->body ?? ''));
-        $mainImage = $thumb ?: $fallbackImage;
-        $publisherLogo = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/icons/icon-512.png');
-    @endphp
+@php
+    $excerpt = strip_tags($post->excerpt ?: Str::limit(strip_tags($post->body), 160));
+    $thumb = $post->thumbnail ? url(Storage::url($post->thumbnail)) : '';
+    $fallbackImage = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/og-default.jpg');
+    $shareImage = $thumb ?: $fallbackImage;
+    $publishedAt = $post->published_at ? \Carbon\Carbon::parse($post->published_at) : null;
+    $modifiedAt = $post->contentModifiedAt();
+    $firstCategory = $post->categories->first() ?: $post->category;
+    $keywords = $post->tags->pluck('name')->implode(', ');
+    $wordCount = str_word_count(strip_tags($post->body ?? ''));
+    $mainImage = $shareImage;
+    $publisherLogo = !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/icons/icon-512.png');
+    $writer = $post->writer;
+    $authorName = $post->author_name;
+    $authorUrl = $writer?->publicProfileUrl();
+@endphp
+
+@section('seo_title', $post->title)
+@section('seo_description', $excerpt)
+@section('seo_type', $post->isVideo() ? 'video.other' : 'article')
+@section('seo_image', $shareImage)
+@section('seo_image_alt', $post->image_alt)
+@section('seo_image_width', '1200')
+@section('seo_image_height', $post->thumbnail ? '675' : '630')
+@section('seo_robots', $post->isDuplicate() ? 'noindex, follow' : '')
+
+@push('seo_extra')
+    @if($publishedAt)
+        <meta property="article:published_time" content="{{ $publishedAt->toIso8601String() }}" />
+    @endif
+    @if($modifiedAt)
+        <meta property="article:modified_time" content="{{ $modifiedAt->toIso8601String() }}" />
+    @endif
+    <meta property="article:author" content="{{ $authorName }}" />
+    @if($firstCategory)
+        <meta property="article:section" content="{{ $firstCategory->name }}" />
+    @endif
+    @foreach($post->tags as $tag)
+        <meta property="article:tag" content="{{ $tag->name }}" />
+    @endforeach
+@endpush
+
+@section('json_ld')
     <script type="application/ld+json">
     {
         "@@context": "https://schema.org",
         "@@type": "{{ $post->isVideo() ? 'VideoObject' : 'NewsArticle' }}",
-        "@@id": "{{ url()->current() }}",
+        "@@id": "{{ url()->current() }}#article",
         "mainEntityOfPage": {
             "@@type": "WebPage",
             "@@id": "{{ url()->current() }}"
@@ -42,9 +59,9 @@
         @if($mainImage)"image": ["{{ $mainImage }}"],@endif
         @if($publishedAt)"datePublished": "{{ $publishedAt->toIso8601String() }}",@endif
         @if($modifiedAt)"dateModified": "{{ $modifiedAt->toIso8601String() }}",@endif
-        "author": { "@@type": "Person", "name": @json($post->author_name) },
+        "author": { "@@type": "Person", "name": @json($authorName)@if($authorUrl), "url": @json($authorUrl)@endif },
         "publisher": {
-            "@@id": "{{ url('#organization') }}",
+            "@@id": "{{ url('/') }}#organization",
             "@@type": "Organization",
             "name": @json($site_settings['site_name'] ?? 'KonutUpdate'),
             "logo": { "@@type": "ImageObject", "url": @json($publisherLogo) },
@@ -70,21 +87,6 @@
     }
     </script>
     @endif
-@endsection
-
-@section('share_image')
-    @php
-        // Thumbnail artikel (1200x675) adalah gambar share terbaik; jatuh ke logo/kartu default.
-        $__img = $post->thumbnail
-            ? url(Storage::url($post->thumbnail))
-            : (!empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/og-default.jpg'));
-        $__h = $post->thumbnail ? 675 : 630;
-    @endphp
-    <meta property="og:image" content="{{ $__img }}" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="{{ $__h }}" />
-    <meta property="og:image:alt" content="{{ $post->title }}" />
-    <meta name="twitter:image" content="{{ $__img }}" />
 @endsection
 
 @section('content')
@@ -143,14 +145,18 @@
                 <div class="article-meta-bar">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden flex-shrink-0">
-                            @if($post->author && $post->author->avatar)
-                            <img src="{{ Storage::url($post->author->avatar) }}" alt="{{ $post->author->name }}" class="w-full h-full object-cover">
+                            @if(($writer ?? null)?->avatar)
+                            <img src="{{ Storage::url($writer->avatar) }}" alt="{{ $authorName }}" class="w-full h-full object-cover">
                             @else
-                            <span class="text-primary font-bold text-sm">{{ strtoupper(substr($post->author_name, 0, 1)) }}</span>
+                            <span class="text-primary font-bold text-sm">{{ strtoupper(substr($authorName, 0, 1)) }}</span>
                             @endif
                         </div>
                         <div>
-                            <span class="article-author">{{ $post->author_name }}</span>
+                            @if($authorUrl)
+                            <a href="{{ $authorUrl }}" class="article-author no-underline hover:underline">{{ $authorName }}</a>
+                            @else
+                            <span class="article-author">{{ $authorName }}</span>
+                            @endif
                             <span class="article-date">{{ formatDate($post->published_at) }}</span>
                         </div>
                     </div>
@@ -185,7 +191,7 @@
                     @elseif($post->video_poster)
                         <div class="article-hero-media" x-data="{ playing: false }">
                             <div x-show="!playing" @click="playing = true" class="relative cursor-pointer group" style="padding-top: 56.25%;">
-                                <img src="{{ $post->video_poster }}" alt="{{ $post->title }}" class="absolute inset-0 w-full h-full object-cover">
+                                <img src="{{ $post->video_poster }}" alt="{{ $post->image_alt }}" class="absolute inset-0 w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors"></div>
                                 <div class="absolute inset-0 flex items-center justify-center">
                                     <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary/90 group-hover:bg-primary flex items-center justify-center shadow-2xl transition-all group-hover:scale-110">
@@ -212,7 +218,7 @@
                     @endif
                 @elseif($post->thumbnail)
                     <div class="article-hero-media">
-                        <img src="{{ Storage::url($post->thumbnail) }}" alt="{{ $post->title }}" class="w-full h-auto object-cover" loading="eager">
+                        <img src="{{ Storage::url($post->thumbnail) }}" alt="{{ $post->image_alt }}" class="w-full h-auto object-cover" loading="eager" fetchpriority="high">
                     </div>
                 @endif
 

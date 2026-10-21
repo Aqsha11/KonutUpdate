@@ -157,6 +157,21 @@ if (! function_exists('formatDate')) {
     }
 }
 
+if (! function_exists('seoSectionValue')) {
+    /**
+     * Ambil nilai section Blade sebagai teks mentah (tanpa entity escape ganda).
+     *
+     * Blade melakukan e() pada nilai yang diisi lewat @section('nama', $nilai),
+     * jadi nilainya perlu di-decode dulu agar tidak ter-escape dua kali.
+     */
+    function seoSectionValue(string $section, string $default = ''): string
+    {
+        $value = (string) view()->yieldContent($section, $default);
+
+        return trim(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
+    }
+}
+
 if (! function_exists('readTime')) {
     function readTime(string $text): string
     {

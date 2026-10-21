@@ -2,10 +2,8 @@
 
 @section('title', ($query ? 'Hasil Pencarian: '.$query.' - ' : 'Cari Berita - ').($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    <meta name="robots" content="noindex, follow">
-    <meta name="description" content="Cari berita terbaru di {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
-@endsection
+@section('seo_robots', 'noindex, follow')
+@section('seo_description', 'Cari berita terbaru di ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
 @section('content')
     <div class="mb-3">
@@ -51,7 +49,7 @@
                     @foreach($posts as $post)
                     <article class="news-item group">
                         <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->type === 'video') data-video-player="{{ videoPlayerData($post) }}" @endif>
-                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->title }}" loading="lazy">
+                            <img src="{{ $post->thumbnail ? Storage::url($post->thumbnail) : ($post->video_poster ?? 'https://placehold.co/110x80/1a1a2e/ffffff?text=N') }}" alt="{{ $post->image_alt }}" loading="lazy">
                             @if($post->type === 'video')
                             <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                             @endif

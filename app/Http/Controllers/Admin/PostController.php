@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Kecamatan;
 use App\Models\Post;
 use App\Models\Tag;
+use App\Models\User;
 use App\Services\HtmlSanitizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -21,7 +22,7 @@ class PostController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Post::with(['author', 'categories', 'kecamatan'])->latest();
+        $query = Post::with(['author', 'categories', 'kecamatan', 'duplicateOf:id,title'])->latest();
 
         if ($request->filled('category')) {
             $query->where(function ($q) use ($request) {
@@ -63,8 +64,10 @@ class PostController extends Controller
         $categories = Category::all();
         $tags = Tag::all();
         $kecamatans = Kecamatan::ordered()->get();
+        $writers = $this->writerOptions();
+        $duplicateSources = $this->duplicateSourceOptions();
 
-        return view('admin.posts.create', compact('categories', 'tags', 'kecamatans'));
+        return view('admin.posts.create', compact('categories', 'tags', 'kecamatans', 'writers', 'duplicateSources'));
     }
 
     public function show(Post $post)
@@ -110,6 +113,7 @@ class PostController extends Controller
         unset($data['video_file'], $data['video_url'], $data['category_ids']);
 
         $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body'] ?? null);
+        $data['content_updated_at'] = now();
 
         $post = Post::create($data);
 
@@ -148,8 +152,10 @@ class PostController extends Controller
         $tags = Tag::all();
         $kecamatans = Kecamatan::ordered()->get();
         $post->load('categories');
+        $writers = $this->writerOptions();
+        $duplicateSources = $this->duplicateSourceOptions($post->id);
 
-        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'kecamatans'));
+        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'kecamatans', 'writers', 'duplicateSources'));
     }
 
     public function update(UpdatePostRequest $request, Post $post)
@@ -203,6 +209,22 @@ class PostController extends Controller
         unset($data['video_file'], $data['video_url'], $data['category_ids']);
 
         $data['body'] = app(HtmlSanitizer::class)->sanitize($data['body'] ?? null);
+
+        // Artikel tidak boleh ditandai duplikat dari dirinya sendiri.
+        if (isset($data['duplicate_of_id']) && (int) $data['duplicate_of_id'] === (int) $post->id) {
+            return back()
+                ->withErrors(['duplicate_of_id' => 'Artikel tidak bisa ditandai sebagai duplikat dari dirinya sendiri.'])
+                ->withInput();
+        }
+
+        // content_updated_at hanya bergerak bila isi/judul benar-benar berubah,
+        // supaya dateModified di schema.org tidak melompat tidak wajar.
+        if ($post->body !== $data['body']
+            || $post->title !== $data['title']
+            || $post->excerpt !== ($data['excerpt'] ?? null)
+        ) {
+            $data['content_updated_at'] = now();
+        }
 
         $post->update($data);
 
@@ -260,6 +282,9 @@ class PostController extends Controller
         $post->update([
             'status' => 'published',
             'published_at' => now(),
+            'content_updated_at' => $post->content_updated_at && $post->content_updated_at->lt(now())
+                ? $post->content_updated_at
+                : now(),
         ]);
 
         $this->forgetFrontendCaches();
@@ -273,6 +298,9 @@ class PostController extends Controller
             'status' => 'published',
             'rejection_reason' => null,
             'published_at' => now(),
+            'content_updated_at' => $post->content_updated_at && $post->content_updated_at->lt(now())
+                ? $post->content_updated_at
+                : now(),
         ]);
 
         $this->forgetFrontendCaches();
@@ -322,6 +350,29 @@ class PostController extends Controller
         ]);
     }
 
+    /**
+     * Akun yang bisa dipilih sebagai penulis artikel (byline).
+     */
+    private function writerOptions()
+    {
+        return User::query()
+            ->whereHas('role', fn ($q) => $q->whereIn('slug', ['super_admin', 'editor', 'reporter', 'kontributor']))
+            ->orderBy('name')
+            ->get(['id', 'name']);
+    }
+
+    /**
+     * Artikel yang bisa dipilih sebagai "duplikat dari" (indeks artikel acuan).
+     */
+    private function duplicateSourceOptions(?int $exceptId = null)
+    {
+        return Post::published()
+            ->when($exceptId, fn ($q) => $q->where('id', '!=', $exceptId))
+            ->orderByDesc('published_at')
+            ->limit(200)
+            ->get(['id', 'title', 'slug']);
+    }
+
     private function uniqueSlug(string $slug, ?int $exceptId = null): string
     {
         $original = $slug;
@@ -339,7 +390,7 @@ class PostController extends Controller
 
     private function forgetFrontendCaches(): void
     {
-        foreach (['frontend_categories', 'breaking_news', 'trending_posts'] as $key) {
+        foreach (['frontend_categories', 'frontend_kecamatans', 'breaking_news', 'trending_posts', 'sitemap_xml', 'sitemap_news_xml'] as $key) {
             Cache::forget($key);
         }
     }

@@ -10,6 +10,12 @@ class PageController extends Controller
 {
     public function show($slug)
     {
+        // Halaman yang punya URL ramah (/tentang-kami, dll) di-redirect permanen
+        // supaya tidak ada dua URL untuk konten yang sama.
+        if (isset(Page::FRIENDLY_ROUTES[$slug])) {
+            return redirect()->route(Page::FRIENDLY_ROUTES[$slug], [], 301);
+        }
+
         $page = Page::where('slug', $slug)->published()->firstOrFail();
         $page->content = app(HtmlSanitizer::class)->sanitize($page->content);
 

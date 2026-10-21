@@ -21,6 +21,8 @@ class UpdateUserRequest extends FormRequest
             'email' => 'required|email|max:255|unique:users,email,'.$id,
             'password' => ['nullable', 'string', 'confirmed', new StrongPassword],
             'role_id' => 'required|exists:roles,id',
+            'slug' => 'nullable|string|max:255|unique:users,slug,'.$id,
+            'bio' => 'nullable|string|max:1000',
         ];
     }
 
@@ -31,6 +33,8 @@ class UpdateUserRequest extends FormRequest
             'email' => 'Email',
             'password' => 'Password',
             'role_id' => 'Role',
+            'slug' => 'Slug Profil',
+            'bio' => 'Bio',
         ];
     }
 

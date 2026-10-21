@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Kecamatan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class KecamatanController extends Controller
@@ -36,6 +37,8 @@ class KecamatanController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
+        Cache::forget('frontend_kecamatans');
+
         return redirect()->route('admin.kecamatans.index')->with('success', 'Kecamatan berhasil ditambahkan.');
     }
 
@@ -59,12 +62,16 @@ class KecamatanController extends Controller
             'sort_order' => $request->sort_order ?? 0,
         ]);
 
+        Cache::forget('frontend_kecamatans');
+
         return redirect()->route('admin.kecamatans.index')->with('success', 'Kecamatan berhasil diperbarui.');
     }
 
     public function destroy(Kecamatan $kecamatan)
     {
         $kecamatan->delete();
+
+        Cache::forget('frontend_kecamatans');
 
         return redirect()->route('admin.kecamatans.index')->with('success', 'Kecamatan berhasil dihapus.');
     }

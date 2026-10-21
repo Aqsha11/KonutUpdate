@@ -20,8 +20,9 @@ export default function (Alpine) {
         csrf: '',
         suggestions: [
             'Apa berita terbaru di Konawe Utara?',
-            'Bagaimana kondisi infrastruktur jalan?',
-            'Berita tentang pembangunan daerah',
+            'Bagaimana cara daftar akun?',
+            'Bagaimana cara mengirim opini?',
+            'Bagaimana cara menjadi kontributor?',
         ],
 
         init() {

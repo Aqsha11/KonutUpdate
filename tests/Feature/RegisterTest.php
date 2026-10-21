@@ -162,7 +162,7 @@ class RegisterTest extends TestCase
         $this->assertNotNull($user->fresh()->email_verified_at);
     }
 
-    public function test_verified_kontributor_is_sent_to_contributor_dashboard(): void
+    public function test_verified_kontributor_is_sent_to_public_profile(): void
     {
         $role = Role::where('slug', 'kontributor')->firstOrFail();
         $user = User::factory()->unverified()->create(['role_id' => $role->id]);
@@ -172,7 +172,7 @@ class RegisterTest extends TestCase
             'hash' => sha1($user->getEmailForVerification()),
         ]);
 
-        $this->actingAs($user)->get($url)->assertRedirect(route('kontributor.dashboard'));
+        $this->actingAs($user)->get($url)->assertRedirect(route('profile.index'));
 
         $this->assertAuthenticatedAs($user);
         $this->assertNotNull($user->fresh()->email_verified_at);

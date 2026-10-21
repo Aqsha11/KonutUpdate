@@ -2,18 +2,16 @@
 
 @section('title', ($site_settings['site_name'] ?? 'KonutUpdate') . ' - Berita Terpercaya Konawe Utara')
 
-@section('meta')
-    @php
-        $homeDesc = $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya';
-        $homeKw = $site_settings['meta_keywords'] ?? 'konut, konawe utara, berita, news, informasi, sulawesi tenggara';
-    @endphp
-    <meta name="description" content="{{ $homeDesc }}">
-    <meta name="keywords" content="{{ $homeKw }}">
-    <meta property="og:title" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta property="og:description" content="{{ $homeDesc }}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ url('/') }}" />
-@endsection
+@php
+    $homeDesc = $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya';
+@endphp
+@section('seo_title', $site_settings['site_name'] ?? 'KonutUpdate')
+@section('seo_description', $homeDesc)
+@section('seo_type', 'website')
+@section('seo_image', !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/og-default.jpg'))
+@section('seo_image_alt', $site_settings['site_name'] ?? 'KonutUpdate')
+@section('seo_image_width', '1200')
+@section('seo_image_height', '630')
 
 @php
     // $heroMain & $heroSidePosts disiapkan di HomeController
@@ -48,7 +46,7 @@
                         <span class="cnn-badge">{{ $heroMain->category->name }}</span>
                     @endif
                     @include('frontend.partials.breaking-badge', ['post' => $heroMain, 'breakingVariant' => 'on-image'])
-                    <img src="{{ postThumbnail($heroMain) }}" alt="{{ $heroMain->title }}" loading="eager" fetchpriority="high">
+                    <img src="{{ postThumbnail($heroMain) }}" alt="{{ $heroMain->image_alt }}" loading="eager" fetchpriority="high">
                     @if($heroMain->isVideo())
                     <div class="ku-video-play"><i data-lucide="play" class="w-6 h-6 text-primary ml-0.5"></i></div>
                     @endif
@@ -127,7 +125,7 @@
             @foreach($latestForList as $post)
             <article class="news-item" data-post-id="{{ $post->id }}">
                 <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
-                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                     @endif
@@ -186,7 +184,7 @@
             <article class="ku-video-card" data-post-id="{{ $post->id }}">
                 <a href="{{ route('posts.show', $post->slug) }}" class="ku-video-thumb" data-video-player="{{ videoPlayerData($post) }}">
                     @if($post->thumbnail || $post->video_poster)
-                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     @endif
                     <div class="ku-video-play"><i data-lucide="play" class="w-5 h-5 text-primary ml-0.5"></i></div>
                 </a>
@@ -247,7 +245,7 @@
             <article class="ku-feat-card" data-post-id="{{ $post->id }}">
                 <div class="ku-feat-media">
                     <a href="{{ route('posts.show', $post->slug) }}" class="ku-feat-thumb">
-                        <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                        <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     </a>
                     <div class="ku-feat-overlay"></div>
                     <div class="ku-feat-content">
@@ -295,7 +293,7 @@
             <article class="ku-feat-card" data-post-id="{{ $post->id }}">
                 <div class="ku-feat-media">
                     <a href="{{ route('posts.show', $post->slug) }}" class="ku-feat-thumb">
-                        <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                        <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     </a>
                     <div class="ku-feat-overlay"></div>
                     <div class="ku-feat-content">
@@ -340,7 +338,7 @@
             @foreach($randomPosts as $post)
             <article class="news-item" data-post-id="{{ $post->id }}">
                 <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
-                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                     @endif
@@ -400,7 +398,7 @@
             @foreach($kecamatanRandomPosts as $post)
             <article class="news-item" data-post-id="{{ $post->id }}">
                 <a href="{{ route('posts.show', $post->slug) }}" class="news-item-thumb" @if($post->isVideo()) data-video-player="{{ videoPlayerData($post) }}" @endif>
-                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     @if($post->isVideo())
                     <div class="news-item-play"><i data-lucide="play" class="w-3 h-3 text-primary ml-0.5"></i></div>
                     @endif

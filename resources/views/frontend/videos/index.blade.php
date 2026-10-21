@@ -2,13 +2,9 @@
 
 @section('title', 'Video - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    <meta name="description" content="Kumpulan video berita dan momen terkini dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}">
-    <link rel="canonical" href="{{ url()->current() }}" />
-    <meta property="og:title" content="Video - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta property="og:description" content="Kumpulan video berita dan momen terkini dari {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta property="og:type" content="website" />
-@endsection
+@section('seo_title', 'Video - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_description', 'Kumpulan video berita dan momen terkini dari ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_type', 'website')
 
 @section('content')
     <div class="mb-3">
@@ -29,7 +25,7 @@
             <article class="ku-video-card" data-post-id="{{ $post->id }}">
                 <a href="{{ route('posts.show', $post->slug) }}" class="ku-video-thumb" data-video-player="{{ videoPlayerData($post) }}">
                     @if($post->thumbnail)
-                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->title }}" loading="lazy">
+                    <img src="{{ postThumbnail($post) }}" alt="{{ $post->image_alt }}" loading="lazy">
                     @endif
                     <div class="ku-video-play"><i data-lucide="play" class="w-5 h-5 text-primary ml-0.5"></i></div>
                 </a>

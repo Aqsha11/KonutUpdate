@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -20,6 +21,8 @@ class User extends Authenticatable implements MustVerifyEmail
 
     protected $fillable = [
         'name',
+        'slug',
+        'bio',
         'email',
         'password',
         'role_id',
@@ -39,6 +42,35 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    /**
+     * Slug profil publik (/penulis/{slug}) dibuat otomatis dari nama bila kosong.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $user) {
+            if (blank($user->slug)) {
+                $user->slug = static::uniqueSlug((string) $user->name, $user->getKey());
+            }
+        });
+    }
+
+    public static function uniqueSlug(string $name, ?int $exceptId = null): string
+    {
+        $base = Str::slug($name) ?: 'penulis';
+        $slug = $base;
+        $suffix = 1;
+
+        while (static::query()
+            ->where('slug', $slug)
+            ->when($exceptId, fn ($q) => $q->where('id', '!=', $exceptId))
+            ->exists()) {
+            $suffix++;
+            $slug = $base.'-'.$suffix;
+        }
+
+        return $slug;
+    }
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
@@ -52,6 +84,22 @@ class User extends Authenticatable implements MustVerifyEmail
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'user_id');
+    }
+
+    /**
+     * Artikel yang ditulis oleh akun ini sebagai penulis (bukan admin pemuat).
+     */
+    public function writtenPosts(): HasMany
+    {
+        return $this->hasMany(Post::class, 'author_id');
+    }
+
+    /**
+     * URL profil penulis publik.
+     */
+    public function publicProfileUrl(): ?string
+    {
+        return $this->slug ? route('authors.show', $this->slug) : null;
     }
 
     public function hasPermission(string $slug): bool

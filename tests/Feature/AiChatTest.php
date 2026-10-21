@@ -89,16 +89,32 @@ class AiChatTest extends TestCase
         Http::assertSent(fn ($request) => str_contains($request->url(), 'generativelanguage.googleapis.com'));
     }
 
-    public function test_it_reports_when_no_matching_news_found(): void
+    public function test_it_answers_procedural_questions_from_the_guide(): void
     {
         $response = $this->postJson(route('ai-chat.ask'), [
-            'question' => 'Berita tentang topik yang tidak ada sama sekali',
+            'question' => 'Bagaimana cara daftar akun di Konut Update?',
         ]);
 
-        $response->assertOk()->assertJsonPath('sources', []);
-        $this->assertStringContainsString('tidak menemukan', $response->json('answer'));
+        $response->assertOk()
+            ->assertJsonPath('answer', 'Berdasarkan berita Konut Update, pembangunan terus berjalan.')
+            ->assertJsonFragment(['url' => route('register')]);
 
-        Http::assertNotSent(fn ($request) => str_contains($request->url(), 'generativelanguage.googleapis.com'));
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'generativelanguage.googleapis.com'));
+    }
+
+    public function test_the_guide_is_injected_into_the_system_instruction(): void
+    {
+        $this->postJson(route('ai-chat.ask'), [
+            'question' => 'Bagaimana cara mengirim opini?',
+        ])->assertOk();
+
+        Http::assertSent(function ($request) {
+            $system = data_get($request->data(), 'systemInstruction.parts.0.text', '');
+
+            return str_contains($system, 'PANDUAN PENGGUNAAN SITUS KONUT UPDATE')
+                && str_contains($system, 'Cara membuat akun (registrasi)')
+                && str_contains($system, 'Cara mengirim opini');
+        });
     }
 
     public function test_it_falls_back_to_next_model_when_primary_is_deprecated(): void

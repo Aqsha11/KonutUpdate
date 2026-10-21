@@ -2,30 +2,12 @@
 
 @section('title', 'Kontak - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
 
-@section('meta')
-    @php
-        $kontakDesc = 'Hubungi ' . ($site_settings['site_name'] ?? 'KonutUpdate') . ' - Kirim saran, masukan, atau pertanyaan kepada redaksi kami.';
-    @endphp
-    <meta name="description" content="{{ $kontakDesc }}" />
-    <link rel="canonical" href="{{ route('pages.kontak') }}" />
-    <meta property="og:title" content="Kontak - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta property="og:description" content="{{ $kontakDesc }}" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="{{ route('pages.kontak') }}" />
-    <meta property="og:site_name" content="{{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta property="og:locale" content="id_ID" />
-    @if(!empty($site_settings['logo']))
-        <meta property="og:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-    @endif
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Kontak - {{ $site_settings['site_name'] ?? 'KonutUpdate' }}" />
-    <meta name="twitter:description" content="{{ $kontakDesc }}" />
-    @if(!empty($site_settings['logo']))
-        <meta name="twitter:image" content="{{ url(Storage::url($site_settings['logo'])) }}" />
-    @endif
-@endsection
+@php
+    $kontakDesc = 'Hubungi ' . ($site_settings['site_name'] ?? 'KonutUpdate') . ' - Kirim saran, masukan, atau pertanyaan kepada redaksi kami.';
+@endphp
+@section('seo_title', 'Kontak - ' . ($site_settings['site_name'] ?? 'KonutUpdate'))
+@section('seo_description', $kontakDesc)
+@section('seo_type', 'website')
 
 @section('content')
     <div class="mb-6">
