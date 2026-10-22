@@ -15,6 +15,7 @@
 | `composer setup` | `composer install` → `.env` copy → `key:generate` → `migrate` → `npm install` → `npm run build`. |
 | `php artisan storage:link` | Required for thumbnails/CKEditor uploads (`storage/app/public/{thumbnails,avatars,uploads/images,videos,stories}`). |
 | `php artisan posts:expire-flags` | `routes/console.php` schedules it daily. Only prod worker runs it (see Ops). |
+| `php artisan konut:doctor` | Deployment check: widget Tanya Berita (key Gemini), Turnstile, aset Vite (stale `public/build` = widget tak terlihat), `storage:link`, database. Jalankan di server setelah pull. |
 | `npm run build` | Vite 7 + Tailwind 4 (`@tailwindcss/vite`). Pages are unstyled until this has run once. Vite dev server is pinned to `127.0.0.1` (`vite.config.js`) — HMR breaks if you browse from another device. |
 
 ## Architecture
@@ -105,6 +106,7 @@
 - `render.yaml` sets `PHP_CLI_SERVER_WORKERS=4`: `artisan serve` is single-threaded otherwise, and the synchronous Gemini call (up to 25s) would block the whole site. Also set `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`/`GEMINI_DAILY_LIMIT`) in the Render dashboard — empty key hides the Tanya Berita widget.
 - Full `DatabaseSeeder` (demo admin `admin@konutupdate.com` / `password`, plus editor/reporter) is **local-only**; production seeds just categories and pages.
 - **`.env.production` is tracked in git** even though `.gitignore` lists it — it already holds the live Turnstile *site* key (public-safe) with an empty secret. Don't add secrets to it. `.env` itself is ignored and holds a real `GEMINI_API_KEY`.
+- **Self-hosted server (bukan Render)?** `git pull` saja tidak cukup: `public/build` ada di `.gitignore`, jadi aset Vite harus dibangun ulang (`npm ci && npm run build`), dan `.env` server harus berisi `GEMINI_API_KEY` + `TURNSTILE_SECRET_KEY` (file `.env.production` hanya berisi placeholder kosong). Kalau `php artisan config:cache` aktif, ubah `.env` lalu `php artisan config:clear`. Verifikasi dengan `php artisan konut:doctor`.
 - `livewire/livewire` `^4.3` is in `composer.json` but unused — no components, no views, no `wire:` directives (the only trace is a `livewire:navigated` listener in `resources/js/app.js`). Ignore it.
 - Frontend is Alpine.js + jQuery/Bootstrap 5/DataTables/Swiper/Lucide; Tailwind 4 is compiled from `resources/css/*.css` with no `tailwind.config.js`.
 - `resources/ai/panduan-konut-update.md` is runtime content for the AI guide, **not** a Blade view — it is never compiled by Vite and needs no `view:clear`.
