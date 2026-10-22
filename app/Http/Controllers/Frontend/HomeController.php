@@ -32,7 +32,7 @@ class HomeController extends Controller
 
         if ($heroSidePosts->count() < 4) {
             $reserved = array_merge($usedIds, $heroSidePosts->pluck('id')->toArray());
-            $filler = Post::published()
+            $filler = Post::published()->withContent()
                 ->excludeHeadline()
                 ->where('type', '!=', 'video')
                 ->whereNotIn('id', $reserved)
@@ -53,7 +53,7 @@ class HomeController extends Controller
 
         $usedIds = array_merge($usedIds, $heroSidePosts->pluck('id')->toArray());
 
-        $videoPosts = Post::published()
+        $videoPosts = Post::published()->withContent()
             ->where('type', 'video')
             ->whereNotIn('id', $usedIds)
             ->with(['author', 'categories'])
@@ -63,7 +63,7 @@ class HomeController extends Controller
             ->get();
         $usedIds = array_merge($usedIds, $videoPosts->pluck('id')->toArray());
 
-        $featuredPosts = Post::published()
+        $featuredPosts = Post::published()->withContent()
             ->featured()
             ->whereNotIn('id', $usedIds)
             ->with(['author', 'categories'])
@@ -73,7 +73,7 @@ class HomeController extends Controller
             ->get();
         $usedIds = array_merge($usedIds, $featuredPosts->pluck('id')->toArray());
 
-        $trendingPosts = Post::published()
+        $trendingPosts = Post::published()->withContent()
             ->whereNotIn('id', $usedIds)
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
@@ -84,7 +84,7 @@ class HomeController extends Controller
 
         // Kabar Terkini SELALU berita terbaru — hanya menghindari duplikasi
         // dengan hero (headline + pengisi kolom kanan).
-        $latestPosts = Post::published()
+        $latestPosts = Post::published()->withContent()
             ->where('type', '!=', 'opini')
             ->whereNotIn('id', $usedIds)
             ->with(['author', 'categories'])
@@ -94,7 +94,7 @@ class HomeController extends Controller
             ->get();
         $usedIds = array_merge($usedIds, $latestPosts->pluck('id')->toArray());
 
-        $opiniPosts = Post::published()
+        $opiniPosts = Post::published()->withContent()
             ->where('type', 'opini')
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
@@ -105,14 +105,14 @@ class HomeController extends Controller
 
         // Filter + limit di level SQL (HAVING tidak portabel antara sqlite
         // dan pgsql), jadi tag tanpa artikel published tidak ikut termuat.
-        $popularTags = Tag::whereHas('posts', fn ($q) => $q->published())
-            ->withCount(['posts' => fn ($q) => $q->published()])
+        $popularTags = Tag::whereHas('posts', fn ($q) => $q->published()->withContent())
+            ->withCount(['posts' => fn ($q) => $q->published()->withContent()])
             ->orderByDesc('posts_count')
             ->take(12)
             ->get();
 
         // Rekomendasi: satu section berisi post acak dari semua kategori
-        $randomPosts = Post::published()
+        $randomPosts = Post::published()->withContent()
             ->whereNotIn('id', $usedIds)
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
@@ -121,7 +121,7 @@ class HomeController extends Controller
             ->get();
         $usedIds = array_merge($usedIds, $randomPosts->pluck('id')->toArray());
 
-        $kecamatans = Kecamatan::withCount(['posts' => fn ($q) => $q->published()])
+        $kecamatans = Kecamatan::withCount(['posts' => fn ($q) => $q->published()->withContent()])
             ->ordered()
             ->get();
 
@@ -133,7 +133,7 @@ class HomeController extends Controller
         $kecamatanNames = $kecamatans->pluck('name', 'slug')->toArray();
 
         // Berita Kecamatan: satu section post acak dari semua kecamatan
-        $kecamatanRandomPosts = Post::published()
+        $kecamatanRandomPosts = Post::published()->withContent()
             ->whereNotNull('kecamatan_id')
             ->whereNotIn('id', $usedIds)
             ->with(['author', 'categories', 'kecamatan'])

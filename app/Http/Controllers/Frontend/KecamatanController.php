@@ -12,7 +12,7 @@ class KecamatanController extends Controller
     {
         $kecamatan = Kecamatan::where('slug', $slug)->firstOrFail();
 
-        $posts = Post::published()
+        $posts = Post::published()->withContent()
             ->where('kecamatan_id', $kecamatan->id)
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')

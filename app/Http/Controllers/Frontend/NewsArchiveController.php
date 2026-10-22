@@ -17,7 +17,7 @@ class NewsArchiveController extends Controller
         $categorySlug = Str::limit(trim((string) $request->input('kategori')), 100, '');
         $kecamatanSlug = Str::limit(trim((string) $request->input('kecamatan')), 100, '');
 
-        $posts = Post::published()
+        $posts = Post::published()->withContent()
             ->with(['author', 'categories', 'kecamatan'])
             ->withCount('likes', 'comments')
             ->when($q, function ($query) use ($q) {

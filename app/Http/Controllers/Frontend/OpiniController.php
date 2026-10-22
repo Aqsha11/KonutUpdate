@@ -9,7 +9,7 @@ class OpiniController extends Controller
 {
     public function index()
     {
-        $posts = Post::published()
+        $posts = Post::published()->withContent()
             ->where('type', 'opini')
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')

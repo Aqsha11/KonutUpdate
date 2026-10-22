@@ -113,17 +113,17 @@ class AppServiceProvider extends ServiceProvider
 
         $categories = Cache::remember('frontend_categories', 3600, function () {
             return Category::whereHas('allPosts', function ($q) {
-                $q->published();
+                $q->published()->withContent();
             })->withCount(['allPosts' => function ($q) {
-                $q->published();
+                $q->published()->withContent();
             }])->get();
         });
 
         $kecamatans = Cache::remember('frontend_kecamatans', 3600, function () {
             return Kecamatan::whereHas('posts', function ($q) {
-                $q->published();
+                $q->published()->withContent();
             })->withCount(['posts' => function ($q) {
-                $q->published();
+                $q->published()->withContent();
             }])->ordered()->get();
         });
 
@@ -132,7 +132,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $trendingPosts = Cache::remember('trending_posts', 3600, function () {
-            return Post::published()
+            return Post::published()->withContent()
                 ->excludeHeadline()
                 ->with(['categories', 'author'])
                 ->orderBy('views_count', 'desc')
@@ -141,7 +141,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $breakingNews = Cache::remember('breaking_news', 300, function () {
-            return Post::published()
+            return Post::published()->withContent()
                 ->breaking()
                 ->with(['categories', 'author'])
                 ->orderBy('published_at', 'desc')

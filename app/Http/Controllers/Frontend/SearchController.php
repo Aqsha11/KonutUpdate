@@ -15,11 +15,11 @@ class SearchController extends Controller
     {
         $query = Str::limit(trim((string) $request->input('q')), 100, '');
         $categorySlug = Str::limit(trim((string) $request->input('category')), 100, '');
-        $categories = Category::withCount(['allPosts' => fn ($q) => $q->published()])
+        $categories = Category::withCount(['allPosts' => fn ($q) => $q->published()->withContent()])
             ->orderBy('name')
             ->get();
 
-        $posts = Post::published()
+        $posts = Post::published()->withContent()
             ->with(['categories', 'author'])
             ->when($query, function ($q) use ($query) {
                 $q->where(function ($q) use ($query) {

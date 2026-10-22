@@ -15,7 +15,7 @@ class AuthorController extends Controller
     {
         $author = User::where('slug', $slug)->firstOrFail();
 
-        $posts = Post::published()
+        $posts = Post::published()->withContent()
             ->notDuplicate()
             ->where('author_id', $author->id)
             ->with(['categories'])

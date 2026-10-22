@@ -39,7 +39,7 @@ class PostRepository
     {
         return $this->model->query()
             ->headline()
-            ->published()
+            ->published()->withContent()
             ->with(['author', 'categories', 'kecamatan'])
             ->withCount('likes', 'comments')
             ->latest()
@@ -51,7 +51,7 @@ class PostRepository
     {
         return $this->model->query()
             ->headline()
-            ->published()
+            ->published()->withContent()
             ->pluck('id')
             ->toArray();
     }
@@ -59,7 +59,7 @@ class PostRepository
     public function getLatestExcludeHeadline(int $paginate = 6): LengthAwarePaginator
     {
         return $this->model->query()
-            ->published()
+            ->published()->withContent()
             ->excludeHeadline()
             ->with(['author', 'categories', 'kecamatan'])
             ->withCount('likes', 'comments')
@@ -76,7 +76,7 @@ class PostRepository
         }
 
         return $category->allPosts()
-            ->published()
+            ->published()->withContent()
             ->excludeHeadline()
             ->with(['author', 'categories', 'kecamatan'])
             ->latest()
@@ -94,7 +94,7 @@ class PostRepository
 
         // Acak: hero dipilih random, sisanya juga random, maksimal 15 kartu.
         $posts = $category->allPosts()
-            ->published()
+            ->published()->withContent()
             ->when($excludeIds, fn ($q) => $q->whereNotIn('posts.id', $excludeIds))
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
@@ -119,7 +119,7 @@ class PostRepository
         }
 
         $baseQuery = $kecamatan->posts()
-            ->published()
+            ->published()->withContent()
             ->when($excludeIds, fn ($q) => $q->whereNotIn('posts.id', $excludeIds))
             ->with(['author', 'categories', 'kecamatan']);
 
@@ -141,7 +141,7 @@ class PostRepository
     public function getTrendingExcludeHeadline(int $limit = 10): Collection
     {
         return $this->model->query()
-            ->published()
+            ->published()->withContent()
             ->excludeHeadline()
             ->with(['author', 'categories', 'kecamatan'])
             ->withCount('likes', 'comments')
@@ -168,7 +168,7 @@ class PostRepository
         }
 
         $candidates = $this->model->query()
-            ->published()
+            ->published()->withContent()
             ->where(function (Builder $where) use ($keywords) {
                 foreach ($keywords as $keyword) {
                     $like = '%'.Str::lower($keyword).'%';

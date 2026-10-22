@@ -9,7 +9,7 @@ class VideoArchiveController extends Controller
 {
     public function index()
     {
-        $videos = Post::published()
+        $videos = Post::published()->withContent()
             ->where('type', 'video')
             ->with(['author', 'categories'])
             ->withCount('likes', 'comments')
