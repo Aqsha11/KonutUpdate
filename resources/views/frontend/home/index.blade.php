@@ -1,11 +1,15 @@
 @extends('frontend.layouts.app')
 
-@section('title', ($site_settings['site_name'] ?? 'KonutUpdate') . ' - Berita Terpercaya Konawe Utara')
-
 @php
+    $homeTitle = trim((string) ($site_settings['meta_title'] ?? ''));
+    if ($homeTitle === '') {
+        $homeTitle = ($site_settings['site_name'] ?? 'KonutUpdate') . ' - Berita Terpercaya Konawe Utara';
+    }
+
     $homeDesc = $site_settings['meta_description'] ?? 'Portal berita terkini Konawe Utara - Informasi cepat dan terpercaya';
 @endphp
-@section('seo_title', $site_settings['site_name'] ?? 'KonutUpdate')
+@section('title', $homeTitle)
+@section('seo_title', $homeTitle)
 @section('seo_description', $homeDesc)
 @section('seo_type', 'website')
 @section('seo_image', !empty($site_settings['logo']) ? url(Storage::url($site_settings['logo'])) : url('/og-default.jpg'))

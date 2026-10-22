@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Role;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -47,6 +48,31 @@ class SeoMetaTest extends TestCase
         $this->assertStringContainsString('<meta property="og:site_name"', $head);
         $this->assertStringContainsString('<meta property="og:locale" content="id_ID"', $head);
         $this->assertStringContainsString('<meta name="twitter:card" content="summary_large_image"', $head);
+    }
+
+    public function test_homepage_uses_meta_title_setting_for_title_and_og_title(): void
+    {
+        Setting::updateOrCreate(
+            ['key' => 'meta_title'],
+            ['value' => 'KonutUpdate - Berita Konawe Utara Hari Ini']
+        );
+        clearSettingCache();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<title>KonutUpdate - Berita Konawe Utara Hari Ini</title>', false)
+            ->assertSee('<meta property="og:title" content="KonutUpdate - Berita Konawe Utara Hari Ini" />', false);
+    }
+
+    public function test_homepage_title_falls_back_when_meta_title_is_empty(): void
+    {
+        Setting::updateOrCreate(['key' => 'meta_title'], ['value' => '']);
+        clearSettingCache();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('<title>KonutUpdate - Berita Terpercaya Konawe Utara</title>', false)
+            ->assertSee('<meta property="og:title" content="KonutUpdate - Berita Terpercaya Konawe Utara" />', false);
     }
 
     public function test_archive_pages_have_no_duplicate_canonical_tags(): void

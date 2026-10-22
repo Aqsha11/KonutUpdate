@@ -7,7 +7,7 @@
     lengkap dan tidak pernah dobel.
 
     Nilai per halaman disuplai lewat section:
-      @section('seo_title')        judul untuk <title> & og:title
+      @section('seo_title')        judul untuk og:title & twitter:title (tag <title> memakai @section('title'))
       @section('seo_description')  deskripsi meta
       @section('seo_type')         og:type (website / article / video.other)
       @section('seo_robots')      (meta robots, default: max-image-preview:large, ...)
