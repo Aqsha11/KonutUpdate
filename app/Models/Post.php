@@ -134,6 +134,23 @@ class Post extends Model
     }
 
     /**
+     * Konten yang benar-benar punya isi. Artikel/opini wajib punya body;
+     * video tetap dianggap berisi bila memiliki video_path meskipun body kosong.
+     */
+    public function scopeWithContent(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->where(function (Builder $q2) {
+                $q2->whereNotNull('body')->whereRaw("TRIM(body) <> ''");
+            })->orWhere(function (Builder $q2) {
+                $q2->where('type', 'video')
+                    ->whereNotNull('video_path')
+                    ->where('video_path', '!=', '');
+            });
+        });
+    }
+
+    /**
      * Normalisasi judul untuk perbandingan kemiripan (duplikasi konten).
      */
     public static function normalizeTitle(string $title): string
@@ -323,6 +340,19 @@ class Post extends Model
     public function isDuplicate(): bool
     {
         return $this->duplicate_of_id !== null;
+    }
+
+    /**
+     * True bila konten punya isi yang layak diindeks. Video boleh tanpa body
+     * selama memiliki video_path.
+     */
+    public function hasContent(): bool
+    {
+        if (trim((string) $this->body) !== '') {
+            return true;
+        }
+
+        return $this->isVideo() && trim((string) $this->video_path) !== '';
     }
 
     public function getVideoUrlAttribute(): ?string

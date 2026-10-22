@@ -118,6 +118,34 @@ class SeoMetaTest extends TestCase
         $this->assertStringContainsString('<meta name="robots" content="noindex, follow"', $head);
     }
 
+    public function test_article_without_content_is_noindex(): void
+    {
+        $empty = Post::factory()->published()->create([
+            'title' => 'Artikel Kosong',
+            'slug' => 'artikel-kosong',
+            'body' => '',
+        ]);
+
+        $head = $this->headOf(route('posts.show', $empty->slug));
+
+        $this->assertStringContainsString('<meta name="robots" content="noindex, follow"', $head);
+    }
+
+    public function test_video_without_body_but_with_video_path_stays_indexable(): void
+    {
+        $video = Post::factory()->published()->create([
+            'title' => 'Video Valid',
+            'slug' => 'video-valid',
+            'type' => 'video',
+            'body' => '',
+            'video_path' => 'https://www.youtube.com/watch?v=abc123',
+        ]);
+
+        $head = $this->headOf(route('posts.show', $video->slug));
+
+        $this->assertStringNotContainsString('noindex', $head);
+    }
+
     public function test_search_and_account_pages_are_noindex(): void
     {
         $search = $this->headOf('/search?q=berita');

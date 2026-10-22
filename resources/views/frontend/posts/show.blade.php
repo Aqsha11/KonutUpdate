@@ -26,7 +26,7 @@
 @section('seo_image_alt', $post->image_alt)
 @section('seo_image_width', '1200')
 @section('seo_image_height', $post->thumbnail ? '675' : '630')
-@section('seo_robots', $post->isDuplicate() ? 'noindex, follow' : '')
+@section('seo_robots', ($post->isDuplicate() || ! $post->hasContent()) ? 'noindex, follow' : '')
 
 @push('seo_extra')
     @if($publishedAt)

@@ -75,6 +75,27 @@ class NewsSitemapTest extends TestCase
         $this->assertStringNotContainsString('<loc>'.route('posts.show', $duplicate->slug).'</loc>', $xml);
     }
 
+    public function test_news_sitemap_skips_articles_without_content(): void
+    {
+        $empty = Post::factory()->published()->create([
+            'title' => 'Berita Tanpa Isi',
+            'slug' => 'berita-tanpa-isi',
+            'body' => '',
+            'published_at' => now()->subHour(),
+        ]);
+
+        $valid = Post::factory()->published()->create([
+            'title' => 'Berita Berisi',
+            'slug' => 'berita-berisi',
+            'published_at' => now()->subHour(),
+        ]);
+
+        $xml = $this->get('/sitemap-news.xml')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('<loc>'.route('posts.show', $empty->slug).'</loc>', $xml);
+        $this->assertStringContainsString('<loc>'.route('posts.show', $valid->slug).'</loc>', $xml);
+    }
+
     public function test_conventional_news_sitemap_alias_serves_the_same_feed(): void
     {
         Post::factory()->published()->create([

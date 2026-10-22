@@ -117,4 +117,33 @@ class InternalLinkingTest extends TestCase
         $this->assertSame(1, substr_count($m[1] ?? '', 'href='), 'Card Baca juga harus memuat tepat satu tautan.');
         $this->assertStringContainsString(route('posts.show', $first->slug), $m[1]);
     }
+
+    public function test_empty_body_articles_are_not_used_for_related_links(): void
+    {
+        $category = Category::factory()->create();
+
+        $main = Post::factory()->published()->create([
+            'category_id' => $category->id,
+            ...$this->related(),
+        ]);
+        $main->categories()->attach($category->id);
+
+        $stub = Post::factory()->published()->create([
+            'category_id' => $category->id,
+            'body' => '',
+        ]);
+        $stub->categories()->attach($category->id);
+
+        $valid = Post::factory()->published()->create([
+            'category_id' => $category->id,
+            ...$this->related(),
+        ]);
+        $valid->categories()->attach($category->id);
+
+        $response = $this->get(route('posts.show', $main->slug));
+
+        $response->assertOk();
+        $response->assertDontSee(route('posts.show', $stub->slug));
+        $response->assertSee(route('posts.show', $valid->slug));
+    }
 }

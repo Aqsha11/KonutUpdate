@@ -67,6 +67,28 @@ class SitemapTest extends TestCase
         $this->assertStringNotContainsString('<loc>'.route('posts.show', $duplicate->slug).'</loc>', $xml);
     }
 
+    public function test_sitemap_skips_articles_without_content_but_keeps_videos(): void
+    {
+        $empty = Post::factory()->published()->create([
+            'title' => 'Artikel Tanpa Isi',
+            'slug' => 'artikel-tanpa-isi',
+            'body' => '',
+        ]);
+
+        $video = Post::factory()->published()->create([
+            'title' => 'Video Tanpa Body',
+            'slug' => 'video-tanpa-body',
+            'type' => 'video',
+            'body' => '',
+            'video_path' => 'https://www.youtube.com/watch?v=abc123',
+        ]);
+
+        $xml = $this->get('/sitemap.xml')->assertOk()->getContent();
+
+        $this->assertStringNotContainsString('<loc>'.route('posts.show', $empty->slug).'</loc>', $xml);
+        $this->assertStringContainsString('<loc>'.route('posts.show', $video->slug).'</loc>', $xml);
+    }
+
     public function test_sitemap_skips_draft_articles_and_unpublished_pages(): void
     {
         Post::factory()->create(['title' => 'Artikel Draft', 'slug' => 'artikel-draft', 'status' => 'draft']);

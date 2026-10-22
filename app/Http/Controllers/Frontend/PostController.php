@@ -38,6 +38,7 @@ class PostController extends Controller
         // Prioritas 1: artikel dari kecamatan yang sama (bila ada),
         // Prioritas 2: artikel satu kategori, prioritas 3: berita terbaru.
         $relatedPosts = Post::published()
+            ->withContent()
             ->with(['author', 'categories', 'kecamatan'])
             ->where('id', '!=', $post->id)
             ->where(function ($q) use ($categoryIds) {
@@ -53,6 +54,7 @@ class PostController extends Controller
         if ($relatedPosts->count() < 5) {
             $existingIds = $relatedPosts->pluck('id')->push($post->id)->toArray();
             $more = Post::published()
+                ->withContent()
                 ->with(['author', 'categories', 'kecamatan'])
                 ->whereNotIn('id', $existingIds)
                 ->orderByRaw('CASE WHEN kecamatan_id = ? THEN 0 ELSE 1 END', [$post->kecamatan_id])
@@ -63,12 +65,14 @@ class PostController extends Controller
         }
 
         $nextPost = Post::published()
+            ->withContent()
             ->where('published_at', '>', $post->published_at)
             ->orderBy('published_at')
             ->with('categories')
             ->first();
 
         $prevPost = Post::published()
+            ->withContent()
             ->where('published_at', '<', $post->published_at)
             ->orderByDesc('published_at')
             ->with('categories')

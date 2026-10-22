@@ -145,7 +145,7 @@ Route::get('/robots.txt', function () {
 })->name('robots');
 
 Route::get('/feed', function () {
-    $posts = Post::published()->with(['author', 'categories'])->latest()->take(20)->get();
+    $posts = Post::published()->withContent()->with(['author', 'categories'])->latest()->take(20)->get();
     $xml = view('frontend.rss.feed', compact('posts'))->render();
     $xml = preg_replace('/\n\s*\n/', "\n", trim($xml));
 
@@ -157,29 +157,30 @@ Route::get('/feed', function () {
 Route::get('/sitemap.xml', function () {
     $xml = Cache::remember('sitemap_xml', 3600, function () {
         // Artikel duplikat (duplicate_of_id) sengaja tidak dimasukkan.
-        $posts = Post::published()->notDuplicate()
+        $posts = Post::published()->notDuplicate()->withContent()
             ->orderByDesc('published_at')
             ->get(['slug', 'published_at', 'updated_at', 'content_updated_at']);
 
         // Kategori diambil lewat pivot post_categories (relasi category_id
         // lama tidak pernah diisi admin sehingga bisa kosong semua).
         $categories = Category::query()
-            ->whereHas('allPosts', fn ($q) => $q->published()->notDuplicate())
-            ->withMax(['allPosts' => fn ($q) => $q->published()->notDuplicate()], 'published_at')
+            ->whereHas('allPosts', fn ($q) => $q->published()->notDuplicate()->withContent())
+            ->withMax(['allPosts' => fn ($q) => $q->published()->notDuplicate()->withContent()], 'published_at')
             ->orderBy('name')
             ->get();
 
         $tags = Tag::query()
-            ->whereHas('posts', fn ($q) => $q->published()->notDuplicate())
-            ->withCount(['posts' => fn ($q) => $q->published()->notDuplicate()])
+            ->whereHas('posts', fn ($q) => $q->published()->notDuplicate()->withContent())
+            ->withCount(['posts' => fn ($q) => $q->published()->notDuplicate()->withContent()])
             ->orderByDesc('posts_count')
             ->get()
             ->filter(fn ($tag) => $tag->posts_count >= 2)
             ->values();
 
         $kecamatans = Kecamatan::query()
+            ->whereHas('posts', fn ($q) => $q->published()->notDuplicate()->withContent())
             ->ordered()
-            ->withMax(['posts' => fn ($q) => $q->published()->notDuplicate()], 'published_at')
+            ->withMax(['posts' => fn ($q) => $q->published()->notDuplicate()->withContent()], 'published_at')
             ->get();
 
         // Halaman statis tanpa URL ramah tetap perlu masuk sitemap.
@@ -203,7 +204,7 @@ Route::get('/sitemap.xml', function () {
 // itu konvensi yang paling umum dipakai tooling & publisher lain.
 $newsSitemap = function () {
     $xml = Cache::remember('sitemap_news_xml', 900, function () {
-        $posts = Post::published()->notDuplicate()
+        $posts = Post::published()->notDuplicate()->withContent()
             ->where('published_at', '>=', now()->subDays(2))
             ->with(['writer', 'categories'])
             ->orderByDesc('published_at')
