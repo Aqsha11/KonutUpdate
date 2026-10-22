@@ -32,7 +32,7 @@ class PageSeeder extends Seeder
                 'slug' => 'kontak',
                 'content' => '<h2>Hubungi Kami</h2>
 <p>Jika Anda memiliki pertanyaan, saran, atau ingin menghubungi redaksi, silakan gunakan formulir kontak di halaman ini atau hubungi kami melalui informasi di bawah ini.</p>
-<p>Email: redaksi@konutupdate.com</p>',
+<p>Email: konutupdate@gmail.com</p>',
                 'is_published' => true,
             ],
             [
@@ -80,40 +80,43 @@ class PageSeeder extends Seeder
                 'is_published' => true,
             ],
             [
-                'title' => 'Pasang Iklan',
-                'slug' => 'pasang-iklan',
-                'content' => '<h2>Pasang Iklan</h2>
-<p>Konut Update menawarkan berbagai pilihan ruang iklan untuk mempromosikan produk, layanan, atau brand Anda kepada ribuan pembaca kami di Konawe Utara dan sekitarnya.</p>
-<h3>Keunggulan Beriklan di Konut Update</h3>
-<ul>
-<li>Jangkauan pembaca yang luas dan tersegmentasi di wilayah Konawe Utara.</li>
-<li>Posisi iklan strategis: banner atas, sidebar, dan dalam artikel.</li>
-<li>Proses pemasangan cepat dan mudah.</li>
-<li>Harga kompetitif dengan pilihan paket fleksibel.</li>
-</ul>
-<h3>Hubungi Kami</h3>
-<p>Untuk informasi lebih lanjut mengenai harga dan ketersediaan slot iklan, silakan hubungi tim kami melalui email atau kontak yang tersedia.</p>',
-                'is_published' => true,
-            ],
-            [
                 'title' => 'Info Iklan',
                 'slug' => 'info-iklan',
-                'content' => '<h2>Info Iklan Kendariinfo</h2>
+                'content' => '<h2>Info Iklan Konut Update</h2>
 <p>Gunakan media kami yang kuat untuk mengirim umpan bisnis anda dengan benar. Kemudian melihat data secara tepat, bagaimana pengguna berinteraksi dengan iklan anda. Orang akan melihat lebih banyak produk berdasarkan minatnya.</p>
 <hr />
 <h3>Contact Person</h3>
-<p>082224444240</p>
+<p>0896-5382-2093</p>
 <h3>Rekening Perusahaan</h3>
-<p><strong>BCA. 7911082521</strong><br />PT Percaya Karya Pemuda</p>
-<p><strong>Bank Sultra. 101 01.04.100829-8</strong><br />PT Percaya Karya Pemuda</p>
+<p><strong>Bank Mandiri</strong><br />PT. Sultra Media Nusantara</p>
 <h3>Email</h3>
-<p><a href="mailto:Kendariinfo2017@gmail.com">Kendariinfo2017@gmail.com</a></p>',
+<p><a href="mailto:konutupdate@gmail.com">konutupdate@gmail.com</a></p>',
                 'is_published' => true,
             ],
         ];
 
-        foreach ($pages as $page) {
-            Page::updateOrCreate(['slug' => $page['slug']], $page);
+        foreach ($pages as $attributes) {
+            // Jangan menimpa halaman yang sudah diedit redaksi. Seeder hanya
+            // menjadi konten default untuk halaman yang belum ada.
+            $page = Page::firstOrCreate(
+                ['slug' => $attributes['slug']],
+                $attributes,
+            );
+
+            // Halaman lama dari periode Kendariinfo diperbarui sekali tanpa
+            // menyentuh konten yang sudah benar.
+            if ($attributes['slug'] === 'info-iklan' && $this->isLegacyInfoIklan($page->content)) {
+                $page->update(['content' => $attributes['content']]);
+            }
         }
+    }
+
+    private function isLegacyInfoIklan(?string $content): bool
+    {
+        $content = (string) $content;
+
+        return str_contains($content, 'Kendariinfo')
+            || str_contains($content, 'PT Percaya Karya Pemuda')
+            || str_contains($content, '082224444240');
     }
 }
