@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAdRequest;
 use App\Http\Requests\UpdateAdRequest;
 use App\Models\Ad;
+use App\Services\AdImageService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class AdController extends Controller
 {
+    public function __construct(private readonly AdImageService $adImages) {}
+
     public function index()
     {
         $ads = Ad::latest()->paginate(15);
@@ -29,7 +32,7 @@ class AdController extends Controller
 
         if ($request->hasFile('image')) {
             $data['title'] = pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME);
-            $data['image'] = $request->file('image')->store('ads', 'public');
+            $data['image'] = $this->adImages->storeUploadedFile($request->file('image'));
         }
 
         Ad::create($data);
@@ -47,16 +50,18 @@ class AdController extends Controller
     public function update(UpdateAdRequest $request, Ad $ad)
     {
         $data = $request->validated();
+        $oldImage = $ad->image;
 
         if ($request->hasFile('image')) {
-            if ($ad->image) {
-                Storage::disk('public')->delete($ad->image);
-            }
             $data['title'] = pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME);
-            $data['image'] = $request->file('image')->store('ads', 'public');
+            $data['image'] = $this->adImages->storeUploadedFile($request->file('image'));
         }
 
         $ad->update($data);
+
+        if ($oldImage && isset($data['image']) && $oldImage !== $data['image']) {
+            Storage::disk('public')->delete($oldImage);
+        }
 
         Cache::forget('frontend_ads');
 
