@@ -235,6 +235,14 @@
                         @enderror
                     </div>
                     <div class="form-group">
+                        <label for="google_analytics_id" class="form-label">Google Analytics 4 Measurement ID</label>
+                        <input type="text" name="google_analytics_id" id="google_analytics_id" class="form-control @error('google_analytics_id') is-invalid @enderror" placeholder="G-XXXXXXXXXX" value="{{ old('google_analytics_id', $settings->google_analytics_id ?? '') }}">
+                        <small class="text-muted">Opsional. Isi Measurement ID GA4 (format G-...). Kosongkan jika tidak memakai analytics.</small>
+                        @error('google_analytics_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
                         <label for="google_site_verification" class="form-label">Google Search Console Verification</label>
                         <input type="text" name="google_site_verification" id="google_site_verification" class="form-control @error('google_site_verification') is-invalid @enderror" placeholder="kode verifikasi, mis: AbC123..._-xyz" value="{{ old('google_site_verification', $settings->google_site_verification ?? '') }}">
                         <small class="text-muted">Tempel hanya KODE-nya (bukan tag lengkap) dari Google Search Console — metode "HTML tag". Meta verifikasi akan otomatis ditambahkan ke semua halaman.</small>

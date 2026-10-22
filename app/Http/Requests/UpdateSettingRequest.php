@@ -32,6 +32,7 @@ class UpdateSettingRequest extends FormRequest
             'primary_color' => 'nullable|string|max:7|regex:/^#[0-9A-Fa-f]{6}$/',
             'accent_color' => 'nullable|string|max:7|regex:/^#[0-9A-Fa-f]{6}$/',
             'google_site_verification' => 'nullable|string|max:255',
+            'google_analytics_id' => 'nullable|string|max:32|regex:/^G-[A-Z0-9]+$/i',
         ];
     }
 
@@ -49,6 +50,7 @@ class UpdateSettingRequest extends FormRequest
             'meta_title' => 'Meta Title',
             'meta_description' => 'Meta Description',
             'meta_keywords' => 'Meta Keywords',
+            'google_analytics_id' => 'Google Analytics ID',
             'primary_color' => 'Warna Utama',
             'accent_color' => 'Warna Aksen',
         ];

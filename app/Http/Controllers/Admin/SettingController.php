@@ -23,10 +23,18 @@ class SettingController extends Controller
             'site_name', 'tagline', 'email', 'phone', 'address',
             'facebook', 'instagram', 'tiktok', 'youtube', 'whatsapp',
             'logo', 'favicon', 'meta_title', 'meta_description', 'meta_keywords',
-            'primary_color', 'accent_color', 'google_site_verification',
+            'primary_color', 'accent_color', 'google_site_verification', 'google_analytics_id',
         ];
 
         foreach ($validKeys as $key) {
+            if ($key === 'google_analytics_id') {
+                if ($request->has($key)) {
+                    Setting::updateOrCreate(['key' => $key], ['value' => (string) $request->input($key, '')]);
+                }
+
+                continue;
+            }
+
             if ($key === 'logo' && $request->hasFile('logo')) {
                 $oldLogo = Setting::where('key', 'logo')->value('value');
                 if ($oldLogo) {

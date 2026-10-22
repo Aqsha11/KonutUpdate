@@ -45,11 +45,11 @@ class SecurityHeaders
 
         return implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com".$devSources,
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://www.googletagmanager.com".$devSources,
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com".$devSources,
             "font-src 'self' data: https://fonts.gstatic.com".$devSources,
             "img-src 'self' data: blob: https:",
-            "connect-src 'self' https://challenges.cloudflare.com https://api.open-meteo.com".$devSources,
+            "connect-src 'self' https://challenges.cloudflare.com https://api.open-meteo.com https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com".$devSources,
             "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com https://www.tiktok.com https://challenges.cloudflare.com",
             "object-src 'none'",
             "base-uri 'self'",
