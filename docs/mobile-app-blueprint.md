@@ -102,7 +102,8 @@ Notifikasi dibuka lewat ikon lonceng di header, bukan tab tersendiri. Ini mengur
 - Header: logo KonutUpdate, tombol cari, tombol notifikasi.
 - Banner breaking news jika ada.
 - Hero headline: satu berita utama dengan gambar besar.
-- Tab: `Terbaru`, `Trending`, `Opini`.
+- Tab: `Terbaru`, `Trending`, `Opini`, `Pilihan`.
+  - `Terbaru` = berita terbaru non-opini; `Trending` = urut jumlah dibaca; `Opini` = kiriman opini; `Pilihan` = konten `is_featured` yang belum kedaluwarsa (14 hari).
   - `Untuk Anda` tidak dipakai dulu karena belum ada sistem rekomendasi; label itu berpotensi membingungkan.
 - Kartu feed:
   - avatar/sumber + nama redaksi + waktu;
@@ -223,6 +224,10 @@ Format: JSON
 | Method | Endpoint | Keterangan |
 |---|---|---|
 | GET | `/home` | headline, trending, terbaru, breaking, opini |
+| GET | `/latest` | feed tab Terbaru (tanpa opini), paginasi |
+| GET | `/trending` | feed tab Trending (urut `views_count`), paginasi |
+| GET | `/opini` | feed tab Opini, paginasi |
+| GET | `/featured` | feed tab Pilihan (`is_featured` aktif), paginasi |
 | GET | `/posts` | daftar berita, filter kategori/kecamatan/tag |
 | GET | `/posts/{slug}` | detail artikel |
 | GET | `/categories` | daftar kategori |

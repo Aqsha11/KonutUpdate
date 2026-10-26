@@ -70,6 +70,30 @@ class ApiV1Test extends TestCase
         $this->assertEqualsCanonicalizing($expected->all(), $slugs->all());
     }
 
+    public function test_home_tab_feeds_are_separated(): void
+    {
+        $this->seed();
+
+        $latest = $this->getJson('/api/v1/latest?per_page=50')->assertOk()->json('data');
+        $this->assertNotEmpty($latest);
+        $this->assertNotContains('opini', array_column($latest, 'type'));
+
+        $opini = $this->getJson('/api/v1/opini?per_page=50')->assertOk()->json('data');
+        $this->assertNotEmpty($opini);
+        $this->assertSame(['opini'], array_values(array_unique(array_column($opini, 'type'))));
+
+        $featured = $this->getJson('/api/v1/featured?per_page=50')->assertOk()->json('data');
+        $this->assertNotEmpty($featured);
+        $this->assertSame([true], array_values(array_unique(array_column($featured, 'is_featured'))));
+
+        $trending = $this->getJson('/api/v1/trending?per_page=50')->assertOk()->json('data');
+        $this->assertNotEmpty($trending);
+        $views = array_column($trending, 'views_count');
+        $sorted = $views;
+        rsort($sorted);
+        $this->assertSame($sorted, $views);
+    }
+
     public function test_other_public_endpoints_respond(): void
     {
         $this->seed();
