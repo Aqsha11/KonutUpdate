@@ -216,8 +216,10 @@ Splash
 ## 6. Kontrak API
 
 Base URL: `/api/v1`
-Auth: `Authorization: Bearer <token>`
+Auth: `Authorization: Bearer <token>` (belum diimplementasikan — API saat ini publik/read-only)
 Format: JSON
+
+**Kontrak lengkap, termasuk aturan bisnis yang harus ditiru aplikasi: `docs/api-mobile-kontrak.md`.**
 
 ### Publik
 

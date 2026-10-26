@@ -94,6 +94,43 @@ class ApiV1Test extends TestCase
         $this->assertSame($sorted, $views);
     }
 
+    public function test_expired_flags_are_reported_as_inactive(): void
+    {
+        $this->seed();
+
+        $recent = Post::factory()->published()->create([
+            'title' => 'Uji Kadaluarsa Breaking',
+            'is_breaking' => true,
+            'breaking_expires_at' => now()->subDay(),
+            'is_headline' => true,
+            'headline_expires_at' => now()->subDay(),
+        ]);
+
+        $old = Post::factory()->published()->create([
+            'title' => 'Uji Kadaluarsa Pilihan',
+            'is_featured' => true,
+            'published_at' => now()->subDays(30),
+        ]);
+
+        $recentRow = collect($this->getJson('/api/v1/latest?per_page=50')->json('data'))
+            ->firstWhere('slug', $recent->slug);
+
+        $this->assertNotNull($recentRow);
+        $this->assertFalse($recentRow['is_breaking']);
+        $this->assertFalse($recentRow['is_headline']);
+
+        $oldRow = collect($this->getJson('/api/v1/search?q=Kadaluarsa%20Pilihan')->json('data'))
+            ->firstWhere('slug', $old->slug);
+
+        $this->assertNotNull($oldRow);
+        $this->assertFalse($oldRow['is_featured']);
+
+        $this->assertNotContains(
+            $old->slug,
+            collect($this->getJson('/api/v1/featured?per_page=50')->json('data'))->pluck('slug')
+        );
+    }
+
     public function test_other_public_endpoints_respond(): void
     {
         $this->seed();

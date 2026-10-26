@@ -9,7 +9,7 @@
 | Command | Notes |
 |---|---|
 | `composer dev` | `artisan serve` + `queue:listen --tries=1` + `pail` + `npm run dev`. **The queue worker is mandatory** — `RecordViewJob` runs on the `database` queue, so `views_count` never moves without it. |
-| `composer test` | `artisan config:clear` + `artisan test`. Currently 187 tests, ~31s, fully offline (`:memory:` SQLite, `QUEUE_CONNECTION=sync`). |
+| `composer test` | `artisan config:clear` + `artisan test`. Currently 188 tests, ~32s, fully offline (`:memory:` SQLite, `QUEUE_CONNECTION=sync`). |
 | `php artisan test --filter=PostExpiryTest` | Single test / class. Also `--testsuite=Unit`. |
 | `vendor/bin/pint` | Style. **No `pint.json`** — Pint defaults. No lint/typecheck step otherwise; no CI (`.github/` does not exist), so run `pint` + `composer test` yourself. |
 | `composer setup` | `composer install` → `.env` copy → `key:generate` → `migrate` → `npm install` → `npm run build`. |
@@ -99,6 +99,7 @@
 - `docs/audit-seo.md` — hasil audit SEO + perbaikan (per temuan, status, angka query sebelum/sesudah, blocker deploy).
 - `docs/google-news-checklist.md` — checklist kesiapan Google News (teknis + redaksi + langkah Search Console). **Tidak ada klaim pasti lolos** — status indeksasi hanya bisa dikonfirmasi lewat GSC.
 - `docs/ai-panduan.md` — cara kerja Tanya Berita AI, sumber kebenaran (panduan + artikel), konfigurasi Gemini, dan cara memperbarui panduan.
+- `docs/api-mobile-kontrak.md` — **kontrak API `/api/v1` untuk aplikasi mobile**: endpoint, bentuk JSON, paginasi, dan aturan bisnis yang harus ditiru aplikasi (headline 7 hari, pilihan 14 hari, opini pending, views tidak bertambah dari API, kategori pivot, dll). Perbarui setiap kali `routes/api.php` atau `app/Http/Resources/*` berubah.
 
 ## Ops
 

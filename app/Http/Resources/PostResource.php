@@ -60,9 +60,11 @@ class PostResource extends JsonResource
             'views_count' => (int) ($this->views_count ?? 0),
             'likes_count' => isset($this->likes_count) ? (int) $this->likes_count : 0,
             'comments_count' => isset($this->comments_count) ? (int) $this->comments_count : 0,
-            'is_breaking' => (bool) $this->is_breaking,
-            'is_headline' => (bool) $this->is_headline,
-            'is_featured' => (bool) $this->is_featured,
+            'is_breaking' => (bool) $this->is_breaking
+                && (! $this->breaking_expires_at || $this->breaking_expires_at->isFuture()),
+            'is_headline' => (bool) $this->is_headline
+                && (! $this->headline_expires_at || $this->headline_expires_at->isFuture()),
+            'is_featured' => $this->isFeaturedActive(),
             'related' => $this->relationLoaded('related')
                 ? PostSummaryResource::collection($this->related)->resolve()
                 : [],

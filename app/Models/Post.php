@@ -151,6 +151,17 @@ class Post extends Model
     }
 
     /**
+     * Konten Pilihan yang masih berlaku: flag menyala dan published_at
+     * belum lewat 14 hari (sama dengan scopeFeatured).
+     */
+    public function isFeaturedActive(): bool
+    {
+        return (bool) $this->is_featured
+            && $this->published_at
+            && $this->published_at->gte(now()->subDays(self::FEATURED_EXPIRE_DAYS));
+    }
+
+    /**
      * Normalisasi judul untuk perbandingan kemiripan (duplikasi konten).
      */
     public static function normalizeTitle(string $title): string
